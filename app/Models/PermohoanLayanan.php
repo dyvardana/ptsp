@@ -21,7 +21,8 @@ class PermohoanLayanan extends Model
     'keterangan_tambahan',
     'tanggal_pengajuan',
     'status',
-    'file_lampiran'
+    'file_lampiran',
+    'id_users'
 ];
 public function tiket()
 {

@@ -8,7 +8,7 @@ export default function Dashboard(props) {
         <AuthenticatedLayout
            
         >
-            <Head title="Dashboard" />
+            <Head title={props.title}/>
             
             <TableLayanan data={props.data}/>
         </AuthenticatedLayout>

@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 
 Route::get('/', function () {
-    return Inertia::render('Homepage');
+    return Inertia::render('Homepage',[
+        'title' => 'PTSP IMK'
+    ]);
 })->name('beranda');
 // Route::get('/homepage', function () {
 //     return Inertia::render('Homepage');
@@ -27,7 +29,7 @@ Route::get('/layanan/mahasiswa', [LayananController::class, 'getLayananMahasiswa
 Route::post('/permohonan-layanan',[PermohoanLayananController::class, 'store'])->name('permohonanlayanan');
 //Route::get('/lihatPengajuan',[PermohoanLayananController::class, 'index'])->name('lihatpengajuan');
 Route::get('/dashboard', [PermohoanLayananController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
-
+Route::post('/tolak', [PermohoanLayananController::class,'tolak'])->middleware(['auth','verified'])->name('tolak');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -1,13 +1,20 @@
+import { Inertia } from '@inertiajs/inertia';
 import { useState, useMemo } from 'react';
-
-export default function TableLayanan(props) {
-  console.log(props);
-  const dummyData = props.data;
+import { usePage } from '@inertiajs/react';
+export default function TableLayanan({ data }) {
+  const dummyData = data;
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [selectedItem, setSelectedItem] = useState(null); // ⬅️ Untuk modal
-  const [showModal, setShowModal] = useState(false); // ⬅️ Untuk toggle modal
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showTolakModal, setShowTolakModal] = useState(false);
+  const [alasanTolak, setAlasanTolak] = useState('');
+  const [idTolak, setIdTolak] = useState('');
+  const [email, setEmail] = useState('');
+  const [noTiket, setNoTiket]=useState('');
   const itemsPerPage = 10;
+  const user = usePage().props.auth.user;
+
 
   const filteredData = useMemo(() => {
     return dummyData.filter(item =>
@@ -15,7 +22,7 @@ export default function TableLayanan(props) {
         val?.toString().toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [search]);
+  }, [search, dummyData]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (page - 1) * itemsPerPage;
@@ -32,6 +39,23 @@ export default function TableLayanan(props) {
   const closeModal = () => {
     setSelectedItem(null);
     setShowModal(false);
+    setShowTolakModal(false);
+    setAlasanTolak('');
+  };
+
+  const handleTolak = () => {
+    console.log('Ditolak dengan alasan:', idTolak);
+    // Kirim ke backend jika perlu
+    
+    Inertia.post(route('tolak',{id:idTolak,email:email,keterangan_tiket:alasanTolak,idUser:user.id,no_tiket:noTiket}));
+    console.log(noTiket);
+    closeModal();
+  };
+
+  const handleTerima = () => {
+    console.log('Diterima:', idTolak);
+    // Kirim ke backend jika perlu
+    closeModal();
   };
 
   return (
@@ -73,13 +97,23 @@ export default function TableLayanan(props) {
                   <td>{item.identitas_pengguna}</td>
                   <td>{item.nama_pemohon}</td>
                   <td>{item.kategori_pengguna}</td>
-                  <td>{item.id_layanan}</td>
+                  <td>{item.nama_layanan}</td>
                   <td>{item.tanggal_pengajuan}</td>
-                  <td>{item.status}</td>
+                  <td>
+                     <span className={
+                      item.status === 'menunggu' ? 'badge-xs badge badge-neutral' :
+        item.status === 'diproses' ? 'badge-xs badge badge-warning' :
+        item.status === 'selesai' ? 'badge-xs badge badge-success' :
+        item.status === 'ditolak' ? 'badge-xs badge badge-error' :
+        'badge'
+      }>
+        {item.status}
+      </span>
+                  </td>
                   <td>
                     <button
                       className="btn btn-accent btn-sm"
-                      onClick={() => openModal(item)}
+                      onClick={() => {openModal(item); {setIdTolak(item.id)}}}
                     >
                       Lihat
                     </button>
@@ -124,51 +158,78 @@ export default function TableLayanan(props) {
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* MODAL DETAIL */}
       {showModal && selectedItem && (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex gap-4">
-      {/* Preview PDF di kiri */}
-      <div className="w-1/2 h-[500px] border rounded overflow-hidden">
-        {selectedItem.file_lampiran ? (
-          <iframe
-            src={`/${selectedItem.file_lampiran}`}
-            className="w-full h-full"
-            title="Preview PDF"
-          ></iframe>
-        ) : (
-          <div className="text-center p-4">Tidak ada file yang diunggah.</div>
-        )}
-      </div>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex gap-4">
+            {/* Kiri: File */}
+            <div className="w-1/2 h-[500px] border rounded overflow-hidden">
+              {selectedItem.file_lampiran ? (
+                <iframe
+                  src={`/${selectedItem.file_lampiran}`}
+                  className="w-full h-full"
+                  title="Preview PDF"
+                ></iframe>
+              ) : (
+                <div className="text-center p-4">Tidak ada file yang diunggah.</div>
+              )}
+            </div>
 
-      {/* Detail Pengajuan di kanan */}
-      <div className="w-1/2 overflow-y-auto max-h-[500px]">
-        <h3 className="text-lg font-bold mb-4">Detail Pengajuan</h3>
-        <ul className="text-sm space-y-1">
-          <li><strong>No Tiket:</strong> {selectedItem.tiket.no_tiket}</li>
-          <li><strong>Nama:</strong> {selectedItem.nama_pemohon}</li>
-          <li><strong>NIK/NIM:</strong> {selectedItem.identitas_pengguna}</li>
-          <li><strong>Email:</strong> {selectedItem.email}</li>
-          <li><strong>No HP:</strong> {selectedItem.no_hp}</li>
-          <li><strong>Alamat:</strong> {selectedItem.alamat}</li>
-          <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
-          <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
-          <li><strong>Kategori:</strong> {selectedItem.kategori_pengguna}</li>
-          <li><strong>Layanan:</strong> {selectedItem.id_layanan}</li>
-          <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
-          <li><strong>Status:</strong> {selectedItem.status}</li>
-        </ul>
-        <div className="mt-4 text-right">
-             <button className="btn  btn-secondary" >Tolak</button> 
-              <button className="btn  btn-success" >Terima</button> 
-          <button className="btn " onClick={closeModal}>Tutup</button>
-       
+            {/* Kanan: Detail */}
+            <div className="w-1/2 overflow-y-auto max-h-[500px]">
+              <h3 className="text-lg font-bold mb-4">Detail Pengajuan</h3>
+              <ul className="text-sm space-y-1">
+                <li><strong>No Tiket:</strong> {selectedItem.no_tiket ?? 'Belum ada tiket'}</li>
+                <li><strong>Nama:</strong> {selectedItem.nama_pemohon}</li>
+                <li><strong>NIK/NIM:</strong> {selectedItem.identitas_pengguna}</li>
+                <li><strong>Email:</strong> {selectedItem.email}</li>
+                <li><strong>No HP:</strong> {selectedItem.no_hp}</li>
+                <li><strong>Alamat:</strong> {selectedItem.alamat}</li>
+                 <li><strong>Kategori:</strong> {selectedItem.kategori_pengguna}</li>
+                 <li><strong>Layanan:</strong> {selectedItem.nama_layanan}</li>
+                <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
+                <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
+                <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
+                <li><strong>Status:</strong> {selectedItem.status}</li>
+              </ul>
+             
+              <div className="mt-6 flex justify-end gap-2">
+                {selectedItem.status==="ditolak" || selectedItem.status==="diproses" || selectedItem.status==="selesai" ? (
+                  <button className="btn" onClick={()=>{closeModal(); setIdTolak('')}}>Tutup</button>
+                ) : (
+                  <>
+                <button className="btn btn-secondary" onClick={() => {setShowTolakModal(true); setEmail(selectedItem.email);setNoTiket(selectedItem.no_tiket)}}>Tolak</button>
+                <button className="btn btn-success" onClick={()=>{handleTerima()}}>Terima</button>
+                <button className="btn" onClick={()=>{closeModal(); setIdTolak('')}}>Tutup</button>
+               </> )
+                }
+                
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
+      {/* MODAL ALASAN TOLAK */}
+      {showTolakModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white text-black p-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Alasan Penolakan</h2>
+            <textarea
+              className="textarea text-white textarea-bordered w-full mb-4"
+              rows="4"
+              placeholder="Tuliskan alasan penolakan..."
+              value={alasanTolak}
+              onChange={(e) => setAlasanTolak(e.target.value)}
+            ></textarea>
+            <div className="flex justify-end gap-2">
+              <button className="btn" onClick={() => setShowTolakModal(false)}>Batal</button>
+              <button className="btn btn-error" onClick={()=> {handleTolak()}}>Kirim</button>
+              
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

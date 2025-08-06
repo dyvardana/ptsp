@@ -7,8 +7,9 @@ use App\Models\Tiket;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Mail\PermohonanTerkirim;
+use App\Mail\PermohonanTertolak;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\DB;
 
 
 class PermohoanLayananController extends Controller
@@ -19,11 +20,32 @@ class PermohoanLayananController extends Controller
     public function index()
     {
         //
-        $data = PermohoanLayanan::with('tiket')->get();
+      $data = DB::table('permohonan_layanans')
+    ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
+    ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+    ->select(
+        'permohonan_layanans.id',
+        'permohonan_layanans.id_layanan',
+        'permohonan_layanans.identitas_pengguna',
+        'permohonan_layanans.nama_pemohon',
+        'permohonan_layanans.email',
+        'permohonan_layanans.no_hp',
+        'permohonan_layanans.alamat',
+        'permohonan_layanans.kategori_pengguna',
+        'permohonan_layanans.judul_layanan',
+        'permohonan_layanans.keterangan_tambahan',
+        'permohonan_layanans.tanggal_pengajuan',
+        'permohonan_layanans.status',
+        'permohonan_layanans.file_lampiran',
+        'layanans.nama_layanan',
+        'tikets.no_tiket'
+    )
+    ->get();
 
-    return Inertia::render('Dashboard', [
-        'data' => $data
-    ]);
+return Inertia::render('Dashboard', [
+    'title' => 'Dashboard - PTSP',
+    'data' => $data
+]);
     }
 
     /**
@@ -126,6 +148,29 @@ class PermohoanLayananController extends Controller
     public function destroy(PermohoanLayanan $permohoanLayanan)
     {
         //
+    }
+    public function tolak(Request $request)
+    {
+        //
+       $data =[
+        'status'=> 'ditolak',
+        'id_users'=>$request->idUser,
+        'updated_at' => now(),
+       ];
+       $tiket =[
+        'keterangan_tiket'=>$request->keterangan_tiket,
+        'updated_at' => now(),
+       ];
+
+       PermohoanLayanan::where('id',$request->id)->update($data);
+       Tiket::where('id_permohonan_layanan',$request->id)->update($tiket);
+     //  dd($request);
+        $permohonan = PermohoanLayanan::find($request->id);
+        $tiketing = Tiket::where('no_tiket', $request->no_tiket)->first();
+        
+       // dd($tiketing);
+       Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
+       //return to_route('dashboard')->with('message', 'Data berhasil diupdate');
     }
     function generateNoTiket()
 {

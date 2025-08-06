@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 import MiniNavbar from './MiniNavbar';
 import Footer from './Footer';
 
-export default function Homepage() {
+export default function Homepage(props) {
   return (
     <div
       data-theme="light"
@@ -16,6 +16,7 @@ export default function Homepage() {
         backgroundPosition: 'center',
       }}
     >
+      <Head title={props.title} /> 
       {/* Navbar tetap */}
       <div className="fixed top-0 left-0 w-full z-50">
         <MiniNavbar />
