@@ -3,8 +3,11 @@ import Navbar from './Navbar';
 import { Head, Link } from '@inertiajs/react';
 import MiniNavbar from './MiniNavbar';
 import Footer from './Footer';
+import { useState } from 'react';
 
 export default function Homepage(props) {
+    const [showCekForm, setShowCekForm] = useState(false);
+  const [noTiket, setNoTiket] = useState('');
   return (
     <div
       data-theme="light"
@@ -35,6 +38,7 @@ export default function Homepage(props) {
 
           {/* Tombol sejajar */}
           <div className="flex gap-4 flex-wrap justify-center mb-4">
+            
             <div className="dropdown dropdown-bottom">
               <div tabIndex={0} role="button" className="btn btn-outline btn-primary px-6 py-3 rounded-xl text-lg transition duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4 mr-2">
@@ -50,7 +54,11 @@ export default function Homepage(props) {
               </ul>
             </div>
 
-            <button className="btn btn-outline btn-secondary px-6 py-3 rounded-xl text-lg transition duration-300">
+           <button
+  className="btn btn-outline btn-secondary px-6 py-3 rounded-xl text-lg transition duration-300"
+  onClick={() => setShowCekForm(!showCekForm)}
+>
+
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
   <path d="M6.25 8.75v-1h-1a.75.75 0 0 1 0-1.5h1v-1a.75.75 0 0 1 1.5 0v1h1a.75.75 0 0 1 0 1.5h-1v1a.75.75 0 0 1-1.5 0Z" />
   <path fillRule="evenodd" d="M7 12c1.11 0 2.136-.362 2.965-.974l2.755 2.754a.75.75 0 1 0 1.06-1.06l-2.754-2.755A5 5 0 1 0 7 12Zm0-1.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" clipRule="evenodd" />
@@ -59,6 +67,31 @@ export default function Homepage(props) {
              <span> Cek Pengajuan</span>
             </button>
           </div>
+          {showCekForm && (
+  <div className="mt-4 w-full max-w-md mx-auto">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        // Ganti route('cek-tiket') ke route yang sesuai di Laravel
+        window.location.href = route('cek-tiket', { tiket: noTiket });
+      }}
+      className="flex gap-2 items-center"
+    >
+      <input
+        type="text"
+        className="input input-bordered w-full"
+        placeholder="Masukkan Nomor Tiket"
+        value={noTiket}
+        onChange={(e) => setNoTiket(e.target.value)}
+        required
+      />
+      <button type="submit" className="btn btn-primary">
+        Cari
+      </button>
+    </form>
+  </div>
+)}
+
         </div>
       </div>
 

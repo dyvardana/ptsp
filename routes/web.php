@@ -30,6 +30,7 @@ Route::post('/permohonan-layanan',[PermohoanLayananController::class, 'store'])-
 //Route::get('/lihatPengajuan',[PermohoanLayananController::class, 'index'])->name('lihatpengajuan');
 Route::get('/dashboard', [PermohoanLayananController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 Route::post('/tolak', [PermohoanLayananController::class,'tolak'])->middleware(['auth','verified'])->name('tolak');
+Route::post('/terima', [PermohoanLayananController::class,'terima'])->middleware(['auth','verified'])->name('terima');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

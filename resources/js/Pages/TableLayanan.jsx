@@ -1,7 +1,14 @@
 import { Inertia } from '@inertiajs/inertia';
 import { useState, useMemo } from 'react';
 import { usePage } from '@inertiajs/react';
+import {
+  Clock,Eye,
+  Loader2,
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
 export default function TableLayanan({ data }) {
+  console.log('ini data :',data);
   const dummyData = data;
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -14,6 +21,9 @@ export default function TableLayanan({ data }) {
   const [noTiket, setNoTiket]=useState('');
   const itemsPerPage = 10;
   const user = usePage().props.auth.user;
+const [showKirimModal, setShowKirimModal] = useState(false);
+const [fileKirim, setFileKirim] = useState(null);
+const [catatanKirim, setCatatanKirim] = useState('');
 
 
   const filteredData = useMemo(() => {
@@ -34,6 +44,7 @@ export default function TableLayanan({ data }) {
   const openModal = (item) => {
     setSelectedItem(item);
     setShowModal(true);
+    //console.log("item ini :",item);
   };
 
   const closeModal = () => {
@@ -55,8 +66,32 @@ export default function TableLayanan({ data }) {
   const handleTerima = () => {
     console.log('Diterima:', idTolak);
     // Kirim ke backend jika perlu
+    Inertia.post(route('terima',{id:idTolak,idUser:user.id,no_tiket:noTiket}));
     closeModal();
   };
+const handleKirimBerkas = () => {
+  if (!fileKirim) {
+    alert("Silakan unggah file terlebih dahulu.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file_lampiran", fileKirim);
+  formData.append("catatan", catatanKirim);
+  formData.append("id", idTolak); // ID permohonan
+  formData.append("idUser", user.id);
+  formData.append("no_tiket", noTiket);
+
+  Inertia.post(route("kirim-berkas"), formData, {
+    forceFormData: true,
+    onSuccess: () => {
+      setShowKirimModal(false);
+      setFileKirim(null);
+      setCatatanKirim('');
+      closeModal();
+    }
+  });
+};
 
   return (
     <>
@@ -81,7 +116,7 @@ export default function TableLayanan({ data }) {
             <thead>
               <tr>
                 <th>No</th>
-                <th>Identitas</th>
+                <th>Tiket</th>
                 <th>Nama</th>
                 <th>Kategori</th>
                 <th>Layanan</th>
@@ -94,28 +129,32 @@ export default function TableLayanan({ data }) {
               {paginatedData.map((item, index) => (
                 <tr key={item.id}>
                   <td>{(page - 1) * itemsPerPage + index + 1}</td>
-                  <td>{item.identitas_pengguna}</td>
+                  <td>{item.no_tiket}</td>
                   <td>{item.nama_pemohon}</td>
                   <td>{item.kategori_pengguna}</td>
                   <td>{item.nama_layanan}</td>
                   <td>{item.tanggal_pengajuan}</td>
                   <td>
-                     <span className={
-                      item.status === 'menunggu' ? 'badge-xs badge badge-neutral' :
-        item.status === 'diproses' ? 'badge-xs badge badge-warning' :
-        item.status === 'selesai' ? 'badge-xs badge badge-success' :
-        item.status === 'ditolak' ? 'badge-xs badge badge-error' :
-        'badge'
-      }>
-        {item.status}
-      </span>
+                    <span className={
+                      item.status === 'menunggu' ? 'badge-xs badge badge-neutral flex items-center gap-1' :
+                      item.status === 'diproses' ? 'badge-xs badge badge-warning flex items-center gap-1' :
+                      item.status === 'selesai' ? 'badge-xs badge badge-success flex items-center gap-1' :
+                      item.status === 'ditolak' ? 'badge-xs badge badge-error flex items-center gap-1' :
+                      'badge'
+                    }>
+                      {item.status === 'menunggu' && <Clock size={14} />}
+                      {item.status === 'diproses' && <Loader2 size={14} className="animate-spin" />}
+                      {item.status === 'selesai' && <CheckCircle size={14} />}
+                      {item.status === 'ditolak' && <XCircle size={14} />}
+                      <span className="capitalize">{item.status}</span>
+                    </span>
                   </td>
                   <td>
                     <button
-                      className="btn btn-accent btn-sm"
-                      onClick={() => {openModal(item); {setIdTolak(item.id)}}}
-                    >
-                      Lihat
+                      className="btn btn-xs btn-accent "
+                      onClick={() => {openModal(item); {setIdTolak(item.id);setEmail(item.email);setNoTiket(item.no_tiket)}}}
+                    > <Eye/>
+                      Detail
                     </button>
                   </td>
                 </tr>
@@ -191,18 +230,57 @@ export default function TableLayanan({ data }) {
                 <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
                 <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
                 <li><strong>Status:</strong> {selectedItem.status}</li>
+                {selectedItem.status==="ditolak"? (
+                  <>
+                    <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
+                    <li><strong>Admin:</strong> {selectedItem.name}</li>
+                  </>
+                ):
+                selectedItem.status==="diproses" ? (
+                  <>
+                   <li><strong>Admin:</strong> {selectedItem.name}</li>
+                  </>
+                ):null
+                }
               </ul>
              
               <div className="mt-6 flex justify-end gap-2">
-                {selectedItem.status==="ditolak" || selectedItem.status==="diproses" || selectedItem.status==="selesai" ? (
-                  <button className="btn" onClick={()=>{closeModal(); setIdTolak('')}}>Tutup</button>
-                ) : (
-                  <>
-                <button className="btn btn-secondary" onClick={() => {setShowTolakModal(true); setEmail(selectedItem.email);setNoTiket(selectedItem.no_tiket)}}>Tolak</button>
-                <button className="btn btn-success" onClick={()=>{handleTerima()}}>Terima</button>
-                <button className="btn" onClick={()=>{closeModal(); setIdTolak('')}}>Tutup</button>
-               </> )
-                }
+              {selectedItem.status === "ditolak" ? (
+  <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
+    Tutup
+  </button>
+) : selectedItem.status === "diproses" ? (
+  <>
+    <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
+  Kirim Berkas
+</button>
+
+    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
+      Tutup
+    </button>
+  </>
+) : (
+  <>
+    <button className="btn btn-secondary" onClick={() => setShowTolakModal(true)}>
+      Tolak
+    </button>
+    <button className="btn btn-success" onClick={() => handleTerima()}>
+      Terima
+    </button>
+    <button
+      className="btn"
+      onClick={() => {
+        closeModal();
+        setIdTolak('');
+        setEmail('');
+        setNoTiket('');
+      }}
+    >
+      Tutup
+    </button>
+  </>
+)}
+
                 
               </div>
             </div>
@@ -230,6 +308,41 @@ export default function TableLayanan({ data }) {
           </div>
         </div>
       )}
+      {showKirimModal && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="bg-white text-black p-6 rounded-lg w-full max-w-md shadow-lg">
+      <h2 className="text-lg font-bold mb-4">Kirim Berkas dan Catatan</h2>
+
+      <input
+        type="file"
+        accept=".pdf,.doc,.docx,.jpg,.png"
+        onChange={(e) => setFileKirim(e.target.files[0])}
+        className="file-input file-input-bordered w-full mb-4"
+      />
+
+      <textarea
+        className="textarea text-white textarea-bordered w-full mb-4"
+        rows="4"
+        placeholder="Catatan tambahan..."
+        value={catatanKirim}
+        onChange={(e) => setCatatanKirim(e.target.value)}
+      ></textarea>
+
+      <div className="flex justify-end gap-2">
+        <button className="btn" onClick={() => setShowKirimModal(false)}>
+          Batal
+        </button>
+        <button
+          className="btn btn-success"
+          onClick={handleKirimBerkas}
+        >
+          Kirim
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </>
   );
 }

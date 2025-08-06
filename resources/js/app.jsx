@@ -12,7 +12,7 @@ localStorage.setItem('theme', 'coffee');
 document.documentElement.setAttribute('data-theme', 'coffee');
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,

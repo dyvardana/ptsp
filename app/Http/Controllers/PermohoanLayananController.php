@@ -20,9 +20,10 @@ class PermohoanLayananController extends Controller
     public function index()
     {
         //
-      $data = DB::table('permohonan_layanans')
+    $data = DB::table('permohonan_layanans')
     ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
     ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+    ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
     ->select(
         'permohonan_layanans.id',
         'permohonan_layanans.id_layanan',
@@ -38,10 +39,12 @@ class PermohoanLayananController extends Controller
         'permohonan_layanans.status',
         'permohonan_layanans.file_lampiran',
         'layanans.nama_layanan',
-        'tikets.no_tiket'
+        'tikets.no_tiket',
+        'tikets.keterangan_tiket',
+        'users.name'
     )
     ->get();
-
+//dd($data);
 return Inertia::render('Dashboard', [
     'title' => 'Dashboard - PTSP',
     'data' => $data
@@ -149,6 +152,17 @@ return Inertia::render('Dashboard', [
     {
         //
     }
+    public function terima(Request $request){
+        $data=[
+            'status'=> 'diproses',
+            'id_users'=>$request->idUser,
+            'updated_at' => now(),
+        ];
+        PermohoanLayanan::where('id',$request->id)->update($data);
+        return to_route('dashboard')->with('message', 'Data berhasil diupdate');
+
+    }
+
     public function tolak(Request $request)
     {
         //
@@ -170,7 +184,7 @@ return Inertia::render('Dashboard', [
         
        // dd($tiketing);
        Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
-       //return to_route('dashboard')->with('message', 'Data berhasil diupdate');
+       return to_route('dashboard')->with('message', 'Data berhasil diupdate');
     }
     function generateNoTiket()
 {

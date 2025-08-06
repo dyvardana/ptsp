@@ -21,7 +21,7 @@ class PermohonanTertolak extends Mailable
 
     public function build()
     {
-        return $this->subject('Permohonan Anda Telah Terkirim')
+        return $this->subject('Permohonan Anda Ditolak')
                     ->view('emails.permohonan_ditolak');
     }
 }
