@@ -3,8 +3,8 @@ import { useState, useMemo } from 'react';
 import { usePage } from '@inertiajs/react';
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle} from 'lucide-react';
-export default function TableLayanan({ data,staff }) {
-  console.log('ini data :',staff);
+export default function TableLayananStaff({ data }) {
+ 
   const dummyData = data;
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -16,12 +16,10 @@ export default function TableLayanan({ data,staff }) {
   const [email, setEmail] = useState('');
   const [noTiket, setNoTiket]=useState('');
   const itemsPerPage = 10;
+  const [showUploadModal, setShowUploadModal] = useState(false);
+const [uploadFile, setUploadFile] = useState(null);
+
   const user = usePage().props.auth.user;
-const [showKirimModal, setShowKirimModal] = useState(false);
-const [fileKirim, setFileKirim] = useState(null);
-const [catatanKirim, setCatatanKirim] = useState('');
-const [staffList, setStaffList] = useState(usePage().props.staff || []);
-const [selectedStaff, setSelectedStaff] = useState('');
 
 
 
@@ -65,37 +63,14 @@ const [selectedStaff, setSelectedStaff] = useState('');
   const handleTerima = () => {
     console.log('Diterima:', idTolak);
     // Kirim ke backend jika perlu
-    Inertia.post(route('terima',{id:idTolak,idUser:user.id,no_tiket:noTiket}));
+   // Inertia.post(route('terima',{id:idTolak,idUser:user.id,no_tiket:noTiket}));
     closeModal();
   };
-const handleKirimBerkas = () => {
-  if (!selectedStaff) {
-    alert("Pilih staff terlebih dahulu.");
-   
-    return;
-  }
 
-  const formData = new FormData();
-  formData.append("id", idTolak);
-  formData.append("idUser", user.id);
-  formData.append("no_tiket", noTiket);
-  formData.append("id_staff", selectedStaff);
-  formData.append("catatan", catatanKirim);
- console.log('form data:',formData);
-  Inertia.post(route("tindakLanjut"), formData, {
-    forceFormData: true,
-    onSuccess: () => {
-      setShowKirimModal(false);
-      setSelectedStaff('');
-      setCatatanKirim('');
-      closeModal();
-    },
-  });
-};
 
 
   return (
-    <>
+    <div data-theme="light">
       {/* TABEL */}
       <div className="mockup-window border border-base-300 bg-base-100 p-4">
         <div className="mb-4 flex justify-between items-center">
@@ -248,38 +223,27 @@ const handleKirimBerkas = () => {
               </ul>
              
               <div className="mt-6 flex justify-end gap-2">
-              {selectedItem.status === "ditolak" ? (
-                  <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                    Tutup
-                  </button>
-                ) : selectedItem.status === "diterima" ? (
+              {selectedItem.status === "diproses" ? (
                   <>
-                    <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
-                  Kirim Berkas
-                </button>
+                    <button className="btn btn-success" onClick={() => {
+                        setShowModal(false); // tutup modal detail
+                        setShowUploadModal(true); // buka modal unggah
+                        }}>
+                        Tindak Lanjut
+                        </button>
+
 
                     <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
                       Tutup
                     </button>
                   </>
-                ) : 
-                selectedItem.status === "diproses" ? (
-                  <>
-                    <button className="btn btn-primary" >
-                  Ubah Tujuan
-                </button>
-
-                    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                      Tutup
-                    </button>
-                  </>
-                ): selectedItem.status === "selesai" ?
+                ):
                 (
                   <>
-                   
                     <button className="btn btn-success" >
-                      Lihat Tindak Lanjut
+                      Unduh Tindak Lanjut
                     </button>
+               
                     <button
                       className="btn"
                       onClick={() => {
@@ -292,27 +256,7 @@ const handleKirimBerkas = () => {
                       Tutup
                     </button>
                   </>
-                ): selectedItem.status === "menunggu" ?
-                (
-                  <>
-                    <button
-                        className="btn btn-error"
-                        onClick={() => {
-                          setShowModal(false); // tutup modal detail
-                          setShowTolakModal(true); // buka modal tolak
-                        }}
-                      >
-                        Tolak Pengajuan
-                    </button>
-                    <button className="btn btn-accent" onClick={() => { closeModal(); handleTerima() }}>
-                      Terima Pengajuan
-                    </button>
-                    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                      Tutup
-                    </button>
-                  </>
-                ):null
-              }
+                )}
 
                 
               </div>
@@ -321,67 +265,61 @@ const handleKirimBerkas = () => {
         </div>
       )}
 
-      {/* MODAL ALASAN TOLAK */}
-      {showTolakModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white text-black p-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Alasan Penolakan</h2>
-            <textarea
-              className="textarea text-white textarea-bordered w-full mb-4"
-              rows="4"
-              placeholder="Tuliskan alasan penolakan..."
-              value={alasanTolak}
-              onChange={(e) => setAlasanTolak(e.target.value)}
-            ></textarea>
-            <div className="flex justify-end gap-2">
-              <button className="btn" onClick={() => setShowTolakModal(false)}>Batal</button>
-              <button className="btn btn-error" onClick={()=> {handleTolak()}}>Kirim</button>
-              
-            </div>
-          </div>
+     {showUploadModal && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-lg">
+      <h3 className="text-lg font-bold mb-4">Unggah File Tindak Lanjut</h3>
+      
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          const formData = new FormData();
+          formData.append('file_lampiran', uploadFile);
+          formData.append('id_permohonan', selectedItem.id);
+          formData.append('id_users', user.id);
+          formData.append('no_tiket', selectedItem.no_tiket);
+
+          Inertia.post(route('tindak_lanjut_staff'), formData, {
+            forceFormData: true,
+            onSuccess: () => {
+              setShowUploadModal(false);
+              setUploadFile(null);
+            }
+          });
+        }}
+      >
+        <div className="mb-4">
+          <input
+            type="file"
+            onChange={e => setUploadFile(e.target.files[0])}
+            className="file-input file-input-bordered w-full"
+            required
+          />
         </div>
-      )}
-      {showKirimModal && (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-    <div className="bg-white text-black p-6 rounded-lg w-full max-w-md shadow-lg">
-      <h2 className="text-lg font-bold mb-4">Teruskan ke Staff</h2>
 
-          <select
-              className="select text-white select-bordered w-full mb-4"
-              value={selectedStaff}
-              onChange={(e) => setSelectedStaff(e.target.value)}
-            >
-              <option value="">Pilih Staff</option>
-
-              {staff.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name}
-                </option>
-              ))}
-    </select>
-
-
-      <textarea
-        className="textarea text-white textarea-bordered w-full mb-4"
-        rows="4"
-        placeholder="Catatan tambahan..."
-        value={catatanKirim}
-        onChange={(e) => setCatatanKirim(e.target.value)}
-      ></textarea>
-
-      <div className="flex justify-end gap-2">
-        <button className="btn" onClick={() => setShowKirimModal(false)}>
-          Batal
-        </button>
-        <button className="btn btn-success" onClick={handleKirimBerkas}>
-          Teruskan
-        </button>
-      </div>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setShowUploadModal(false);
+              setUploadFile(null);
+            }}
+          >
+            Batal
+          </button>
+          <button type="submit" className="btn btn-primary">
+            Unggah
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 )}
 
+      
 
-    </>
+
+    </div>
   );
 }

@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Mail\PermohonanTerkirim;
 use App\Mail\PermohonanTertolak;
+use App\Models\TindakLanjut;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 
@@ -19,36 +24,40 @@ class PermohoanLayananController extends Controller
      */
     public function index()
     {
+            $staff = User::where('role', 'staff')->get();
         //
-    $data = DB::table('permohonan_layanans')
-    ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
-    ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
-    ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
-    ->select(
-        'permohonan_layanans.id',
-        'permohonan_layanans.id_layanan',
-        'permohonan_layanans.identitas_pengguna',
-        'permohonan_layanans.nama_pemohon',
-        'permohonan_layanans.email',
-        'permohonan_layanans.no_hp',
-        'permohonan_layanans.alamat',
-        'permohonan_layanans.kategori_pengguna',
-        'permohonan_layanans.judul_layanan',
-        'permohonan_layanans.keterangan_tambahan',
-        'permohonan_layanans.tanggal_pengajuan',
-        'permohonan_layanans.status',
-        'permohonan_layanans.file_lampiran',
-        'layanans.nama_layanan',
-        'tikets.no_tiket',
-        'tikets.keterangan_tiket',
-        'users.name'
-    )
-    ->get();
-//dd($data);
-return Inertia::render('Dashboard', [
-    'title' => 'Dashboard - PTSP',
-    'data' => $data
-]);
+        $data = DB::table('permohonan_layanans')
+            ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
+            ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+            ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
+            ->select(
+                'permohonan_layanans.id',
+                'permohonan_layanans.id_layanan',
+                'permohonan_layanans.identitas_pengguna',
+                'permohonan_layanans.nama_pemohon',
+                'permohonan_layanans.email',
+                'permohonan_layanans.no_hp',
+                'permohonan_layanans.alamat',
+                'permohonan_layanans.kategori_pengguna',
+                'permohonan_layanans.judul_layanan',
+                'permohonan_layanans.keterangan_tambahan',
+                'permohonan_layanans.tanggal_pengajuan',
+                'permohonan_layanans.status',
+                'permohonan_layanans.file_lampiran',
+                'layanans.nama_layanan',
+                'tikets.no_tiket',
+                'tikets.keterangan_tiket',
+                'users.name'
+            )
+            ->get();
+        //dd($data);
+        return Inertia::render('Dashboard', [
+            'title' => 'Dashboard - PTSP',
+            'data' => $data,
+            'staff' => $staff,
+             
+        ]);
+
     }
 
     /**
@@ -154,7 +163,7 @@ return Inertia::render('Dashboard', [
     }
     public function terima(Request $request){
         $data=[
-            'status'=> 'diproses',
+            'status'=> 'diterima',
             'id_users'=>$request->idUser,
             'updated_at' => now(),
         ];
@@ -193,4 +202,19 @@ return Inertia::render('Dashboard', [
 
     return "IMK".$tanggal . $unik;
 }
+     public function tindakLanjut(Request $request){
+       // dd($request);
+        $tindaklanjut = [
+            'id_permohonan_layanan'=> $request->id,
+            'id_users'=> $request->id_staff,
+            'catatan'=> $request->catatan
+        ];
+       TindakLanjut::create($tindaklanjut);
+        $status = [
+            'status'=>'diproses'
+        ];
+       PermohoanLayanan::where('id',$request->id)->update($status);
+
+     }
+    
 }

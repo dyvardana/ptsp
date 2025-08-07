@@ -12,10 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+         $middleware->alias([
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ]);
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\VerifyCsrfToken::class, // ✅ Tambahkan ini
+            
         ]);
 
         // Jika ingin middleware untuk API, bisa pakai:

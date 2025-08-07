@@ -1,16 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import TableLayanan from './TableLayanan';
+import TableLayananStaff from './TableLayananStaff';
 
-export default function Dashboard(props) {
-    console.log('dashboard :',props);
+export default function DashboardStaff(props) {
+    
     return (
+        
         <AuthenticatedLayout
            
         >
             <Head title={props.title}/>
-            
-            <TableLayanan data={props.data} staff={props.staff}/>
+            <TableLayananStaff data={props.data}/>
+           
         </AuthenticatedLayout>
     );
 }
