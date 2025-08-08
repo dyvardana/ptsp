@@ -104,7 +104,7 @@ export default function Mahasiswa() {
 
 
   return (
-    <div className="pt-32 px-4 pb-20">
+    <div className=" px-4 pb-20">
       <div className="max-w-4xl mx-auto">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">

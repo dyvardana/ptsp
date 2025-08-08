@@ -4,9 +4,10 @@ import { Head, Link } from '@inertiajs/react';
 import MiniNavbar from './MiniNavbar';
 import Footer from './Footer';
 import { useState } from 'react';
+import { Inertia } from '@inertiajs/inertia';
 
 export default function Homepage(props) {
-    const [showCekForm, setShowCekForm] = useState(false);
+  const [showCekForm, setShowCekForm] = useState(false);
   const [noTiket, setNoTiket] = useState('');
   return (
     <div
@@ -54,10 +55,11 @@ export default function Homepage(props) {
               </ul>
             </div>
 
-           <button
+         <button 
+  onClick={() => setShowCekForm(true)}
   className="btn btn-outline btn-secondary px-6 py-3 rounded-xl text-lg transition duration-300"
-  onClick={() => setShowCekForm(!showCekForm)}
 >
+
 
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
   <path d="M6.25 8.75v-1h-1a.75.75 0 0 1 0-1.5h1v-1a.75.75 0 0 1 1.5 0v1h1a.75.75 0 0 1 0 1.5h-1v1a.75.75 0 0 1-1.5 0Z" />
@@ -67,30 +69,7 @@ export default function Homepage(props) {
              <span> Cek Pengajuan</span>
             </button>
           </div>
-          {showCekForm && (
-  <div className="mt-4 w-full max-w-md mx-auto">
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        // Ganti route('cek-tiket') ke route yang sesuai di Laravel
-        window.location.href = route('cek-tiket', { tiket: noTiket });
-      }}
-      className="flex gap-2 items-center"
-    >
-      <input
-        type="text"
-        className="input input-bordered w-full"
-        placeholder="Masukkan Nomor Tiket"
-        value={noTiket}
-        onChange={(e) => setNoTiket(e.target.value)}
-        required
-      />
-      <button type="submit" className="btn btn-primary">
-        Cari
-      </button>
-    </form>
-  </div>
-)}
+     
 
         </div>
       </div>
@@ -170,6 +149,68 @@ export default function Homepage(props) {
 
         </div>
       </div>
+{showCekForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md relative">
+      <button
+        onClick={() => setShowCekForm(false)}
+        className="absolute top-2 right-2 text-gray-500 hover:text-black"
+      >
+        ✕
+      </button>
+      <h2 className="text-lg font-bold mb-4">Cek Status Pengajuan</h2>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+
+          try {
+            const formData = new FormData();
+            formData.append("tiket", noTiket);
+
+            const response = await axios.post("cekTiket", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+
+            // ✅ Redirect ke halaman detail tiket
+            window.location.href = `/cekTiket/${response.data.tiket.no_tiket}`;
+          } catch (error) {
+            if (error.response?.status === 422) {
+              alert("Validasi gagal:\n" + JSON.stringify(error.response.data.errors));
+            } else {
+              alert("Tiket tidak ditemukan atau terjadi kesalahan.");
+              console.error(error);
+            }
+          }
+        }}
+        className="flex flex-col gap-4"
+      >
+        <input
+          type="text"
+          value={noTiket}
+          onChange={(e) => setNoTiket(e.target.value)}
+          className="input input-bordered w-full"
+          placeholder="Masukkan Nomor Tiket"
+          required
+        />
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setShowCekForm(false)}
+            className="btn btn-ghost"
+          >
+            Batal
+          </button>
+          <button type="submit" className="btn btn-primary">
+            Cari
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
 
       {/* Footer */}
       <Footer />

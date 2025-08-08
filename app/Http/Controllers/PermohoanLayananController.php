@@ -26,30 +26,33 @@ class PermohoanLayananController extends Controller
     {
             $staff = User::where('role', 'staff')->get();
         //
-        $data = DB::table('permohonan_layanans')
-            ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
-            ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
-            ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
-            ->select(
-                'permohonan_layanans.id',
-                'permohonan_layanans.id_layanan',
-                'permohonan_layanans.identitas_pengguna',
-                'permohonan_layanans.nama_pemohon',
-                'permohonan_layanans.email',
-                'permohonan_layanans.no_hp',
-                'permohonan_layanans.alamat',
-                'permohonan_layanans.kategori_pengguna',
-                'permohonan_layanans.judul_layanan',
-                'permohonan_layanans.keterangan_tambahan',
-                'permohonan_layanans.tanggal_pengajuan',
-                'permohonan_layanans.status',
-                'permohonan_layanans.file_lampiran',
-                'layanans.nama_layanan',
-                'tikets.no_tiket',
-                'tikets.keterangan_tiket',
-                'users.name'
-            )
-            ->get();
+     $data = DB::table('permohonan_layanans')
+    ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
+    ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+    ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id')
+    ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
+    ->select(
+        'permohonan_layanans.id',
+        'permohonan_layanans.id_layanan',
+        'permohonan_layanans.identitas_pengguna',
+        'permohonan_layanans.nama_pemohon',
+        'permohonan_layanans.email',
+        'permohonan_layanans.no_hp',
+        'permohonan_layanans.alamat',
+        'permohonan_layanans.kategori_pengguna',
+        'permohonan_layanans.judul_layanan',
+        'permohonan_layanans.keterangan_tambahan',
+        'permohonan_layanans.tanggal_pengajuan',
+        'permohonan_layanans.status',
+        'permohonan_layanans.file_lampiran',
+        'layanans.nama_layanan',
+        'tikets.no_tiket',
+        'tikets.keterangan_tiket',
+        'users.name',
+        DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
+    )
+    ->get();
+
         //dd($data);
         return Inertia::render('Dashboard', [
             'title' => 'Dashboard - PTSP',
@@ -215,6 +218,18 @@ class PermohoanLayananController extends Controller
         ];
        PermohoanLayanan::where('id',$request->id)->update($status);
 
+     }
+     public function cekTindakLanjut(Request $request){
+         $id = $request->input('id');
+       
+
+        $data = DB::table('tindak_lanjuts')
+            ->join('users', 'tindak_lanjuts.id_users', '=', 'users.id')
+            ->where('tindak_lanjuts.id_permohonan_layanan', $request->id_permohonan)
+            ->select('tindak_lanjuts.catatan', 'tindak_lanjuts.file_lampiran', 'tindak_lanjuts.updated_at','tindak_lanjuts.created_at', 'users.name')
+            ->first();
+
+        return response()->json($data);
      }
     
 }

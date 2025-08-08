@@ -1,3 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+:root {
+  --navbar-height: 64px; /* atau sesuai tinggi navbar */
+}

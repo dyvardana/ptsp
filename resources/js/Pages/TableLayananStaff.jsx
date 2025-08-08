@@ -109,7 +109,7 @@ const [uploadFile, setUploadFile] = useState(null);
                   <td>{item.nama_pemohon}</td>
                   <td>{item.kategori_pengguna}</td>
                   <td>{item.nama_layanan}</td>
-                  <td>{item.tanggal_pengajuan}</td>
+                  <td>{item.updated_at}</td>
                   <td>
                     <span className={
                       item.status === 'menunggu' ? 'badge-xs badge badge-neutral flex items-center gap-1' :
@@ -208,15 +208,17 @@ const [uploadFile, setUploadFile] = useState(null);
                 <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
                 <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
                 <li><strong>Status:</strong> {selectedItem.status}</li>
+                <li><strong>PTSP:</strong> {selectedItem.name}</li>
+                <li><strong>Catatan PTSP:</strong> {selectedItem.catatan}</li>
                 {selectedItem.status==="ditolak"? (
                   <>
                     <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
-                    <li><strong>Admin:</strong> {selectedItem.name}</li>
+                    
                   </>
                 ):
                 selectedItem.status==="diproses" ? (
                   <>
-                   <li><strong>Admin:</strong> {selectedItem.name}</li>
+                  
                   </>
                 ):null
                 }

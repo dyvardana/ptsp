@@ -32,12 +32,14 @@ class StaffController extends Controller
             'permohonan_layanans.judul_layanan',
             'permohonan_layanans.keterangan_tambahan',
             'permohonan_layanans.tanggal_pengajuan',
+            'permohonan_layanans.updated_at',
             'permohonan_layanans.status',
             'permohonan_layanans.file_lampiran',
             'layanans.nama_layanan',
             'tikets.no_tiket',
             'tikets.keterangan_tiket',
-            'users.name'
+            'users.name',
+            'tindak_lanjuts.catatan'
         )
         ->get();
          //  dd($data);

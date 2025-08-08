@@ -4,74 +4,96 @@ import { usePage } from '@inertiajs/react';
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle} from 'lucide-react';
 export default function TableLayanan({ data,staff }) {
-  console.log('ini data :',staff);
-  const dummyData = data;
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [showTolakModal, setShowTolakModal] = useState(false);
-  const [alasanTolak, setAlasanTolak] = useState('');
-  const [idTolak, setIdTolak] = useState('');
-  const [email, setEmail] = useState('');
-  const [noTiket, setNoTiket]=useState('');
-  const itemsPerPage = 10;
-  const user = usePage().props.auth.user;
+  console.log(data);
+ // State Utama
+const user = usePage().props.auth.user;
+const dummyData = data;
+const itemsPerPage = 10;
+
+// State untuk Pencarian dan Pagination
+const [search, setSearch] = useState('');
+const [page, setPage] = useState(1);
+
+// State untuk Modal dan Data Terpilih
+const [selectedItem, setSelectedItem] = useState(null);
+const [showModal, setShowModal] = useState(false);
+
+// State Modal Tolak
+const [showTolakModal, setShowTolakModal] = useState(false);
+const [alasanTolak, setAlasanTolak] = useState('');
+const [idTolak, setIdTolak] = useState('');
+const [email, setEmail] = useState('');
+const [noTiket, setNoTiket] = useState('');
+
+// State Modal Kirim Berkas
 const [showKirimModal, setShowKirimModal] = useState(false);
 const [fileKirim, setFileKirim] = useState(null);
 const [catatanKirim, setCatatanKirim] = useState('');
-const [staffList, setStaffList] = useState(usePage().props.staff || []);
 const [selectedStaff, setSelectedStaff] = useState('');
+const [staffList, setStaffList] = useState(usePage().props.staff || []);
 
+// State untuk Lihat Tindak Lanjut
+const [tglSelesai, setTglSelesai] = useState(null);
+const [namaTindakLanjut, setNamaTindakLanjut] = useState(null);
+const [tglTindakLanjut, setTglTindakLanjut] = useState(null);
 
+// Filter dan Pagination
+const filteredData = useMemo(() => {
+  return dummyData.filter(item =>
+    Object.values(item).some(val =>
+      val?.toString().toLowerCase().includes(search.toLowerCase())
+    )
+  );
+}, [search, dummyData]);
 
-  const filteredData = useMemo(() => {
-    return dummyData.filter(item =>
-      Object.values(item).some(val =>
-        val?.toString().toLowerCase().includes(search.toLowerCase())
-      )
-    );
-  }, [search, dummyData]);
+const paginatedData = useMemo(() => {
+  const startIndex = (page - 1) * itemsPerPage;
+  return filteredData.slice(startIndex, startIndex + itemsPerPage);
+}, [filteredData, page]);
 
-  const paginatedData = useMemo(() => {
-    const startIndex = (page - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, page]);
+const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+// Fungsi Modal
+const openModal = (item) => {
+  setSelectedItem(item);
+  setShowModal(true);
+};
 
-  const openModal = (item) => {
-    setSelectedItem(item);
-    setShowModal(true);
-    //console.log("item ini :",item);
-  };
+const closeModal = () => {
+  setSelectedItem(null);
+  setShowModal(false);
+  setShowTolakModal(false);
+  setAlasanTolak('');
+};
 
-  const closeModal = () => {
-    setSelectedItem(null);
-    setShowModal(false);
-    setShowTolakModal(false);
-    setAlasanTolak('');
-  };
+// Fungsi Tolak
+const handleTolak = () => {
+  console.log('Ditolak dengan alasan:', idTolak);
+  Inertia.post(route('tolak', {
+    id: idTolak,
+    email: email,
+    keterangan_tiket: alasanTolak,
+    idUser: user.id,
+    no_tiket: noTiket,
+  }));
+  closeModal();
+};
 
-  const handleTolak = () => {
-    console.log('Ditolak dengan alasan:', idTolak);
-    // Kirim ke backend jika perlu
-    
-    Inertia.post(route('tolak',{id:idTolak,email:email,keterangan_tiket:alasanTolak,idUser:user.id,no_tiket:noTiket}));
-    console.log(noTiket);
-    closeModal();
-  };
+// Fungsi Terima
+const handleTerima = () => {
+  console.log('Diterima:', idTolak);
+  Inertia.post(route('terima', {
+    id: idTolak,
+    idUser: user.id,
+    no_tiket: noTiket,
+  }));
+  closeModal();
+};
 
-  const handleTerima = () => {
-    console.log('Diterima:', idTolak);
-    // Kirim ke backend jika perlu
-    Inertia.post(route('terima',{id:idTolak,idUser:user.id,no_tiket:noTiket}));
-    closeModal();
-  };
+// Fungsi Kirim Berkas
 const handleKirimBerkas = () => {
   if (!selectedStaff) {
     alert("Pilih staff terlebih dahulu.");
-   
     return;
   }
 
@@ -81,7 +103,9 @@ const handleKirimBerkas = () => {
   formData.append("no_tiket", noTiket);
   formData.append("id_staff", selectedStaff);
   formData.append("catatan", catatanKirim);
- console.log('form data:',formData);
+
+  console.log('form data:', formData);
+
   Inertia.post(route("tindakLanjut"), formData, {
     forceFormData: true,
     onSuccess: () => {
@@ -93,7 +117,22 @@ const handleKirimBerkas = () => {
   });
 };
 
+// Fungsi Lihat Tindak Lanjut
+const handleLihatTindakLanjut = async (id_kirim) => {
+  try {
+    const response = await axios.post('cekTindakLanjut', {
+      id_permohonan: id_kirim,
+    });
 
+    console.log('response axios:', response.data);
+
+    setNamaTindakLanjut(response.data.name);
+    setTglSelesai(response.data.updated_at);
+    setTglTindakLanjut(response.data.created_at);
+  } catch (error) {
+    console.error('Gagal mengambil data:', error);
+  }
+};
   return (
     <>
       {/* TABEL */}
@@ -123,6 +162,7 @@ const handleKirimBerkas = () => {
                 <th>Layanan</th>
                 <th>Tanggal Pengajuan</th>
                 <th>Status</th>
+                <th>Rating</th>
                 <th>Pilihan</th>
               </tr>
             </thead>
@@ -152,10 +192,19 @@ const handleKirimBerkas = () => {
                       <span className="capitalize">{item.status}</span>
                     </span>
                   </td>
+                 <td>
+                    {item.rating?(
+                        <>
+                          {'★'.repeat(Math.round(item.rating)) + '☆'.repeat(5 - Math.round(item.rating))}
+                        </>
+                    ):null}
+                        
+                  </td>
+
                   <td>
                     <button
                       className="btn btn-xs btn-accent "
-                      onClick={() => {openModal(item); {setIdTolak(item.id);setEmail(item.email);setNoTiket(item.no_tiket)}}}
+                      onClick={() => {openModal(item);handleLihatTindakLanjut(item.id); {setIdTolak(item.id);setEmail(item.email);setNoTiket(item.no_tiket)}}}
                     > <Eye/>
                       Detail
                     </button>
@@ -232,7 +281,28 @@ const handleKirimBerkas = () => {
                 <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
                 <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
                 <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
-                <li><strong>Status:</strong> {selectedItem.status}</li>
+                <li>
+                    <strong>Status:</strong>{' '}
+                    <span
+                      className={
+                        selectedItem.status === 'diproses'
+                          ? 'text-yellow-500'
+                          : selectedItem.status === 'menunggu'
+                          ? 'text-gray-800'
+                          : selectedItem.status === 'diterima'
+                          ? 'text-blue-500'
+                          : selectedItem.status === 'selesai'
+                          ? 'text-green-500'
+                          : selectedItem.status === 'ditolak'
+                          ? 'text-red-500'
+                          : ''
+                      }
+                    >
+                      {selectedItem.status}
+                    </span>
+                  </li>
+
+               
                 {selectedItem.status==="ditolak"? (
                   <>
                     <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
@@ -242,6 +312,15 @@ const handleKirimBerkas = () => {
                 selectedItem.status==="diproses" ? (
                   <>
                    <li><strong>Admin:</strong> {selectedItem.name}</li>
+                   <li><strong>Staff</strong> {namaTindakLanjut}</li>
+                  <li><strong>Tindak Lanjut</strong> {tglTindakLanjut}</li>
+                  </>
+                ):selectedItem.status==="selesai" ? (
+                  <>
+                    <li><strong>Admin:</strong> {selectedItem.name}</li>
+                     <li><strong>Tindak Lanjut</strong> {tglTindakLanjut}</li>
+                   <li><strong>Tgl Selesai:</strong> {tglSelesai}</li>
+                    <li><strong>Staff</strong> {namaTindakLanjut}</li>
                   </>
                 ):null
                 }
@@ -255,7 +334,7 @@ const handleKirimBerkas = () => {
                 ) : selectedItem.status === "diterima" ? (
                   <>
                     <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
-                  Kirim Berkas
+                  Teruskan Ke Staff
                 </button>
 
                     <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
@@ -277,7 +356,7 @@ const handleKirimBerkas = () => {
                 (
                   <>
                    
-                    <button className="btn btn-success" >
+                    <button className="btn btn-success" onClick={handleLihatTindakLanjut}>
                       Lihat Tindak Lanjut
                     </button>
                     <button
@@ -385,3 +464,4 @@ const handleKirimBerkas = () => {
     </>
   );
 }
+
