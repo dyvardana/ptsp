@@ -72,6 +72,9 @@ Route::get('/dashboard_staff', [StaffController::class, 'index'])
 
 Route::get('/listLayanan',[LayananController::class, 'show'])->middleware(['auth','verified','role:ptsp'])->name('listLayanan');
 Route::post('/listLayanan',[LayananController::class, 'store'])->middleware(['auth','verified','role:ptsp'])->name('layananStore');
+// routes/web.php
+Route::put('/layanans/{id}', [LayananController::class, 'update'])->name('layanans.update');
+Route::get('/layananget/{id}', [LayananController::class,'persyaratan'])->name('persyaratan');
 
 /*
 |--------------------------------------------------------------------------
