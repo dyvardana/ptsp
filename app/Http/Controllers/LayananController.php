@@ -36,16 +36,37 @@ class LayananController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-     
+{
+    $validated = $request->validate([
+        'kategori_pengguna' => 'required|string|max:255',
+        'nama_layanan'      => 'required|string|max:255',
+        'deskripsi'         => 'required|string|max:255',
+        'status'            => 'required|in:Aktif,Nonaktif',
+    ]);
+
+    $layanan = Layanan::create($validated);
+
+    // Kalau request dari Inertia (via fetch/axios), kirim JSON
+    if ($request->wantsJson()) {
+        return response()->json($layanan);
     }
+
+    // Default fallback
+    return redirect()->route('listLayanan');
+}
+
 
     /**
      * Display the specified resource.
      */
-    public function show(Layanan $layanan)
+    public function show(Request $request)
     {
         // Tampilkan detail layanan
+        $list = Layanan::get();
+        return Inertia::render('LayananList',[
+            'title'=>'layanan',
+            'list' => $list
+        ]);
     }
 
     /**

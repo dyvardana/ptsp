@@ -47,6 +47,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                 Dashboard
                             </NavLink>
+                            
                         </div>
 
                         {/* Right: Dropdown */}
@@ -86,6 +87,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
+                        
                     </div>
 
                     <div className="border-t border-gray-200 pt-4 pb-1">
@@ -121,7 +123,10 @@ export default function AuthenticatedLayout({ header, children }) {
                         <Link href={route('dashboard')}>Dashboard</Link>
                     </li>
                     <li>
-                        <Link href="/layanan">Layanan</Link>
+                        <Link href={route('permohonanList')}>Permohonan</Link>
+                    </li>
+                    <li>
+                        <Link href={route('listLayanan')}>Layanan</Link>
                     </li>
                     <li>
                         <Link href="/pengaturan">Pengaturan</Link>

@@ -13,6 +13,7 @@ class Layanan extends Model
         'nama_layanan',
         'deskripsi',
         'kategori_pengguna',
+        'status',
     ];
 
     /**

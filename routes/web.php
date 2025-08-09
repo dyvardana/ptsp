@@ -62,10 +62,16 @@ Route::post('/terima', [PermohoanLayananController::class, 'terima'])
 Route::get('/dashboard', [PermohoanLayananController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:ptsp'])
     ->name('dashboard');
+Route::get('/permohonanList', [PermohoanLayananController::class, 'list'])
+    ->middleware(['auth', 'verified', 'role:ptsp'])
+    ->name('permohonanList');
 
 Route::get('/dashboard_staff', [StaffController::class, 'index'])
     ->middleware(['auth', 'role:staff'])
     ->name('dashboard_staff');
+
+Route::get('/listLayanan',[LayananController::class, 'show'])->middleware(['auth','verified','role:ptsp'])->name('listLayanan');
+Route::post('/listLayanan',[LayananController::class, 'store'])->middleware(['auth','verified','role:ptsp'])->name('layananStore');
 
 /*
 |--------------------------------------------------------------------------

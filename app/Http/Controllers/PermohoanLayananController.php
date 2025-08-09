@@ -22,7 +22,12 @@ class PermohoanLayananController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(){
+        return Inertia::render('Dashboard',[
+            'title'=>'Dashboard'
+        ]);
+    }
+    public function list()
     {
             $staff = User::where('role', 'staff')->get();
         //
@@ -54,7 +59,7 @@ class PermohoanLayananController extends Controller
     ->get();
 
         //dd($data);
-        return Inertia::render('Dashboard', [
+        return Inertia::render('PermohonanList', [
             'title' => 'Dashboard - PTSP',
             'data' => $data,
             'staff' => $staff,
