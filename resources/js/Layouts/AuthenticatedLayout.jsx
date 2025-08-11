@@ -129,7 +129,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <Link href={route('listLayanan')}>Layanan</Link>
                     </li>
                     <li>
-                        <Link href="/pengaturan">Pengaturan</Link>
+                        <Link href={route('kelolaStaff')}>Kelola Staff</Link>
                     </li>
                     {/* Add more sidebar links here */}
                 </ul>

@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/react';
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle} from 'lucide-react';
 export default function TableLayanan({ data,staff }) {
-  console.log(data);
+ // console.log(data);
  // State Utama
 const user = usePage().props.auth.user;
 const dummyData = data;
@@ -138,7 +138,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
       {/* TABEL */}
       <div className="mockup-window border border-base-300 bg-base-100 p-4">
         <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Layanan</h2>
+          <h2 className="text-lg font-semibold">Permohonan Layanan</h2>
           <input
             type="text"
             placeholder="Cari..."

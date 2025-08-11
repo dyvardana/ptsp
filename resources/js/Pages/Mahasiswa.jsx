@@ -140,53 +140,48 @@ export default function Mahasiswa() {
                   <h3 className="text-lg font-semibold mb-2">Rincian Permohonan</h3>
                   <div className="space-y-4">
                    <select name="id_layanan"
-  className="select select-bordered w-full"
-  value={layananTerpilih}
-  onChange={(e) => {
-    setLayananTerpilih(e.target.value);
-    setForm({
-      ...form,
-      id_layanan: e.target.value,
-      judul_layanan:
-        layananMahasiswa.find((l) => l.id.toString() === e.target.value)
-          ?.nama_layanan || "",
-    });
-  }}
->
-  <option value="" disabled>Pilih Layanan</option>
-  {layananMahasiswa.map((layanan) => (
-    <option key={layanan.id} value={layanan.id}>
-      {layanan.nama_layanan}
-    </option>
-  ))}
-</select>
+                      className="select select-bordered w-full"
+                      value={layananTerpilih}
+                      onChange={(e) => {
+                        setLayananTerpilih(e.target.value);
+                        setForm({
+                          ...form,
+                          id_layanan: e.target.value,
+                          judul_layanan:
+                            layananMahasiswa.find((l) => l.id.toString() === e.target.value)
+                              ?.nama_layanan || "",
+                        });
+                      }}
+                    >
+                      <option value="" disabled>Pilih Layanan</option>
+                      {layananMahasiswa.map((layanan) => (
+                        <option key={layanan.id} value={layanan.id}>
+                          {layanan.nama_layanan}
+                        </option>
+                      ))}
+                    </select>
 
 
 
                   {layananTerpilih && (
-  <div className="mt-4 bg-gray-100 p-4 rounded shadow">
-    <h3 className="font-semibold mb-2">
-      Persyaratan untuk layanan{" "}
-      {
-        layananMahasiswa.find((l) => l.id.toString() === layananTerpilih)
-          ?.nama_layanan
-      }
-    </h3>
-    <ul className="list-disc list-inside">
-      {layananMahasiswa
-        .find((l) => l.id.toString() === layananTerpilih)
-        ?.persyaratan.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-    </ul>
-  </div>
-)}
-
-
-
+                      <div className="mt-4 bg-gray-100 p-4 rounded shadow">
+                        <h3 className="font-semibold mb-2">
+                          Persyaratan untuk layanan{" "}
+                          {
+                            layananMahasiswa.find((l) => l.id.toString() === layananTerpilih)
+                              ?.nama_layanan
+                          }
+                        </h3>
+                        <ul className="list-disc list-inside">
+                          {layananMahasiswa
+                            .find((l) => l.id.toString() === layananTerpilih)
+                            ?.persyaratan.map((item, index) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                        </ul>
+                      </div>
+                    )}
                     <textarea name="keterangan_tambahan" value={form.keterangan_tambahan} onChange={handleChange} className="textarea textarea-bordered w-full" placeholder="Rincian Informasi yang Dibutuhkan" rows="3" required></textarea>
-
-
                     <div className="form-control md:col-span-2">
                       <label className="label">Unggah berkas pendukung</label>
                       <input type="file" name="file_lampiran" onChange={handleChange} accept=".pdf" className="file-input file-input-bordered w-full" required />

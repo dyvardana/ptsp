@@ -23,8 +23,19 @@ class PermohoanLayananController extends Controller
      * Display a listing of the resource.
      */
     public function index(){
+         $jumlahLayananMahasiswa = PermohoanLayanan::where('kategori_pengguna', 'mahasiswa')->count();
+         $jumlahLayananAlumni = PermohoanLayanan::where('kategori_pengguna', 'alumni')->count();
+            $jumlahLayananUmum = PermohoanLayanan::where('kategori_pengguna', 'umum')->count();
+            $jumlahLayananStaff = PermohoanLayanan::where('kategori_pengguna', 'dosen')->count();
+            $data = [
+                'jumlahLayananMahasiswa' => $jumlahLayananMahasiswa,
+                'jumlahLayananAlumni' => $jumlahLayananAlumni,
+                'jumlahLayananUmum' => $jumlahLayananUmum,
+                'jumlahLayananStaff' => $jumlahLayananStaff,
+            ];
         return Inertia::render('Dashboard',[
-            'title'=>'Dashboard'
+            'title'=>'Dashboard',
+            'data' => $data,
         ]);
     }
     public function list()

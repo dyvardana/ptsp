@@ -75,7 +75,10 @@ Route::post('/listLayanan',[LayananController::class, 'store'])->middleware(['au
 // routes/web.php
 Route::put('/layanans/{id}', [LayananController::class, 'update'])->name('layanans.update');
 Route::get('/layananget/{id}', [LayananController::class,'persyaratan'])->name('persyaratan');
-
+Route::delete('/layanans/{id}', [LayananController::class, 'destroy'])->name('layanansDestroy');
+Route::get('/kelolastaff', [StaffController::class, 'listuser'])
+    ->middleware(['auth', 'verified', 'role:ptsp'])
+    ->name('kelolaStaff');
 /*
 |--------------------------------------------------------------------------
 | Profile Routes (Protected)

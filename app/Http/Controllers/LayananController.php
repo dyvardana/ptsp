@@ -119,10 +119,22 @@ class LayananController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Layanan $layanan)
-    {
-        // Hapus layanan
-    }
+   public function destroy($id)
+{
+    // Hapus layanan
+    $layanan = Layanan::findOrFail($id);
+    $layanan->delete();
+
+    // Hapus semua persyaratan terkait
+    PersyaratanLayanan::where('id_layanan', $id)->delete();
+
+    // Jika request dari Inertia/JS
+    return response()->json([
+        'success' => true,
+        'message' => 'Layanan Berhasil Dihapus.'
+    ]);
+}
+
 
     /**
      * API: Ambil layanan untuk kategori mahasiswa dan daftar persyaratannya.

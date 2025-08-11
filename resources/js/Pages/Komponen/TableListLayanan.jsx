@@ -1,6 +1,7 @@
 import { Inertia } from "@inertiajs/inertia";
 import React, { useState } from "react";
 import { BadgeCheck, X } from "lucide-react";
+import axios from 'axios';
 
 export default function TableListLayanan({ datalist }) {
  
@@ -8,6 +9,19 @@ export default function TableListLayanan({ datalist }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [list, setList] = useState(datalist);
   const rowsPerPage = 10;
+  const [hapus, setHapus] = useState(null);
+
+  const handleDelete = (id) => {
+      axios.delete(`/layanans/${id}`)
+            .then(res => {
+                alert(res.data.message);
+                setList(prev => prev.filter(item => item.id !== id));
+            })
+            .catch(() => {
+                alert("Gagal menghapus layanan.");
+            });
+};
+
 
   // form state untuk tambah
   const [form, setForm] = useState({
@@ -71,9 +85,6 @@ export default function TableListLayanan({ datalist }) {
     console.error("Gagal ambil data layanan", error);
   }
 };
-
-
-
 
   // Handle update
   const handleUpdate = (e) => {
@@ -142,15 +153,19 @@ export default function TableListLayanan({ datalist }) {
         <div className="modal-box">
           <h3 className="font-bold text-lg">Tambah Layanan</h3>
           <form onSubmit={handleSubmit} className="space-y-2">
-            <input
-              type="text"
+           
+            <select
               name="kategori_pengguna"
               value={form.kategori_pengguna}
               onChange={handleChange}
-              placeholder="Kategori Pengguna"
-              className="input input-bordered w-full"
-              required
-            />
+              className="select select-bordered w-full"
+            >
+              <option value="">Pilih Kategori</option>
+              <option value="mahasiswa">Mahasiswa</option>
+              <option value="alumni">Alumni</option>
+              <option value="dosen">Dosen / Pegawai</option>
+              <option value="umum">Umum</option>
+            </select>
             <input
               type="text"
               name="nama_layanan"
@@ -208,6 +223,7 @@ export default function TableListLayanan({ datalist }) {
           </thead>
           <tbody>
             {paginatedData.map((item, index) => (
+         
               <tr key={item.id}>
                 <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
                 <td>{item.kategori_pengguna}</td>
@@ -221,7 +237,10 @@ export default function TableListLayanan({ datalist }) {
                   )}
                 </td>
                 <td className="flex gap-1">
-                  <button className="btn btn-xs btn-secondary">Hapus</button>
+                  <button className="btn btn-xs btn-secondary" 
+                  onClick={() => {setHapus(item.id);
+                    document.getElementById("modalHapus").showModal();}}>
+                    Hapus</button>
                   <button className="btn btn-xs btn-info">Lihat</button>
                   <button
                     className="btn btn-xs btn-warning"
@@ -235,7 +254,36 @@ export default function TableListLayanan({ datalist }) {
           </tbody>
         </table>
       </div>
-
+      {/* Hapus Modal */}
+  
+        <dialog id="modalHapus" className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Hapus Layanan</h3>
+            <p>Apakah Anda yakin ingin menghapus layanan ini? {hapus}</p>
+            <div className="modal-action">
+              <button
+                className="btn"
+                onClick={() => {
+                  document.getElementById("modalHapus").close();
+                  setHapus(null);
+                }}
+              >
+                Batal
+              </button>
+              <button
+                className="btn btn-error"
+                onClick={() => {
+                  handleDelete(hapus);
+                  document.getElementById("modalHapus").close();
+                  setHapus(null);
+                }}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </dialog>
+    
       {/* Modal Update */}
       <dialog id="modalUpdate" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">

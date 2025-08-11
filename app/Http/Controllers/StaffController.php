@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PermohoanLayanan;
 use App\Models\TindakLanjut;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -82,6 +83,19 @@ class StaffController extends Controller
     }
 
     return back()->with('error', 'File lampiran tidak ditemukan.');
+}
+public function listuser(){
+    
+   $users = User::select('id', 'name', 'email', 'role')
+    ->where('role', 'staff')
+    ->get()
+    ->keyBy('id');
+
+
+    return Inertia::render('KelolaStaff', [
+        'title' => 'Kelola Staff',
+        'staff' => $users
+    ]);
 }
 
 }
