@@ -17,25 +17,21 @@ use Inertia\Inertia;
 | Public Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return Inertia::render('Konten', [
+Route::get('/', fn () =>
+    Inertia::render('Konten', [
         'title' => 'PTSP IMK',
-      
-    ]);
-})->name('beranda');
+    ])
+)->name('beranda');
 
 Route::post('/layanan', [LayananController::class, 'index'])->name('layanan');
-
-Route::get('/layanan', function () {
-    return redirect('/');
-});
+Route::get('/layanan', fn () => redirect('/'));
 Route::get('/layanan/mahasiswa', [LayananController::class, 'getLayananMahasiswa'])->name('layananmahasiswa');
+Route::get('/layanan/alumni', [LayananController::class, 'getLayananAlumni'])->name('layananalumni');
 
 Route::post('/permohonan-layanan', [PermohoanLayananController::class, 'store'])->name('permohonanlayanan');
 Route::post('/cekTiket', [TiketController::class, 'index'])->name('cekTiket');
 Route::get('/cekTiket/{no_tiket}', [TiketController::class, 'show'])->name('detailTiket');
-Route::post('/feedback',[FeedbackController::class,'store'])->name('feedback');
-
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback');
 
 /*
 |--------------------------------------------------------------------------
@@ -46,42 +42,36 @@ Route::post('/tindakLanjut', [PermohoanLayananController::class, 'tindakLanjut']
 Route::post('/tindak.lanjut_staff', [StaffController::class, 'TindakLanjutStaff'])->name('tindak_lanjut_staff');
 Route::post('/cekTindakLanjut', [PermohoanLayananController::class, 'cekTindakLanjut'])->name('cekTindakLanjut');
 
-Route::post('/tolak', [PermohoanLayananController::class, 'tolak'])
-    ->middleware(['auth', 'verified', 'role:ptsp'])
-    ->name('tolak');
-
-Route::post('/terima', [PermohoanLayananController::class, 'terima'])
-    ->middleware(['auth', 'verified', 'role:ptsp'])
-    ->name('terima');
+Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
+    Route::post('/tolak', [PermohoanLayananController::class, 'tolak'])->name('tolak');
+    Route::post('/terima', [PermohoanLayananController::class, 'terima'])->name('terima');
+});
 
 /*
 |--------------------------------------------------------------------------
 | Dashboard Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/dashboard', [PermohoanLayananController::class, 'index'])
-    ->middleware(['auth', 'verified', 'role:ptsp'])
-    ->name('dashboard');
-Route::get('/permohonanList', [PermohoanLayananController::class, 'list'])
-    ->middleware(['auth', 'verified', 'role:ptsp'])
-    ->name('permohonanList');
+Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
+    Route::get('/dashboard', [PermohoanLayananController::class, 'index'])->name('dashboard');
+    Route::get('/permohonanList', [PermohoanLayananController::class, 'list'])->name('permohonanList');
 
-Route::get('/dashboard_staff', [StaffController::class, 'index'])
-    ->middleware(['auth', 'role:staff'])
-    ->name('dashboard_staff');
+    Route::get('/listLayanan', [LayananController::class, 'show'])->name('listLayanan');
+    Route::post('/listLayanan', [LayananController::class, 'store'])->name('layananStore');
+    Route::put('/layanans/{id}', [LayananController::class, 'update'])->name('layanans.update');
+    Route::get('/layananget/{id}', [LayananController::class, 'persyaratan'])->name('persyaratan');
+    Route::delete('/layanans/{id}', [LayananController::class, 'destroy'])->name('layanansDestroy');
 
-Route::get('/listLayanan',[LayananController::class, 'show'])->middleware(['auth','verified','role:ptsp'])->name('listLayanan');
-Route::post('/listLayanan',[LayananController::class, 'store'])->middleware(['auth','verified','role:ptsp'])->name('layananStore');
-// routes/web.php
-Route::put('/layanans/{id}', [LayananController::class, 'update'])->name('layanans.update');
-Route::get('/layananget/{id}', [LayananController::class,'persyaratan'])->name('persyaratan');
-Route::delete('/layanans/{id}', [LayananController::class, 'destroy'])->name('layanansDestroy');
-Route::get('/kelolastaff', [StaffController::class, 'listuser'])
-    ->middleware(['auth', 'verified', 'role:ptsp'])
-    ->name('kelolaStaff');
+    Route::get('/kelolastaff', [StaffController::class, 'listuser'])->name('kelolaStaff');
+});
+
+Route::middleware(['auth', 'role:staff'])->group(function () {
+    Route::get('/dashboard_staff', [StaffController::class, 'index'])->name('dashboard_staff');
+});
+
 /*
 |--------------------------------------------------------------------------
-| Profile Routes (Protected)
+| Profile Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
@@ -96,10 +86,13 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/proxy-login', function (Request $request) {
-    $response = Http::asForm()->post('https://stahnmpukuturan.ac.id/api/login.php', [
-        'username' => $request->input('username'),
-        'password' => $request->input('password'),
-    ]);
+    $response = Http::asForm()->post(
+        'https://stahnmpukuturan.ac.id/api/login.php',
+        [
+            'username' => $request->input('username'),
+            'password' => $request->input('password'),
+        ]
+    );
 
     return response()->json($response->json(), $response->status());
 });
@@ -109,4 +102,4 @@ Route::post('/proxy-login', function (Request $request) {
 | Auth Routes
 |--------------------------------------------------------------------------
 */
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -161,39 +161,57 @@ class LayananController extends Controller
         return response()->json($result);
 
     }
-public function persyaratan($id)
-{
-    $layanan = Layanan::with('persyaratan')->find($id);
+        public function persyaratan($id)
+        {
+            $layanan = Layanan::with('persyaratan')->find($id);
 
-    if (!$layanan) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Layanan tidak ditemukan'
-        ], 404);
+            if (!$layanan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Layanan tidak ditemukan'
+                ], 404);
+            }
+
+            // Ambil daftar persyaratan saja
+            $syarat = $layanan->persyaratan
+                ->pluck('persyaratan')
+                ->filter()
+                ->values()
+                ->toArray();
+
+            // Kalau kosong, isi array dengan 1 elemen string kosong
+            if (empty($syarat)) {
+                $syarat = [""];
+            }
+
+            return response()->json([
+            'success' => true,
+            'id' => $layanan->id,
+            'deskripsi' => $layanan->deskripsi, // tambahkan
+            'status' => $layanan->status,       // tambahkan
+            'nama_layanan' => $layanan->nama_layanan,
+            'syarat' => $syarat
+        ]);
+
+        }
+    public function getLayananAlumni(){
+        $layanans = Layanan::with('persyaratan')
+            ->where('kategori_pengguna', 'alumni')
+            ->where('status','aktif')
+            ->get();
+
+        $result = [];
+
+        foreach ($layanans as $layanan) {
+            $result[] = [
+                'id' => $layanan->id,
+                'nama_layanan' => $layanan->nama_layanan,
+                'persyaratan' => $layanan->persyaratan->pluck('persyaratan')->toArray()
+            ];
+        }
+
+        return response()->json($result);
     }
-
-    // Ambil daftar persyaratan saja
-    $syarat = $layanan->persyaratan
-        ->pluck('persyaratan')
-        ->filter()
-        ->values()
-        ->toArray();
-
-    // Kalau kosong, isi array dengan 1 elemen string kosong
-    if (empty($syarat)) {
-        $syarat = [""];
-    }
-
-    return response()->json([
-    'success' => true,
-    'id' => $layanan->id,
-    'deskripsi' => $layanan->deskripsi, // tambahkan
-    'status' => $layanan->status,       // tambahkan
-    'nama_layanan' => $layanan->nama_layanan,
-    'syarat' => $syarat
-]);
-
-}
 
 
 

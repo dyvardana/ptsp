@@ -4,7 +4,7 @@ import { BadgeCheck, X } from "lucide-react";
 import axios from 'axios';
 
 export default function TableListLayanan({ datalist }) {
- 
+  const [namaLayanan, setNamaLayanan] = useState("");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [list, setList] = useState(datalist);
@@ -128,6 +128,7 @@ export default function TableListLayanan({ datalist }) {
 
   return (
     <div className="p-4">
+      
       {/* Header */}
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-lg font-bold">Daftar Layanan</h2>
@@ -148,6 +149,54 @@ export default function TableListLayanan({ datalist }) {
         </div>
       </div>
 
+      
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="table table-xs">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Kategori</th>
+              <th>Nama Layanan</th>
+              <th>Deskripsi</th>
+              <th>Aktif</th>
+              <th>Pilihan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.map((item, index) => (
+         
+              <tr key={item.id}>
+                <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
+                <td>{item.kategori_pengguna}</td>
+                <td>{item.nama_layanan}</td>
+                <td>{item.deskripsi}</td>
+                <td>
+                  {item.status === "aktif" ? (
+                    <BadgeCheck className="text-green-500" />
+                  ) : (
+                    <X className="text-red-500" />
+                  )}
+                </td>
+                <td className="flex gap-1">
+                  <button className="btn btn-xs btn-secondary" 
+                  onClick={() => {setHapus(item.id); setNamaLayanan(item.nama_layanan);
+                    document.getElementById("modalHapus").showModal();}}>
+                    Hapus</button>
+                  <button className="btn btn-xs btn-info">Lihat</button>
+                  <button
+                    className="btn btn-xs btn-warning"
+                    onClick={() => handleEdit(item.id)}
+                  >
+                    Update
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {/* Modal Tambah */}
       <dialog id="modalTambah" className="modal">
         <div className="modal-box">
@@ -207,59 +256,15 @@ export default function TableListLayanan({ datalist }) {
           </form>
         </div>
       </dialog>
-
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="table table-xs">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kategori</th>
-              <th>Nama Layanan</th>
-              <th>Deskripsi</th>
-              <th>Aktif</th>
-              <th>Pilihan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((item, index) => (
-         
-              <tr key={item.id}>
-                <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
-                <td>{item.kategori_pengguna}</td>
-                <td>{item.nama_layanan}</td>
-                <td>{item.deskripsi}</td>
-                <td>
-                  {item.status === "aktif" ? (
-                    <BadgeCheck className="text-green-500" />
-                  ) : (
-                    <X className="text-red-500" />
-                  )}
-                </td>
-                <td className="flex gap-1">
-                  <button className="btn btn-xs btn-secondary" 
-                  onClick={() => {setHapus(item.id);
-                    document.getElementById("modalHapus").showModal();}}>
-                    Hapus</button>
-                  <button className="btn btn-xs btn-info">Lihat</button>
-                  <button
-                    className="btn btn-xs btn-warning"
-                    onClick={() => handleEdit(item.id)}
-                  >
-                    Update
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
       {/* Hapus Modal */}
   
         <dialog id="modalHapus" className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Hapus Layanan</h3>
-            <p>Apakah Anda yakin ingin menghapus layanan ini? {hapus}</p>
+            <p>Apakah Anda yakin ingin menghapus layanan {namaLayanan}? </p>
+            <span className="text-red-500 text-xs">
+              <strong>PERHATIAN:</strong> Tindakan ini dapat mengakibatkan kehilangan data yang tidak dapat dikembalikan.
+            </span>
             <div className="modal-action">
               <button
                 className="btn"

@@ -13,8 +13,8 @@ export default function KelolaStaff(props) {
             errors={props.errors}
         >
             <Head title={props.title} />
-            <div className='flex justify-center items-center '>
-                 <TableListStaff data={props.staff}/> 
+            <div >
+                 <TableListStaff staff={props.staff}/> 
             </div>
         </AuthenticatedLayout>
     );

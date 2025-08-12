@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Head, Link } from '@inertiajs/react';
 
@@ -8,12 +8,77 @@ import Homepage from '@/Layouts/Homepage';
 export default function Konten(){
      const [showCekForm, setShowCekForm] = useState(false);
   const [noTiket, setNoTiket] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
+  const videoRef = useRef(null);
+const faqs = [
+  {
+    question: "Apa itu PTSP IMK?",
+    answer:
+      "PTSP (Pelayanan Terpadu Satu Pintu) IMK adalah sistem layanan daring yang disediakan oleh Institut Mpu Kuturan untuk mempermudah mahasiswa, alumni, dosen/pegawai, dan masyarakat umum dalam mengakses berbagai layanan administrasi dan informasi secara cepat dan transparan.",
+  },
+  {
+    question: "Siapa saja yang dapat menggunakan layanan PTSP?",
+    answer:
+      "Layanan PTSP IMK dapat diakses oleh: Mahasiswa aktif, Alumni, Dosen dan pegawai, serta Masyarakat umum yang memerlukan informasi atau layanan tertentu dari IMK.",
+  },
+  {
+    question: "Bagaimana cara mengajukan layanan di PTSP IMK?",
+    answer:
+      "Pengguna dapat mengakses laman resmi ptsp.imk.ac.id, memilih jenis layanan, melengkapi formulir, mengunggah dokumen pendukung, lalu mengirim permohonan dan menunggu konfirmasi dari petugas.",
+  },
+  {
+    question: "Apakah semua layanan PTSP gratis?",
+    answer:
+      "Sebagian besar layanan PTSP tidak dikenakan biaya. Namun, terdapat beberapa layanan tertentu yang mungkin memiliki biaya administrasi sesuai dengan peraturan yang berlaku di Institut Mpu Kuturan.",
+  },
+  {
+    question: "Berapa lama waktu proses layanan?",
+    answer:
+      "Waktu proses layanan bervariasi tergantung jenis layanan yang diajukan. Informasi estimasi waktu pengerjaan dapat dilihat pada halaman deskripsi masing-masing layanan di laman PTSP.",
+  },
+  {
+    question: "Bagaimana cara memantau status permohonan?",
+    answer:
+      "Pengguna dapat memeriksa status permohonan melalui fitur 'Lacak Permohonan' di laman PTSP dengan memasukkan nomor registrasi atau kode unik yang diberikan.",
+  },
+  {
+    question: "Bagaimana jika saya mengalami kendala saat menggunakan PTSP?",
+    answer:
+      "Silakan menghubungi Helpdesk PTSP IMK melalui email ptsp@imk.ac.id, WhatsApp resmi, atau formulir kontak di laman PTSP.",
+  },
+];
+const [openIndex, setOpenIndex] = useState(null);
+const toggleFaq = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 } // 20% terlihat di layar
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
     return(
+      
         <Homepage>
 
                   {/* Carousel */}
                   <div className=" pb-32">
-                 
+           
+
+
             
                     {/* Hero Section */}
                     <div className="flex flex-col items-center justify-start pt-40 px-4">
@@ -33,7 +98,7 @@ export default function Konten(){
                           </div>
                           <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-56">
                             <li><Link href={route('layanan')}data={{ kategori: 'mahasiswa' }} method="post">Mahasiswa</Link></li>
-                            <li><Link method="get">Alumni</Link></li>
+                            <li><Link href={route('layanan')}data={{ kategori: 'alumni' }} method="post" >Alumni</Link></li>
                             <li><Link  method="get">Dosen / Pegawai</Link></li>
                             <li><Link  method="get">Masyarakat Umum</Link></li>
                           </ul>
@@ -63,28 +128,38 @@ export default function Konten(){
                     {/* Dua Kolom */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-10">
                       {/* Kolom Kiri */}
-                      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
-                        <div className="aspect-video w-full">
-                          <iframe
-                            src="https://www.youtube.com/embed/PUlz5IbwoeM?si=gH1n6F624Mv734r4"
-                            title="YouTube video player"
-                            className="w-full h-full rounded"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
+                      <div
+      ref={videoRef}
+      className="bg-white p-4 sm:p-6 rounded-xl shadow-md"
+    >
+      <div className="aspect-video w-full rounded overflow-hidden">
+        {isVisible ? (
+          <iframe
+            src="https://www.youtube.com/embed/PUlz5IbwoeM?autoplay=1&mute=1"
+            title="YouTube video player"
+            className="w-full h-full"
+            frameBorder="0"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <img
+            src="https://img.youtube.com/vi/PUlz5IbwoeM/hqdefault.jpg"
+            alt="Video thumbnail"
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
+    </div>
             
                       {/* Kolom Kanan */}
                       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
                         <h2 className="text-xl font-semibold mb-4 text-purple-800">Selamat Datang di Laman PTSP IMK</h2>
                         <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                          Sesuai amanat Undang-Undang (UU) Nomor: 14 Tahun 2008 tentang Keterbukaan Informasi Publik (KIP), Institut Mpu Kuturan (IMK) sebagai badan publik berupaya memenuhi kebutuhan publik akan informasi dengan membuat laman ptsp.imk.ac.id.
+                          Sejalan dengan amanat Undang-Undang Nomor 25 Tahun 2009 tentang Pelayanan Publik, Institut Mpu Kuturan (IMK) sebagai badan publik berkomitmen untuk memberikan pelayanan yang optimal guna memenuhi kebutuhan masyarakat. Wujud komitmen tersebut diwujudkan melalui pengembangan laman layanan terpadu di ptsp.imk.ac.id.
                         </p>
                         <p className="text-gray-600 text-sm sm:text-base">
-                          Situs PTSP dirancang untuk mempermudah akses ke berbagai dokumen atau informasi yang tersedia, yang kami susun di laman Daftar Informasi Publik, dan telah dikelompokkan berdasarkan kategori-kategori yang sesuai, sehingga diharapkan mempermudah publik untuk mengaksesnya. Apabila membutuhkan layanan informasi, masyarakat juga dapat mengajukan permohonan sesuai prosedur dan ketentuan yang berlaku.
+                          Situs PTSP ini dirancang untuk memberikan kemudahan akses bagi mahasiswa, alumni, dosen/pegawai, serta masyarakat umum. Melalui platform ini, publik dapat mengakses berbagai layanan secara cepat, praktis, dan transparan. Apabila memerlukan layanan informasi lebih lanjut, masyarakat juga dapat mengajukan permohonan sesuai prosedur dan ketentuan yang berlaku.
                         </p>
                       </div>
                     </div>
@@ -194,7 +269,39 @@ export default function Konten(){
                 </div>
               </div>
             )}
-            
+            <div className="py-12 px-4 sm:px-6 md:px-12 rounded-xl">
+      <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+        FAQ – Layanan PTSP IMK
+      </h2>
+      {faqs.map((faq, index) => (
+        <div key={index} className="border-b border-gray-200">
+          <button
+            onClick={() => toggleFaq(index)}
+            className="w-full flex justify-between items-center py-4 text-left focus:outline-none"
+          >
+            <span className="font-medium text-gray-700">{faq.question}</span>
+            <svg
+              className={`w-5 h-5 text-gray-500 transform transition-transform duration-200 ${
+                openIndex === index ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {openIndex === index && (
+            <div className="pb-4 text-gray-600">{faq.answer}</div>
+          )}
+        </div>
+      ))}
+    </div>
         </Homepage>
     )
 }

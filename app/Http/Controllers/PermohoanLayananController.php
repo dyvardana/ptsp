@@ -68,12 +68,24 @@ class PermohoanLayananController extends Controller
         DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
     )
     ->get();
-
+        $menunggu = $data->where('status', 'menunggu')->count();
+        $diterima = $data->where('status', 'diterima')->count();
+        $ditolak = $data->where('status', 'ditolak')->count();
+        $diproses = $data->where('status', 'diproses')->count();
+        $selesai = $data->where('status', 'selesai')->count();
+        $statusData = [
+            'menunggu' => $menunggu,
+            'diterima' => $diterima,
+            'ditolak' => $ditolak,
+            'diproses' => $diproses,
+            'selesai' => $selesai,
+        ];
         //dd($data);
         return Inertia::render('PermohonanList', [
             'title' => 'Dashboard - PTSP',
             'data' => $data,
             'staff' => $staff,
+            'statusData' => $statusData,
              
         ]);
 
@@ -187,7 +199,7 @@ class PermohoanLayananController extends Controller
             'updated_at' => now(),
         ];
         PermohoanLayanan::where('id',$request->id)->update($data);
-        return to_route('dashboard')->with('message', 'Data berhasil diupdate');
+        return redirect()->back()->with('message', 'Data berhasil diupdate');
 
     }
 
@@ -212,15 +224,15 @@ class PermohoanLayananController extends Controller
         
        // dd($tiketing);
        Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
-       return to_route('dashboard')->with('message', 'Data berhasil diupdate');
+       return redirect()->back()->with('message', 'Data berhasil ditolak');
     }
     function generateNoTiket()
-{
+    {
     $tanggal = now()->format('dmy'); // ddmmyy
     $unik = mt_rand(100, 999); // 3 digit acak
 
     return "IMK".$tanggal . $unik;
-}
+    }
      public function tindakLanjut(Request $request){
        // dd($request);
         $tindaklanjut = [
