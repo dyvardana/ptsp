@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { router } from '@inertiajs/react';
 export default function Alumni() {
   const [datamahasiswaValid, setDatamahasiswaValid] = useState(false);
   const [statusMahasiswa, setStatusMahasiswa] = useState("");
-
+  const [prodiList, setProdiList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    fetch("https://stahnmpukuturan.ac.id/api/cekprodi.php")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setProdiList(data.data);
+        } else {
+          console.error("Data prodi tidak ditemukan");
+        }
+      })
+      .catch((err) => console.error("Error:", err));
+  }, []);
   const [form, setForm] = useState({
     id_layanan:"",
     nama_pemohon: "",
     nim: "",
+    nik: "",
     identitas_pengguna: "",
+    prodi: "",
     alamat: "",
-    pekerjaan: "alumni",
+    kategori_pengguna: "alumni",
     no_hp: "",
     email: "",
     keterangan_tambahan: "",
@@ -24,19 +39,28 @@ export default function Alumni() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setForm({
-      ...form,
-      [name]: files ? files[0] : value,
-    });
+    setForm((prev) => ({
+    ...prev,
+    [name]: files ? files[0] : value,
+    ...(name === "nik" && { identitas_pengguna: value }), // ✅ otomatis isi identitas_pengguna
+     kategori_pengguna: "alumni", // 🔒 selalu set alumni
+  }));
    
   };
 
   const handleCekDataMahasiswa = async () => {
+     if (!form.nik || !form.prodi) {
+    alert("Mohon isi NIK dan Prodi terlebih dahulu.");
+    return; // hentikan eksekusi
+  }
+    
+    console.log(form.identitas_pengguna);
     try {
       const res = await fetch("https://stahnmpukuturan.ac.id/api/cekalumni.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nik: form.nik, nipd: form.identitas_pengguna }),
+        body: JSON.stringify({ nik: form.nik, id_prodi: form.prodi }),
+        
       });
       const data = await res.json();
       if (data && data.user && data.user.nama) {
@@ -61,30 +85,31 @@ export default function Alumni() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const formData = new FormData();
       Object.entries(form).forEach(([key, value]) => {
         formData.append(key, value);
       });
-
       const response = await axios.post("/permohonan-layanan", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
+      alert(
+        "Data berhasil dikirim dengan nomor tiket: " +
+          response.data.tiket.no_tiket
+      );
+      router.visit(route('detailTiket', { no_tiket: response.data.tiket.no_tiket }));
 
-      console.log("Berhasil:", response.data.message, response.data.data, response.data.tiket);
-      alert("Data berhasil dikirim dengan nomor tiket : "+ response.data.tiket.no_tiket);
-      redirect(route('cekTiket', { no_tiket: response.data.tiket.no_tiket }));
     } catch (error) {
       if (error.response?.status === 422) {
-        console.error("Validasi gagal:", error.response.data.errors);
-        alert("Validasi gagal:\n" + JSON.stringify(error.response.data.errors));
+        alert(
+          "Validasi gagal:\n" + JSON.stringify(error.response.data.errors)
+        );
       } else {
-        console.error("Gagal:", error);
         alert("Terjadi kesalahan saat mengirim data.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,7 +130,7 @@ export default function Alumni() {
 
 
   return (
-    <div className=" px-4 pb-20">
+    <div className="pt-40 px-4 pb-20">
       <div className="max-w-4xl mx-auto">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
@@ -118,20 +143,30 @@ export default function Alumni() {
               <div>
                 <h3 className="text-lg font-semibold mb-2">Informasi Alumni</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input type="text" name="identitas_pengguna" value={form.identitas_pengguna} onChange={handleChange} className="input input-bordered w-full" placeholder="NIM" required />
+                  
+                  <select
+                    name="prodi"
+                    value={form.prodi}
+                    onChange={(e) => setForm({ ...form, prodi: e.target.value })}
+                    className="border p-2 rounded"
+                    required
+                  >
+                    <option value="">Pilih Prodi</option>
+                    {prodiList.map((prodi) => (
+                      <option key={prodi.id_prodi} value={prodi.id_prodi}>
+                        {prodi.nama_prodi}
+                      </option>
+                    ))}
+                  </select>
 
                   <div className="flex gap-2">
-                    <input type="text" name="nik" value={form.nik} onChange={handleChange} className="input input-bordered flex-1" placeholder="NIK" required />
+                    <input type="text" required name="nik" value={form.nik} onChange={handleChange} className="input input-bordered flex-1" placeholder="NIK"  />
                     <button type="button" className="btn btn-accent whitespace-nowrap" onClick={handleCekDataMahasiswa}>Cek</button>
                   </div>
-
-                  <input type="text" name="nama_pemohon" value={form.nama_pemohon} onChange={handleChange} className="input input-bordered w-full" placeholder="Nama Lengkap" readOnly required />
-
-                  <input type="text" name="no_hp" value={form.no_hp} onChange={handleChange} className="input input-bordered w-full" placeholder="No. HP" readOnly required />
-
-                  <input type="email" name="email" value={form.email} onChange={handleChange} className="input input-bordered w-full" placeholder="Email"  />
-
-                  <textarea name="alamat" value={form.alamat} onChange={handleChange} className="textarea textarea-bordered w-full" placeholder="Alamat Lengkap" rows="2" readOnly required></textarea>
+                  <input type="text" required name="nama_pemohon" value={form.nama_pemohon} onChange={handleChange} className="input input-bordered w-full" placeholder="Nama Lengkap" readOnly  />
+                  <input type="text" required name="no_hp" value={form.no_hp} onChange={handleChange} className="input input-bordered w-full" placeholder="No. HP"   />
+                  <input type="email" required name="email" value={form.email} onChange={handleChange} className="input input-bordered w-full" placeholder="Email"  />
+                  <textarea name="alamat" value={form.alamat} onChange={handleChange} className="textarea textarea-bordered w-full" placeholder="Alamat Lengkap" rows="2"  required></textarea>
                 </div>
               </div>
 
@@ -152,8 +187,7 @@ export default function Alumni() {
                             layananMahasiswa.find((l) => l.id.toString() === e.target.value)
                               ?.nama_layanan || "",
                         });
-                      }}
-                    >
+                      }} >
                       <option value="" disabled>Pilih Layanan</option>
                       {layananMahasiswa.map((layanan) => (
                         <option key={layanan.id} value={layanan.id}>
@@ -189,7 +223,13 @@ export default function Alumni() {
                     </div>
 
                     <div className="card-actions justify-end pt-4">
-                      <button type="submit" className="btn btn-primary">Kirim Permohonan</button>
+                      <button
+                      type="submit"
+                      disabled={loading}
+                      className={`px-4 py-2 rounded text-white ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"}`}
+                    >
+                      {loading ? "Mengirim..." : "Kirim"}
+                    </button>
                     </div>
                   </div>
                 </div>
@@ -198,6 +238,37 @@ export default function Alumni() {
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+          <div className="flex flex-col items-center">
+            <svg
+              className="animate-spin h-10 w-10 text-green-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+              ></path>
+            </svg>
+            <span className="mt-2 text-green-600 font-semibold">
+              Mengirim data...
+            </span>
+          </div>
+        </div>
+      )}
+
     </div>
+    
   );
 }

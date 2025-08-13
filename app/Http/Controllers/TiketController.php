@@ -107,7 +107,7 @@ if (!$data) {
 // Gunakan first() langsung, jika tidak ada otomatis null
 $tindakLanjut = TindakLanjut::where('id_permohonan_layanan', $data->id_permohonan_layanan)->first() ?? null;
 $feedback = Feedback::where('id_permohonan_layanan', $data->id_permohonan_layanan)->first() ?? null;
-return Inertia::render('CekTiket', [
+return Inertia::render('HomePageCekTiket', [
     'data' => $data,
     'tindak_lanjut' => $tindakLanjut, // null jika tidak ada
     'feedback'=>$feedback,

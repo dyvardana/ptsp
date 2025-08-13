@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Head, Link } from '@inertiajs/react';
-import Navbar from '@/Pages/Navbar';
-import Footer from '@/Pages/Footer';
-import MiniNavbar from '@/Pages/MiniNavbar';
+import Navbar from '@/Layouts/Navbar';
+import Footer from '@/Layouts/Footer';
+import MiniNavbar from '@/Layouts/MiniNavbar';
 
 export default function Homepage({children}) {
  
@@ -24,7 +24,7 @@ export default function Homepage({children}) {
         <MiniNavbar />
         <Navbar />
       </div>
-       <main className="pt-40">
+       <main >
         {children}
       </main>
       

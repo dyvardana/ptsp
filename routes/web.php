@@ -18,12 +18,12 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn () =>
-    Inertia::render('Konten', [
+    Inertia::render('HomePageKonten', [
         'title' => 'PTSP IMK',
     ])
 )->name('beranda');
 
-Route::post('/layanan', [LayananController::class, 'index'])->name('layanan');
+Route::post('/layanan', [LayananController::class, 'select'])->name('layanan');
 Route::get('/layanan', fn () => redirect('/'));
 Route::get('/layanan/mahasiswa', [LayananController::class, 'getLayananMahasiswa'])->name('layananmahasiswa');
 Route::get('/layanan/alumni', [LayananController::class, 'getLayananAlumni'])->name('layananalumni');

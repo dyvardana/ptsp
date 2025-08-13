@@ -44,7 +44,7 @@ class StaffController extends Controller
         )
         ->get();
          //  dd($data);
-        return Inertia::render('DashboardStaff', [
+        return Inertia::render('Profile/Staff/DashboardStaff', [
             'title' => 'Dashboard - Staff',
             'data' => $data
         ]);

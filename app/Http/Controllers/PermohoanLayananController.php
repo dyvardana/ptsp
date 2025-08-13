@@ -33,7 +33,7 @@ class PermohoanLayananController extends Controller
                 'jumlahLayananUmum' => $jumlahLayananUmum,
                 'jumlahLayananStaff' => $jumlahLayananStaff,
             ];
-        return Inertia::render('Dashboard',[
+        return Inertia::render('Profile/Ptsp/Dashboard',[
             'title'=>'Dashboard',
             'data' => $data,
         ]);
@@ -136,7 +136,12 @@ class PermohoanLayananController extends Controller
     // Tambahan data default
     $validated['status'] = 'menunggu';
     $validated['tanggal_pengajuan'] = now();
-    $validated['kategori_pengguna'] = 'mahasiswa';
+    if( !$request->kategori_pengguna ){
+        $validated['kategori_pengguna'] = 'mahasiswa';
+    }else{
+        $validated['kategori_pengguna'] = $request->kategori_pengguna;
+    }
+    
 
     // Simpan ke database
     $permohonan = PermohoanLayanan::create($validated);

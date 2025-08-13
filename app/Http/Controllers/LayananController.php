@@ -13,17 +13,22 @@ class LayananController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function select(Request $request)
     {
         $kategori = $request->input('kategori');
 
-    if (!$kategori) {
-        return redirect('/');
-    }
+        if (!$kategori) {
+            return redirect('/');
+        }
 
-    return Inertia::render('InputLayanan', [
-        'kategori' => $kategori,
-    ]);
+        return Inertia::render('HomepageInputLayanan', [
+            'kategori' => $kategori,
+        ]);
+
+    }
+    public function index(Request $request)
+    {
+       
     }
 
     /**
@@ -65,7 +70,7 @@ class LayananController extends Controller
     {
         // Tampilkan detail layanan
         $list = Layanan::get();
-        return Inertia::render('LayananList',[
+        return Inertia::render('KelolaLayanan',[
             'title'=>'layanan',
             'list' => $list
         ]);

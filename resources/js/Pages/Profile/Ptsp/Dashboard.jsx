@@ -1,6 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import TableLayanan from '@/Pages/TablePermohonanLayanan';
 import { Head } from '@inertiajs/react';
-import TableLayanan from './TableLayanan';
+
+
 import { User,GraduationCap,Cat,Baby } from 'lucide-react';
 export default function Dashboard(props) {
    // console.log('dashboard :',props);

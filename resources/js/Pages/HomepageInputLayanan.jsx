@@ -1,11 +1,11 @@
 
-import Mahasiswa from "./Mahasiswa";
-import Alumni from "./Alumni";
+import Mahasiswa from "./Komponen/Mahasiswa";
+import Alumni from "./Komponen/Alumni";
 import { usePage } from '@inertiajs/react';
 import Homepage from "@/Layouts/Homepage";
 
 
-export default function InputLayanan() {
+export default function HomepageInputLayanan() {
  
 const { props } = usePage();
   const kategori = props.kategori;

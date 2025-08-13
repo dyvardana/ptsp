@@ -3,10 +3,10 @@ import { Link } from 'lucide-react';
 import { useState } from 'react';
 import { Inertia } from '@inertiajs/inertia';
 import React from 'react';
-import { Clock, CheckCircle, Send, FileText, X,Loader } from 'lucide-react';
+import { Clock, CheckCircle, Send, FileText, X,Loader, Download } from 'lucide-react';
 
 
-export default function CekTiket({ data,tindak_lanjut,feedback}) {
+export default function HomePageCekTiket({ data,tindak_lanjut,feedback}) {
   console.log(feedback);
    const [ratings, setRatings] = useState({
     kecepatan: 2,
@@ -36,7 +36,7 @@ export default function CekTiket({ data,tindak_lanjut,feedback}) {
   };
   return (
     <Homepage>
-      <div className="mockup-window border border-base-300 max-w-4xl mx-auto">
+      <div className="mockup-window border border-base-300 max-w-4xl mx-auto pt-40">
         <div className="border-t border-base-300 p-10 space-y-8">
           
           {/* ✅ 2 kolom kiri & kanan */}
@@ -69,7 +69,9 @@ export default function CekTiket({ data,tindak_lanjut,feedback}) {
 </span>
 </p>
               {data.status==="selesai"?(
-                <p><strong>File:</strong> <Link href={`/storage/${tindak_lanjut?.file_lampiran}`}>Download</Link></p>
+                <p className="flex items-center gap-2"><strong>File:</strong><a target="_blank" rel="noopener noreferrer" href={`/${tindak_lanjut.file_lampiran}`} 
+                className="text-green-600 hover:underline flex items-center gap-1"><Download /> Download</a></p>
+
               ):null}
             </div>
 
@@ -138,8 +140,47 @@ export default function CekTiket({ data,tindak_lanjut,feedback}) {
                   </li>
                 </ul>
                   </>
-                ):
-                null}
+                ):data.status==="diterima"?(
+                  <>
+                    <ul className="steps w-full">
+                  <li className="step step-info">
+                    <span className="step-icon"><FileText size={18} /></span>
+                    Pengajuan
+                  </li>
+                  <li className="step step-info">
+                    <span className="step-icon"><Clock size={18} /></span>
+                    Diterima
+                  </li>
+                  <li className="step">
+                    <span className="step-icon"><Loader size={18} /></span>
+                    Diproses
+                  </li>
+                  <li className="step">
+                    <span className="step-icon"><CheckCircle size={18} /></span>
+                    Selesai
+                  </li>
+                </ul>
+                  </>):data.status==="menunggu"?(
+                  <>
+                    <ul className="steps w-full">
+                  <li className="step step-neutral">
+                    <span className="step-icon"><FileText size={18} /></span>
+                    Pengajuan
+                  </li>
+                  <li className="step ">
+                    <span className="step-icon"><Clock size={18} /></span>
+                    Diterima
+                  </li>
+                  <li className="step">
+                    <span className="step-icon"><Loader size={18} /></span>
+                    Diproses
+                  </li>
+                  <li className="step">
+                    <span className="step-icon"><CheckCircle size={18} /></span>
+                    Selesai
+                  </li>
+                </ul>
+                  </>):null}
                  
               </div>
 

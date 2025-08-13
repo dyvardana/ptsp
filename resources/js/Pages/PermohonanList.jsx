@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import TableLayanan from './TableLayanan';
+import TableLayanan from './TablePermohonanLayanan';
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle,X} from 'lucide-react';
 export default function PermohonanList(props) {

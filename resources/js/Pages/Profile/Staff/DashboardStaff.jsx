@@ -1,6 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import TableLayananStaff from '@/Pages/TableLayananStaff';
 import { Head } from '@inertiajs/react';
-import TableLayananStaff from './TableLayananStaff';
+
+
 
 export default function DashboardStaff(props) {
     

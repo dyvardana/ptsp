@@ -62,7 +62,7 @@ export default function Navbar() {
               </details>
             </li>
             <li>
-              <Link href={route('login')}></Link>
+              <Link href={route('login')}>Login</Link>
             
             </li>
           </ul>

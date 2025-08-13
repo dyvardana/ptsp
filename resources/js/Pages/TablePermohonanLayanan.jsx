@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { usePage } from '@inertiajs/react';
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle} from 'lucide-react';
-export default function TableLayanan({ data,staff }) {
+export default function TablePermohonanLayanan({ data,staff }) {
  // console.log(data);
  // State Utama
 const user = usePage().props.auth.user;

@@ -3,7 +3,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import TableListLayanan from "./Komponen/TableListLayanan";
 
 
-export default function LayananList(props) {
+export default function KelolaLayanan(props) {
   
 
   return (

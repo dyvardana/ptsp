@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { router } from '@inertiajs/react';
 export default function Mahasiswa() {
   const [datamahasiswaValid, setDatamahasiswaValid] = useState(false);
   const [statusMahasiswa, setStatusMahasiswa] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     id_layanan:"",
     nama_pemohon: "",
     nim: "",
     identitas_pengguna: "",
     alamat: "",
-    pekerjaan: "mahasiswa",
+    kategori_pengguna: "mahasiswa",
     no_hp: "",
     email: "",
     keterangan_tambahan: "",
@@ -61,29 +61,31 @@ export default function Mahasiswa() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const formData = new FormData();
       Object.entries(form).forEach(([key, value]) => {
         formData.append(key, value);
       });
-
       const response = await axios.post("/permohonan-layanan", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
+      alert(
+        "Data berhasil dikirim dengan nomor tiket: " +
+          response.data.tiket.no_tiket
+      );
+      router.visit(route('detailTiket', { no_tiket: response.data.tiket.no_tiket }));
 
-      console.log("Berhasil:", response.data.message, response.data.data, response.data.tiket);
-      alert("Data berhasil dikirim dengan nomor tiket : "+ response.data.tiket.no_tiket);
     } catch (error) {
       if (error.response?.status === 422) {
-        console.error("Validasi gagal:", error.response.data.errors);
-        alert("Validasi gagal:\n" + JSON.stringify(error.response.data.errors));
+        alert(
+          "Validasi gagal:\n" + JSON.stringify(error.response.data.errors)
+        );
       } else {
-        console.error("Gagal:", error);
         alert("Terjadi kesalahan saat mengirim data.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,7 +106,7 @@ export default function Mahasiswa() {
 
 
   return (
-    <div className=" px-4 pb-20">
+    <div className="pt-40 px-4 pb-20">
       <div className="max-w-4xl mx-auto">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
@@ -188,7 +190,13 @@ export default function Mahasiswa() {
                     </div>
 
                     <div className="card-actions justify-end pt-4">
-                      <button type="submit" className="btn btn-primary">Kirim Permohonan</button>
+                      <button
+                      type="submit"
+                      disabled={loading}
+                      className={`px-4 py-2 rounded text-white ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"}`}
+                    >
+                      {loading ? "Mengirim..." : "Kirim"}
+                    </button>
                     </div>
                   </div>
                 </div>
@@ -197,6 +205,35 @@ export default function Mahasiswa() {
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+          <div className="flex flex-col items-center">
+            <svg
+              className="animate-spin h-10 w-10 text-green-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+              ></path>
+            </svg>
+            <span className="mt-2 text-green-600 font-semibold">
+              Mengirim data...
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
