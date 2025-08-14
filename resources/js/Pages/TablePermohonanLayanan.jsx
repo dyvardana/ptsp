@@ -138,7 +138,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
       {/* TABEL */}
       <div className="mockup-window border border-base-300 bg-base-100 p-4">
         <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Permohonan Layanan</h2>
+          <h2 className="text-lg font-semibold">Permohonan Masuk</h2>
           <input
             type="text"
             placeholder="Cari..."
@@ -333,7 +333,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
                   </button>
                 ) : selectedItem.status === "diterima" ? (
                   <>
-                    <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
+                <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
                   Teruskan Ke Staff
                 </button>
 
@@ -344,7 +344,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
                 ) : 
                 selectedItem.status === "diproses" ? (
                   <>
-                    <button className="btn btn-primary" >
+                <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
                   Ubah Tujuan
                 </button>
 
@@ -459,7 +459,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
     </div>
   </div>
 )}
-
+ 
 
     </>
   );

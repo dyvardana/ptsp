@@ -75,53 +75,91 @@ const toggleFaq = (index) => {
         <Homepage>
 
                   {/* Carousel */}
-                  <div className=" pb-32 md:pt-40 sm:pt-20">
+                  <div className=" md:pb-32 sm:pb-10 md:pt-40 sm:pt-20">
                     {/* Hero Section */}
                     <div className="flex flex-col items-center justify-start pt-40 px-4">
-                      <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-center text-blue-700 mb-6 tracking-wide leading-relaxed">
+                      <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-center text-gold-700 mb-6 tracking-wide leading-relaxed">
                           Pelayanan Terpadu Satu Pintu <br /> INSTITUT MPU KUTURAN
                         </h1>
 
             
                       {/* Tombol sejajar */}
                       <div className="flex gap-4 flex-wrap justify-center mb-4">
-                        
-                        <div className="dropdown dropdown-bottom">
-                          <div tabIndex={0} role="button" className="btn btn-outline btn-primary px-6 py-3 rounded-xl text-lg transition duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4 mr-2">
-                              <path fillRule="evenodd" d="M2 2.75A.75.75 0 0 1 2.75 2h9.5a.75.75 0 0 1 0 1.5h-9.5A.75.75 0 0 1 2 2.75ZM2 6.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5A.75.75 0 0 1 2 6.25Zm0 3.5A.75.75 0 0 1 2.75 9h3.5a.75.75 0 0 1 0 1.5h-3.5A.75.75 0 0 1 2 9.75ZM9.22 9.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1-1.06 1.06l-.97-.97v5.69a.75.75 0 0 1-1.5 0V8.56l-.97.97a.75.75 0 0 1-1.06 0Z" clipRule="evenodd" />
-                            </svg>
-                            <span>Mulai Layanan</span>
-                          </div>
-                          <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-56">
-                            <li><Link href={route('layanan')}data={{ kategori: 'mahasiswa' }} method="post">Mahasiswa</Link></li>
-                            <li><Link href={route('layanan')}data={{ kategori: 'alumni' }} method="post" >Alumni</Link></li>
-                            <li><Link  method="get">Dosen / Pegawai</Link></li>
-                            <li><Link  method="get">Masyarakat Umum</Link></li>
-                          </ul>
-                        </div>
-            
-                     <button 
-              onClick={() => setShowCekForm(true)}
-              className="btn btn-outline btn-secondary px-6 py-3 rounded-xl text-lg transition duration-300"
-            >
-            
-            
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
-              <path d="M6.25 8.75v-1h-1a.75.75 0 0 1 0-1.5h1v-1a.75.75 0 0 1 1.5 0v1h1a.75.75 0 0 1 0 1.5h-1v1a.75.75 0 0 1-1.5 0Z" />
-              <path fillRule="evenodd" d="M7 12c1.11 0 2.136-.362 2.965-.974l2.755 2.754a.75.75 0 1 0 1.06-1.06l-2.754-2.755A5 5 0 1 0 7 12Zm0-1.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" clipRule="evenodd" />
-            </svg>
-            
-                         <span> Cek Pengajuan</span>
-                        </button>
-                      </div>
+  {/* Dropdown */}
+  <div className="dropdown dropdown-bottom">
+    <div
+      tabIndex={0}
+      role="button"
+      className="btn btn-outline btn-primary 
+                 px-4 py-2 text-sm
+                 sm:px-5 sm:py-2.5 sm:text-base
+                 md:px-6 md:py-3 md:text-lg
+                 rounded-xl transition duration-300"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-5 h-5 sm:w-4 sm:h-4 md:w-4 md:h-4 mr-2"
+      >
+        <path
+          fillRule="evenodd"
+          d="M2 2.75A.75.75 0 0 1 2.75 2h9.5a.75.75 0 0 1 0 1.5h-9.5A.75.75 0 0 1 2 2.75ZM2 6.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5A.75.75 0 0 1 2 6.25Zm0 3.5A.75.75 0 0 1 2.75 9h3.5a.75.75 0 0 1 0 1.5h-3.5A.75.75 0 0 1 2 9.75ZM9.22 9.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1-1.06 1.06l-.97-.97v5.69a.75.75 0 0 1-1.5 0V8.56l-.97.97a.75.75 0 0 1-1.06 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <span>Mulai Layanan</span>
+    </div>
+    <ul
+      tabIndex={0}
+      className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-56"
+    >
+      <li>
+        <Link href={route("layanan")} data={{ kategori: "mahasiswa" }} method="post">
+          Mahasiswa
+        </Link>
+      </li>
+      <li>
+        <Link href={route("layanan")} data={{ kategori: "alumni" }} method="post">
+          Alumni
+        </Link>
+      </li>
+    </ul>
+  </div>
+
+  {/* Cek Pengajuan */}
+  <button
+    onClick={() => setShowCekForm(true)}
+    className="btn btn-outline btn-secondary
+               px-4 py-2 text-sm
+               sm:px-5 sm:py-2.5 sm:text-base
+               md:px-6 md:py-3 md:text-lg
+               rounded-xl transition duration-300"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      className="w-5 h-5 sm:w-4 sm:h-4 md:w-4 md:h-4 mr-2"
+    >
+      <path d="M6.25 8.75v-1h-1a.75.75 0 0 1 0-1.5h1v-1a.75.75 0 0 1 1.5 0v1h1a.75.75 0 0 1 0 1.5h-1v1a.75.75 0 0 1-1.5 0Z" />
+      <path
+        fillRule="evenodd"
+        d="M7 12c1.11 0 2.136-.362 2.965-.974l2.755 2.754a.75.75 0 1 0 1.06-1.06l-2.754-2.755A5 5 0 1 0 7 12Zm0-1.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+        clipRule="evenodd"
+      />
+    </svg>
+    <span>Cek Pengajuan</span>
+  </button>
+</div>
+
                  
             
                     </div>
                   </div>
             
                   {/* Konten utama */}
-                  <div className="px-4 sm:px-6 md:px-12">
+                  <div className="px-4 sm:px-6 md:px-12 ">
                     {/* Dua Kolom */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-10">
                       {/* Kolom Kiri */}
@@ -136,7 +174,7 @@ const toggleFaq = (index) => {
                                 title="YouTube video player"
                                 className="w-full h-full"
                                 frameBorder="0"
-                                allow="autoplay; encrypted-media; picture-in-picture"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowFullScreen
                               />
                             ) : (
@@ -236,7 +274,7 @@ const toggleFaq = (index) => {
                           alert("Validasi gagal:\n" + JSON.stringify(error.response.data.errors));
                         } else {
                           alert("Tiket tidak ditemukan atau terjadi kesalahan.");
-                          console.error(error);
+                          //console.error(error);
                         }
                       }
                     }}

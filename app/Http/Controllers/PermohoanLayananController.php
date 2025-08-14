@@ -231,21 +231,27 @@ class PermohoanLayananController extends Controller
        Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
        return redirect()->back()->with('message', 'Data berhasil ditolak');
     }
-    function generateNoTiket()
-    {
-    $tanggal = now()->format('dmy'); // ddmmyy
-    $unik = mt_rand(100, 999); // 3 digit acak
+    function generateNoTiket(){
+        $tanggal = now()->format('dmy'); // ddmmyy
+        $unik = mt_rand(100, 999); // 3 digit acak
 
-    return "IMK".$tanggal . $unik;
+        return "IMK".$tanggal . $unik;
     }
      public function tindakLanjut(Request $request){
        // dd($request);
-        $tindaklanjut = [
+       $cekTindakLanjut = TindakLanjut::where('id_permohonan_layanan', $request->id)->first();
+        $data = [
             'id_permohonan_layanan'=> $request->id,
             'id_users'=> $request->id_staff,
-            'catatan'=> $request->catatan
+            'catatan'=> $request->catatan,
+            'updated_at' => now(),
         ];
-       TindakLanjut::create($tindaklanjut);
+     if($cekTindakLanjut){
+        TindakLanjut::where('id_permohonan_layanan', $request->id)->update($data);
+    } else {
+        // Jika tidak ada tindak lanjut sebelumnya, buat yang baru
+       TindakLanjut::create($data);
+    }
         $status = [
             'status'=>'diproses'
         ];

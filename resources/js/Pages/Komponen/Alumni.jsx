@@ -135,9 +135,11 @@ export default function Alumni() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-center text-2xl font-bold">
-              Form Permohonan Informasi Alumni
+              Form Permohonan Layanan Alumni
             </h2>
-
+            <span className="text-sm text-gray-500 mb-2">
+                  Silakan isi form berikut untuk memulai permohonan layanan.
+                </span>
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* INFORMASI MAHASISWA */}
               <div>

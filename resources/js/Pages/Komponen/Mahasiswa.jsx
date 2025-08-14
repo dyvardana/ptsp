@@ -111,13 +111,16 @@ export default function Mahasiswa() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-center text-2xl font-bold">
-              Form Permohonan Informasi Mahasiswa
+              Form Permohonan Layanan Mahasiswa
             </h2>
-
+            <span className="text-sm text-gray-500 mb-2">
+                  Silakan isi form berikut untuk memulai permohonan layanan.
+                </span>
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* INFORMASI MAHASISWA */}
               <div>
-                <h3 className="text-lg font-semibold mb-2">Informasi Mahasiswa</h3>
+                <h3 className="text-lg font-semibold mb-2">Informasi Diri Mahasiswa</h3>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input type="text" name="identitas_pengguna" value={form.identitas_pengguna} onChange={handleChange} className="input input-bordered w-full" placeholder="NIM" required />
 
