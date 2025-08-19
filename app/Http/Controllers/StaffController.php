@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PermohonanSelesai;
 use App\Models\PermohoanLayanan;
+use App\Models\Tiket;
 use App\Models\TindakLanjut;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+
 class StaffController extends Controller
 {
     //
@@ -78,7 +82,10 @@ class StaffController extends Controller
             'file_lampiran' => $path
         ]);
       
-
+        $permohonan = PermohoanLayanan::find($request->id_permohonan);
+        $tiketing = Tiket::where('no_tiket', $request->no_tiket)->first();
+        //echo $permohonan->email;
+        Mail::to($permohonan->email)->send(new PermohonanSelesai($permohonan, $tiketing));
         return back()->with('success', 'Tindak lanjut berhasil disimpan.');
     }
 

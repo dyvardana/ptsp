@@ -1,6 +1,7 @@
 import { Inertia } from '@inertiajs/inertia';
 import { useState, useMemo } from 'react';
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle} from 'lucide-react';
 export default function TableLayananStaff({ data }) {
@@ -87,59 +88,78 @@ const [uploadFile, setUploadFile] = useState(null);
           />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="table table-xs">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Tiket</th>
-                <th>Nama</th>
-                <th>Kategori</th>
-                <th>Layanan</th>
-                <th>Tanggal Pengajuan</th>
-                <th>Status</th>
-                <th>Pilihan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{(page - 1) * itemsPerPage + index + 1}</td>
-                  <td>{item.no_tiket}</td>
-                  <td>{item.nama_pemohon}</td>
-                  <td>{item.kategori_pengguna}</td>
-                  <td>{item.nama_layanan}</td>
-                  <td>{item.updated_at}</td>
-                  <td>
-                    <span className={
-                      item.status === 'menunggu' ? 'badge-xs badge badge-neutral flex items-center gap-1' :
-                      item.status === 'diproses' ? 'badge-xs badge badge-warning flex items-center gap-1' :
-                      item.status === 'diterima' ? 'badge-xs badge badge-info flex items-center gap-1' :
-                      item.status === 'selesai' ? 'badge-xs badge badge-success flex items-center gap-1' :
-                      item.status === 'ditolak' ? 'badge-xs badge badge-error flex items-center gap-1' :
-                      'badge'
-                    }>
-                      {item.status === 'menunggu' && <Clock size={14} />}
-                      {item.status === 'diproses' && <Loader2 size={14} className="animate-spin" />}
-                       {item.status === 'diterima' && <ListChecks size={14} />}
-                      {item.status === 'selesai' && <CheckCircle size={14} />}
-                      {item.status === 'ditolak' && <XCircle size={14} />}
-                      <span className="capitalize">{item.status}</span>
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-xs btn-accent "
-                      onClick={() => {openModal(item); {setIdTolak(item.id);setEmail(item.email);setNoTiket(item.no_tiket)}}}
-                    > <Eye/>
-                      Detail
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+<div className="overflow-x-auto">
+  <table className="table table-xs w-full">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Tiket</th>
+        {/* tampil mulai tablet */}
+        <th className="hidden md:table-cell">Nama</th>
+        <th className="hidden md:table-cell">Kategori</th>
+        {/* tampil mulai laptop */}
+        <th className="hidden lg:table-cell">Layanan</th>
+        <th className="hidden lg:table-cell">Tanggal Pengajuan</th>
+        <th>Status</th>
+        <th>Pilihan</th>
+      </tr>
+    </thead>
+    <tbody>
+      {paginatedData.map((item, index) => (
+        <tr key={item.id}>
+          <td>{(page - 1) * itemsPerPage + index + 1}</td>
+          <td>{item.no_tiket}</td>
+          {/* sembunyiin di hp */}
+          <td className="hidden md:table-cell">{item.nama_pemohon}</td>
+          <td className="hidden md:table-cell">{item.kategori_pengguna}</td>
+          {/* sembunyiin di hp + tablet */}
+          <td className="hidden lg:table-cell">{item.nama_layanan}</td>
+          <td className="hidden lg:table-cell">{item.updated_at}</td>
+          <td>
+            <span
+              className={
+                item.status === "menunggu"
+                  ? "badge-xs badge badge-neutral flex items-center gap-1"
+                  : item.status === "diproses"
+                  ? "badge-xs badge badge-warning flex items-center gap-1"
+                  : item.status === "diterima"
+                  ? "badge-xs badge badge-info flex items-center gap-1"
+                  : item.status === "selesai"
+                  ? "badge-xs badge badge-success flex items-center gap-1"
+                  : item.status === "ditolak"
+                  ? "badge-xs badge badge-error flex items-center gap-1"
+                  : "badge"
+              }
+            >
+              {item.status === "menunggu" && <Clock size={14} />}
+              {item.status === "diproses" && <Loader2 size={14} className="animate-spin" />}
+              {item.status === "diterima" && <ListChecks size={14} />}
+              {item.status === "selesai" && <CheckCircle size={14} />}
+              {item.status === "ditolak" && <XCircle size={14} />}
+              <span className="capitalize">{item.status}</span>
+            </span>
+          </td>
+          <td>
+            <button
+              className="btn btn-xs btn-accent"
+              onClick={() => {
+                openModal(item);
+                setIdTolak(item.id);
+                setEmail(item.email);
+                setNoTiket(item.no_tiket);
+              }}
+            >
+              <Eye />
+              Detail
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
@@ -176,96 +196,87 @@ const [uploadFile, setUploadFile] = useState(null);
       </div>
 
       {/* MODAL DETAIL */}
-      {showModal && selectedItem && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex gap-4">
-            {/* Kiri: File */}
-            <div className="w-1/2 h-[500px] border rounded overflow-hidden">
-              {selectedItem.file_lampiran ? (
-                <iframe
-                  src={`/${selectedItem.file_lampiran}`}
-                  className="w-full h-full"
-                  title="Preview PDF"
-                ></iframe>
-              ) : (
-                <div className="text-center p-4">Tidak ada file yang diunggah.</div>
-              )}
-            </div>
+     {showModal && selectedItem && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex flex-col md:flex-row gap-4">
+      
+      {/* Kiri: File */}
+      <div className="w-full md:w-1/2 h-[300px] md:h-[500px] border rounded overflow-hidden">
+        {selectedItem.file_lampiran ? (
+          <iframe
+            src={`/${selectedItem.file_lampiran}`}
+            className="w-full h-full"
+            title="Preview PDF"
+          ></iframe>
+        ) : (
+          <div className="text-center p-4">Tidak ada file yang diunggah.</div>
+        )}
+      </div>
 
-            {/* Kanan: Detail */}
-            <div className="w-1/2 overflow-y-auto max-h-[500px]">
-              <h3 className="text-lg font-bold mb-4">Detail Pengajuan</h3>
-              <ul className="text-sm space-y-1">
-                <li><strong>No Tiket:</strong> {selectedItem.no_tiket ?? 'Belum ada tiket'}</li>
-                <li><strong>Nama:</strong> {selectedItem.nama_pemohon}</li>
-                <li><strong>NIK/NIM:</strong> {selectedItem.identitas_pengguna}</li>
-                <li><strong>Email:</strong> {selectedItem.email}</li>
-                <li><strong>No HP:</strong> {selectedItem.no_hp}</li>
-                <li><strong>Alamat:</strong> {selectedItem.alamat}</li>
-                 <li><strong>Kategori:</strong> {selectedItem.kategori_pengguna}</li>
-                 <li><strong>Layanan:</strong> {selectedItem.nama_layanan}</li>
-                <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
-                <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
-                <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
-                <li><strong>Status:</strong> {selectedItem.status}</li>
-                <li><strong>PTSP:</strong> {selectedItem.name}</li>
-                <li><strong>Catatan PTSP:</strong> {selectedItem.catatan}</li>
-                {selectedItem.status==="ditolak"? (
-                  <>
-                    <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
-                    
-                  </>
-                ):
-                selectedItem.status==="diproses" ? (
-                  <>
-                  
-                  </>
-                ):null
-                }
-              </ul>
-             
-              <div className="mt-6 flex justify-end gap-2">
-              {selectedItem.status === "diproses" ? (
-                  <>
-                    <button className="btn btn-success" onClick={() => {
-                        setShowModal(false); // tutup modal detail
-                        setShowUploadModal(true); // buka modal unggah
-                        }}>
-                        Tindak Lanjut
-                        </button>
+      {/* Kanan: Detail */}
+      <div className="w-full md:w-1/2 overflow-y-auto max-h-[300px] md:max-h-[500px]">
+        <h3 className="text-lg font-bold mb-4">Detail Pengajuan</h3>
+        <ul className="text-sm space-y-1">
+          <li><strong>No Tiket:</strong> {selectedItem.no_tiket ?? 'Belum ada tiket'}</li>
+          <li><strong>Nama:</strong> {selectedItem.nama_pemohon}</li>
+          <li><strong>NIK/NIM:</strong> {selectedItem.identitas_pengguna}</li>
+          <li><strong>Email:</strong> {selectedItem.email}</li>
+          <li><strong>No HP:</strong> {selectedItem.no_hp}</li>
+          <li><strong>Alamat:</strong> {selectedItem.alamat}</li>
+          <li><strong>Kategori:</strong> {selectedItem.kategori_pengguna}</li>
+          <li><strong>Layanan:</strong> {selectedItem.nama_layanan}</li>
+          <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
+          <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
+          <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
+          <li><strong>Status:</strong> {selectedItem.status}</li>
+          <li><strong>PTSP:</strong> {selectedItem.name}</li>
+          <li><strong>Catatan PTSP:</strong> {selectedItem.catatan}</li>
+          {selectedItem.status==="ditolak" && (
+            <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
+          )}
+        </ul>
 
-
-                    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                      Tutup
-                    </button>
-                  </>
-                ):
-                (
-                  <>
-                    <button className="btn btn-success" >
-                      Unduh Tindak Lanjut
-                    </button>
-               
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        closeModal();
-                        setIdTolak('');
-                        setEmail('');
-                        setNoTiket('');
-                      }}
-                    >
-                      Tutup
-                    </button>
-                  </>
-                )}
-
-                
-              </div>
-            </div>
-          </div>
+        <div className="mt-6 flex flex-col md:flex-row justify-end gap-2">
+          {selectedItem.status === "diproses" ? (
+            <>
+              <button
+                className="btn btn-success"
+                onClick={() => {
+                  setShowModal(false);
+                  setShowUploadModal(true);
+                }}
+              >
+                Tindak Lanjut
+              </button>
+              <button
+                className="btn"
+                onClick={() => { closeModal(); setIdTolak(''); }}
+              >
+                Tutup
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-success">Unduh Tindak Lanjut</button>
+              <button
+                className="btn"
+                onClick={() => {
+                  closeModal();
+                  setIdTolak('');
+                  setEmail('');
+                  setNoTiket('');
+                }}
+              >
+                Tutup
+              </button>
+            </>
+          )}
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
+
 
      {showUploadModal && (
   <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -281,7 +292,7 @@ const [uploadFile, setUploadFile] = useState(null);
           formData.append('id_users', user.id);
           formData.append('no_tiket', selectedItem.no_tiket);
 
-          Inertia.post(route('tindak_lanjut_staff'), formData, {
+          router.post(route('tindak_lanjut_staff'), formData, {
             forceFormData: true,
             onSuccess: () => {
               setShowUploadModal(false);

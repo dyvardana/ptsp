@@ -34,7 +34,7 @@ const faqs = [
   {
     question: "Berapa lama waktu proses layanan?",
     answer:
-      "Waktu proses layanan bervariasi tergantung jenis layanan yang diajukan. Informasi estimasi waktu pengerjaan dapat dilihat pada halaman deskripsi masing-masing layanan di laman PTSP.",
+      "Waktu proses layanan bervariasi tergantung jenis layanan yang diajukan. ",
   },
   {
     question: "Bagaimana cara memantau status permohonan?",
@@ -75,16 +75,18 @@ const toggleFaq = (index) => {
         <Homepage>
 
                   {/* Carousel */}
-                  <div className=" md:pb-32 sm:pb-10 md:pt-40 sm:pt-20">
+                  <div className=" md:pb-32 sm:pb-10 md:pt-10 sm:pt-20">
                     {/* Hero Section */}
                     <div className="flex flex-col items-center justify-start pt-40 px-4">
-                      <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-center text-gold-700 mb-6 tracking-wide leading-relaxed">
-                          Pelayanan Terpadu Satu Pintu <br /> INSTITUT MPU KUTURAN
+                      <img src="/images/logoIMK.png" alt="Logo Institut Mpu Kuturan" className="w-[7.5rem]" />
+                      <h1 className="text-2xl md:pt-5 sm:text-3xl md:text-5xl font-extrabold text-center text-gold-700 mb-6 tracking-wide leading-relaxed">
+                          Layanan Terpadu Satu Pintu 
+                          
                         </h1>
-
+                      
             
                       {/* Tombol sejajar */}
-                      <div className="flex gap-4 flex-wrap justify-center mb-4">
+ <div className="flex gap-4 flex-wrap justify-center mb-4">
   {/* Dropdown */}
   <div className="dropdown dropdown-bottom">
     <div
@@ -152,9 +154,6 @@ const toggleFaq = (index) => {
     <span>Cek Pengajuan</span>
   </button>
 </div>
-
-                 
-            
                     </div>
                   </div>
             
@@ -165,13 +164,13 @@ const toggleFaq = (index) => {
                       {/* Kolom Kiri */}
                       <div
                           ref={videoRef}
-                          className="bg-white p-4 sm:p-6 rounded-xl "
+                          className=" p-4 sm:p-6 rounded-xl "
                         >
                           <div className="aspect-video w-full rounded overflow-hidden">
                             {isVisible ? (
                               <iframe
                                 src="https://www.youtube.com/embed/PUlz5IbwoeM?autoplay=1&mute=1"
-                                title="YouTube video player"
+                                title="YouTube Mpu Kuturan"
                                 className="w-full h-full"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -180,7 +179,7 @@ const toggleFaq = (index) => {
                             ) : (
                               <img
                                 src="https://img.youtube.com/vi/PUlz5IbwoeM/hqdefault.jpg"
-                                alt="Video thumbnail"
+                                alt="Video Institut Mpu Kuturan"
                                 className="w-full h-full object-cover"
                               />
                             )}
@@ -188,7 +187,7 @@ const toggleFaq = (index) => {
                         </div>
             
                       {/* Kolom Kanan */}
-                      <div className="bg-white p-4 sm:p-6 rounded-xl ">
+                      <div className=" p-4 sm:p-6 rounded-xl ">
                         <h2 className="text-xl font-semibold mb-4 text-purple-800">Selamat Datang di Laman PTSP IMK</h2>
                         <p className="text-gray-600 mb-4 text-sm sm:text-base">
                           Sejalan dengan amanat Undang-Undang Nomor 25 Tahun 2009 tentang Pelayanan Publik, Institut Mpu Kuturan (IMK) sebagai badan publik berkomitmen untuk memberikan pelayanan yang optimal guna memenuhi kebutuhan masyarakat. Wujud komitmen tersebut diwujudkan melalui pengembangan laman layanan terpadu di ptsp.imk.ac.id.

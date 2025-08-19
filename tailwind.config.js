@@ -36,6 +36,6 @@ export default {
     require('daisyui'),
   ],
   daisyui: {
-    themes: ['coffee'], // Hanya pakai tema pastel
+    themes: ['autumn'], // Hanya pakai tema pastel
   },
 };

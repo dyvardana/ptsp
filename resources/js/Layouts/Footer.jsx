@@ -26,9 +26,9 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold text-gold-300 mb-2">Tautan Cepat</h3>
           <ul className="text-gray-400 text-sm space-y-1">
-            <li><a href="#" className="hover:underline">IMK</a></li>
-            <li><a href="#" className="hover:underline">Penerimaan Mahasiswa Baru</a></li>
-            <li><a href="#" className="hover:underline">SISKA</a></li>
+            <li><a href="https://mpukuturan.ac.id/" className="hover:underline">IMK</a></li>
+            <li><a href="https://pmb.stahnmpukuturan.ac.id/" className="hover:underline">Penerimaan Mahasiswa Baru</a></li>
+            <li><a href="https://siska.stahnmpukuturan.ac.id/" className="hover:underline">SISKA</a></li>
             <li><a href="#" className="hover:underline">JDIH</a></li>
           </ul>
         </div>
@@ -36,7 +36,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="mt-10 text-center text-sm text-gray-500">
-        &copy; {new Date().getFullYear()} PTSP. All rights reserved.
+        &copy; {new Date().getFullYear()} Mpu Kuturan. All rights reserved.
       </div>
     </footer>
     </div>

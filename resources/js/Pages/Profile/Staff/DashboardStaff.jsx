@@ -8,9 +8,7 @@ export default function DashboardStaff(props) {
     
     return (
         
-        <AuthenticatedLayout
-           
-        >
+        <AuthenticatedLayout>
             <Head title={props.title}/>
             <TableLayananStaff data={props.data}/>
            

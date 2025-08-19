@@ -44,77 +44,76 @@ export default function TableListStaff({ staff }) {
   return (
     <div className="w-full h-screen p-4 bg-base-100">
       {/* Header tabel */}
-      <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Daftar Staff</h1>
-    
-        <div className="flex gap-2">
-             <button
-            className="btn btn-primary"
-            onClick={openModal}
-          >
-            + Tambah Staff
-          </button>
-          <input
-            type="text"
-            placeholder="Cari nama staff"
-            className="input input-bordered w-64"
-            value={search}
-            onChange={handleSearchChange}
-          />
-         
+      <div className="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <h1 className="text-lg sm:text-xl font-bold">Daftar Staff</h1>
+
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              className="btn btn-primary w-full sm:w-auto"
+              onClick={openModal}
+            >
+              + Tambah Staff
+            </button>
+            <input
+              type="text"
+              placeholder="Cari nama staff"
+              className="input input-bordered w-full sm:w-64"
+              value={search}
+              onChange={handleSearchChange}
+            />
+          </div>
         </div>
-      </div>
+
 
       {/* Tabel */}
       <div className="overflow-x-auto h-[70vh]">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Pilihan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedData.map((item, index) => (
-              <tr key={item.id}>
-                <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle h-12 w-12">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">{item.name}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>{item.email}</td>
-                <td>{item.role}</td>
-                <td className="flex gap-1">
-                  <button className="btn btn-xs btn-secondary" 
-                 >
-                    Hapus</button>
-                  <button className="btn btn-xs btn-info">Lihat</button>
-                  <button
-                    className="btn btn-xs btn-warning"
-                   
-                  >
-                    Update
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  <table className="table w-full">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th className="hidden sm:table-cell">Email</th>
+        <th className="hidden md:table-cell">Role</th>
+        <th>Pilihan</th>
+      </tr>
+    </thead>
+    <tbody>
+      {displayedData.map((item, index) => (
+        <tr key={item.id}>
+          <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+          <td>
+            <div className="flex items-center gap-3">
+              <div className="avatar">
+                <div className="mask mask-squircle h-12 w-12">
+                  <img
+                    src="https://img.daisyui.com/images/profile/demo/2@94.webp"
+                    alt="Avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="font-bold">{item.name}</div>
+              </div>
+            </div>
+          </td>
+
+          {/* Email hanya tampil mulai ukuran sm */}
+          <td className="hidden sm:table-cell">{item.email}</td>
+
+          {/* Role hanya tampil mulai ukuran md */}
+          <td className="hidden md:table-cell">{item.role}</td>
+
+          <td className="flex flex-col sm:flex-row gap-1">
+            <button className="btn btn-xs btn-secondary w-full sm:w-auto">Hapus</button>
+            <button className="btn btn-xs btn-info w-full sm:w-auto">Lihat</button>
+            <button className="btn btn-xs btn-warning w-full sm:w-auto">Update</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4">

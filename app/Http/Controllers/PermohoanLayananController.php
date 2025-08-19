@@ -114,7 +114,7 @@ class PermohoanLayananController extends Controller
         'alamat' => 'required|string',
         'judul_layanan' => 'required|string',
         'keterangan_tambahan' => 'nullable|string',
-        'file_lampiran' => 'required|file|mimes:pdf|max:2048',
+        'file_lampiran' => 'required|file|mimes:pdf,zip,rar|max:5120',
     ]);
 
     // Simpan file jika ada

@@ -51,33 +51,60 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         {/* Right: Dropdown */}
-                        <div className="hidden sm:flex items-center space-x-4">
-                            <Dropdown>
-                                <Dropdown.Trigger>
-                                    <button className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800">
-                                        {user.name}
-                                        <svg
-                                            className="ms-2 h-4 w-4"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>
-                                    </button>
-                                </Dropdown.Trigger>
-                                <Dropdown.Content>
-                                    <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                    <Dropdown.Link href={route('logout')} method="post" as="button">
-                                        Log Out
-                                    </Dropdown.Link>
-                                </Dropdown.Content>
-                            </Dropdown>
-                        </div>
+                        {/* Versi Desktop */}
+<div className="hidden sm:flex items-center space-x-4">
+  <Dropdown>
+    <Dropdown.Trigger>
+      <button className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800">
+        {user.name}
+        <svg
+          className="ms-2 h-4 w-4"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+    </Dropdown.Trigger>
+    <Dropdown.Content>
+      <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+      <Dropdown.Link href={route('logout')} method="post" as="button">
+        Log Out
+      </Dropdown.Link>
+    </Dropdown.Content>
+  </Dropdown>
+</div>
+
+{/* Versi Mobile */}
+<div className="flex sm:hidden">
+  <Dropdown>
+    <Dropdown.Trigger>
+      <button className="p-2 rounded-md bg-white text-gray-600 hover:text-gray-800">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 15c3.866 0 7.373 1.567 9.879 4.096M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </Dropdown.Trigger>
+    <Dropdown.Content>
+      <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+      <Dropdown.Link href={route('logout')} method="post" as="button">
+        Log Out
+      </Dropdown.Link>
+    </Dropdown.Content>
+  </Dropdown>
+</div>
+
                     </div>
                 </nav>
 
@@ -117,23 +144,33 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Sidebar */}
             <div className="drawer-side">
-                <label htmlFor="main-drawer" className="drawer-overlay"></label>
-                <ul className="menu p-4 w-64 bg-base-200 text-base-content min-h-full">
-                    <li>
-                        <Link href={route('dashboard')}>Dashboard</Link>
-                    </li>
-                    <li>
-                        <Link href={route('permohonanList')}>Permohonan</Link>
-                    </li>
-                    <li>
-                        <Link href={route('listLayanan')}>Layanan</Link>
-                    </li>
-                    <li>
-                        <Link href={route('kelolaStaff')}>Kelola Staff</Link>
-                    </li>
-                    {/* Add more sidebar links here */}
-                </ul>
-            </div>
+  <label htmlFor="main-drawer" className="drawer-overlay"></label>
+  <ul className="menu p-4 w-64 bg-base-200 text-base-content min-h-full">
+    {user.role === "ptsp" && (
+      <>
+        <li>
+          <Link href={route("dashboard")}>Dashboard</Link>
+        </li>
+        <li>
+          <Link href={route("permohonanList")}>Permohonan</Link>
+        </li>
+        <li>
+          <Link href={route("listLayanan")}>Layanan</Link>
+        </li>
+        <li>
+          <Link href={route("kelolaStaff")}>Kelola Staff</Link>
+        </li>
+      </>
+    )}
+
+    {user.role === "staff" && (
+      <li>
+        <Link href={route("listLayanan")}>Layanan</Link>
+      </li>
+    )}
+  </ul>
+</div>
+
         </div>
     );
 }

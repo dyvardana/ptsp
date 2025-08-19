@@ -189,7 +189,7 @@ export default function Mahasiswa() {
                     <textarea name="keterangan_tambahan" value={form.keterangan_tambahan} onChange={handleChange} className="textarea textarea-bordered w-full" placeholder="Rincian Informasi yang Dibutuhkan" rows="3" required></textarea>
                     <div className="form-control md:col-span-2">
                       <label className="label">Unggah berkas pendukung</label>
-                      <input type="file" name="file_lampiran" onChange={handleChange} accept=".pdf" className="file-input file-input-bordered w-full" required />
+                      <input type="file" name="file_lampiran" onChange={handleChange} accept=".pdf,.rar,.zip"className="file-input file-input-bordered w-full" required />
                     </div>
 
                     <div className="card-actions justify-end pt-4">

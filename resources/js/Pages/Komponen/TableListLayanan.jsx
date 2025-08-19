@@ -130,73 +130,93 @@ export default function TableListLayanan({ datalist }) {
     <div className="p-4">
       
       {/* Header */}
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-lg font-bold">Daftar Layanan</h2>
-        <div className="flex items-center gap-2">
-          <button
-            className="btn btn-primary"
-            onClick={() => document.getElementById("modalTambah").showModal()}
-          >
-            + Tambah
-          </button>
-          <input
-            type="text"
-            placeholder="Cari data..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="input input-bordered w-64"
-          />
-        </div>
-      </div>
+      <div className="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+  {/* Judul */}
+  <h2 className="text-base sm:text-lg md:text-xl font-bold truncate">
+    Daftar Layanan
+  </h2>
+
+  {/* Aksi */}
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+    <button
+      className="btn btn-primary w-full sm:w-auto"
+      onClick={() => document.getElementById("modalTambah").showModal()}
+    >
+      + Tambah
+    </button>
+    <input
+      type="text"
+      placeholder="Cari data..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="input input-bordered w-full sm:w-64"
+    />
+  </div>
+</div>
+
 
       
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="table table-xs">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kategori</th>
-              <th>Nama Layanan</th>
-              <th>Deskripsi</th>
-              <th>Aktif</th>
-              <th>Pilihan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((item, index) => (
-         
-              <tr key={item.id}>
-                <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
-                <td>{item.kategori_pengguna}</td>
-                <td>{item.nama_layanan}</td>
-                <td>{item.deskripsi}</td>
-                <td>
-                  {item.status === "aktif" ? (
-                    <BadgeCheck className="text-green-500" />
-                  ) : (
-                    <X className="text-red-500" />
-                  )}
-                </td>
-                <td className="flex gap-1">
-                  <button className="btn btn-xs btn-secondary" 
-                  onClick={() => {setHapus(item.id); setNamaLayanan(item.nama_layanan);
-                    document.getElementById("modalHapus").showModal();}}>
-                    Hapus</button>
-                  <button className="btn btn-xs btn-info">Lihat</button>
-                  <button
-                    className="btn btn-xs btn-warning"
-                    onClick={() => handleEdit(item.id)}
-                  >
-                    Update
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  <table className="table table-xs">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th className="hidden sm:table-cell">Kategori</th>
+        <th>Nama Layanan</th>
+        <th className="hidden sm:table-cell">Deskripsi</th>
+        <th>Aktif</th>
+        <th>Pilihan</th>
+      </tr>
+    </thead>
+    <tbody>
+      {paginatedData.map((item, index) => (
+        <tr key={item.id}>
+          <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
+
+          {/* Kategori → sembunyi di HP */}
+          <td className="hidden sm:table-cell">{item.kategori_pengguna}</td>
+
+          <td className="max-w-[120px] break-words">{item.nama_layanan}</td>
+
+          {/* Deskripsi → sembunyi di HP */}
+          <td className="hidden sm:table-cell">{item.deskripsi}</td>
+
+          <td>
+            {item.status === "aktif" ? (
+              <BadgeCheck className="text-green-500" />
+            ) : (
+              <X className="text-red-500" />
+            )}
+          </td>
+
+          <td className="flex flex-col sm:flex-row gap-1">
+  <button
+    className="btn btn-xs btn-secondary"
+    onClick={() => {
+      setHapus(item.id);
+      setNamaLayanan(item.nama_layanan);
+      document.getElementById("modalHapus").showModal();
+    }}
+  >
+    Hapus
+  </button>
+  <button className="btn btn-xs btn-info">Lihat</button>
+  <button
+    className="btn btn-xs btn-warning"
+    onClick={() => handleEdit(item.id)}
+  >
+    Update
+  </button>
+</td>
+
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       {/* Modal Tambah */}
       <dialog id="modalTambah" className="modal">
         <div className="modal-box">
@@ -291,94 +311,100 @@ export default function TableListLayanan({ datalist }) {
     
       {/* Modal Update */}
       <dialog id="modalUpdate" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg mb-4">Update Layanan</h3>
-          <form onSubmit={handleUpdate} className="space-y-4">
-            <span>Nama Layanan : {editForm.nama_layanan}</span>
-          
-            <textarea
-              name="deskripsi"
-              className="textarea textarea-bordered w-full"
-              placeholder="Masukkan deskripsi layanan"
-              value={editForm.deskripsi}
-              onChange={(e) =>
-                setEditForm({ ...editForm, deskripsi: e.target.value })
-              }
+  <div className="modal-box w-full max-w-lg">
+    <h3 className="font-bold text-lg mb-4">Update Layanan</h3>
+    <form onSubmit={handleUpdate} className="space-y-4">
+      <span className="block text-sm font-medium">
+        Nama Layanan : {editForm.nama_layanan}
+      </span>
+
+      <textarea
+        name="deskripsi"
+        className="textarea textarea-bordered w-full"
+        placeholder="Masukkan deskripsi layanan"
+        value={editForm.deskripsi}
+        onChange={(e) =>
+          setEditForm({ ...editForm, deskripsi: e.target.value })
+        }
+        required
+      />
+
+      <select
+        name="status"
+        className="select select-bordered w-full"
+        value={editForm.status}
+        onChange={(e) =>
+          setEditForm({ ...editForm, status: e.target.value })
+        }
+      >
+        <option value="aktif">Aktif</option>
+        <option value="tidak">Tidak Aktif</option>
+      </select>
+
+      {/* Input syarat */}
+      <div>
+        <label className="label">
+          <span className="label-text">Syarat Layanan</span>
+        </label>
+        {editForm.syarat.map((syarat, idx) => (
+          <div
+            key={idx}
+            className="flex flex-col sm:flex-row gap-2 mb-2"
+          >
+            <input
+              type="text"
+              className="input input-bordered flex-1"
+              placeholder={`Syarat ${idx + 1}`}
+              value={syarat}
+              onChange={(e) => {
+                const newSyarat = [...editForm.syarat];
+                newSyarat[idx] = e.target.value;
+                setEditForm({ ...editForm, syarat: newSyarat });
+              }}
               required
             />
-            
-            <select
-              name="status"
-              className="select select-bordered w-full"
-              value={editForm.status}
-              onChange={(e) =>
-                setEditForm({ ...editForm, status: e.target.value })
+            <button
+              type="button"
+              className="btn btn-error btn-sm w-full sm:w-auto"
+              onClick={() =>
+                setEditForm({
+                  ...editForm,
+                  syarat: editForm.syarat.filter((_, i) => i !== idx),
+                })
               }
             >
-              <option value="aktif">Aktif</option>
-              <option value="tidak">Tidak Aktif</option>
-            </select>
+              Hapus
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="btn btn-sm btn-secondary w-full sm:w-auto"
+          onClick={() =>
+            setEditForm({ ...editForm, syarat: [...editForm.syarat, ""] })
+          }
+        >
+          + Tambah Syarat
+        </button>
+      </div>
 
-            {/* Input syarat */}
-            <div>
-              <label className="label">
-                <span className="label-text">Syarat Layanan</span>
-              </label>
-              {editForm.syarat.map((syarat, idx) => (
-                <div key={idx} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    className="input input-bordered flex-1"
-                    placeholder={`Syarat ${idx + 1}`}
-                    value={syarat}
-                    onChange={(e) => {
-                      const newSyarat = [...editForm.syarat];
-                      newSyarat[idx] = e.target.value;
-                      setEditForm({ ...editForm, syarat: newSyarat });
-                    }}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-error btn-sm"
-                    onClick={() =>
-                      setEditForm({
-                        ...editForm,
-                        syarat: editForm.syarat.filter((_, i) => i !== idx),
-                      })
-                    }
-                  >
-                    Hapus
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="btn btn-sm btn-secondary"
-                onClick={() =>
-                  setEditForm({ ...editForm, syarat: [...editForm.syarat, ""] })
-                }
-              >
-                + Tambah Syarat
-              </button>
-            </div>
+      {/* Action */}
+      <div className="modal-action flex flex-col sm:flex-row gap-2">
+        <button
+          type="button"
+          className="btn w-full sm:w-auto"
+          onClick={() => document.getElementById("modalUpdate").close()}
+        >
+          Batal
+        </button>
+        <button type="submit" className="btn btn-primary w-full sm:w-auto">
+          Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
 
-            {/* Action */}
-            <div className="modal-action">
-              <button
-                type="button"
-                className="btn"
-                onClick={() => document.getElementById("modalUpdate").close()}
-              >
-                Batal
-              </button>
-              <button type="submit" className="btn btn-primary">
-                Simpan
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
 
       {/* Pagination */}
       <div className="flex justify-center mt-4 gap-2">

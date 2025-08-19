@@ -1,13 +1,21 @@
 import { Inertia } from '@inertiajs/inertia';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+
 import {
   Clock,Eye,ListChecks,Loader2,CheckCircle,XCircle} from 'lucide-react';
 export default function TablePermohonanLayanan({ data,staff }) {
+   const [dummyData, setDummyData] = useState(data);
+
+  // update state kalau props.data berubah
+  useEffect(() => {
+    setDummyData(data);
+  }, [data]);
  // console.log(data);
  // State Utama
 const user = usePage().props.auth.user;
-const dummyData = data;
+// dummyData = data;
 const itemsPerPage = 10;
 
 // State untuk Pencarian dan Pagination
@@ -68,26 +76,35 @@ const closeModal = () => {
 
 // Fungsi Tolak
 const handleTolak = () => {
-  console.log('Ditolak dengan alasan:', idTolak);
-  Inertia.post(route('tolak', {
+  router.post(route('tolak', {
     id: idTolak,
-    email: email,
+    email,
     keterangan_tiket: alasanTolak,
     idUser: user.id,
     no_tiket: noTiket,
-  }));
-  closeModal();
+  }), {
+    onSuccess: () => {
+      closeModal();
+      router.reload({ only: ['data'] }); // pastikan "data" dikirim dari controller
+    },
+  });
 };
+
 
 // Fungsi Terima
 const handleTerima = () => {
-  console.log('Diterima:', idTolak);
-  Inertia.post(route('terima', {
-    id: idTolak,
-    idUser: user.id,
-    no_tiket: noTiket,
-  }));
-  closeModal();
+  router.post('/terima',
+    {
+      id: idTolak,
+      idUser: user.id,
+      no_tiket: noTiket,
+    },
+    {
+      onSuccess: () => {
+        router.reload({ only: ["data", "statusData"] });
+      },
+    }
+  );
 };
 
 // Fungsi Kirim Berkas
@@ -106,15 +123,18 @@ const handleKirimBerkas = () => {
 
   console.log('form data:', formData);
 
-  Inertia.post(route("tindakLanjut"), formData, {
-    forceFormData: true,
-    onSuccess: () => {
-      setShowKirimModal(false);
-      setSelectedStaff('');
-      setCatatanKirim('');
-      closeModal();
-    },
-  });
+  router.post(route("tindakLanjut"), formData, {
+  forceFormData: true,
+  onSuccess: () => {
+    setShowKirimModal(false);
+    setSelectedStaff('');
+    setCatatanKirim('');
+    closeModal();
+
+    router.reload({ only: ['data'] }); 
+    // pastikan controller passing prop `data`
+  },
+});
 };
 
 // Fungsi Lihat Tindak Lanjut
@@ -136,8 +156,8 @@ const handleLihatTindakLanjut = async (id_kirim) => {
   return (
     <>
       {/* TABEL */}
-      <div className="mockup-window border border-base-300 bg-base-100 p-4">
-        <div className="mb-4 flex justify-between items-center">
+      <div className="mockup-window border border-base-300 bg-base-100 p-2 sm:p-4">
+        <div className="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
           <h2 className="text-lg font-semibold">Permohonan Masuk</h2>
           <input
             type="text"
@@ -151,69 +171,82 @@ const handleLihatTindakLanjut = async (id_kirim) => {
           />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="table table-xs">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Tiket</th>
-                <th>Nama</th>
-                <th>Kategori</th>
-                <th>Layanan</th>
-                <th>Tanggal Pengajuan</th>
-                <th>Status</th>
-                <th>Rating</th>
-                <th>Pilihan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{(page - 1) * itemsPerPage + index + 1}</td>
-                  <td>{item.no_tiket}</td>
-                  <td>{item.nama_pemohon}</td>
-                  <td>{item.kategori_pengguna}</td>
-                  <td>{item.nama_layanan}</td>
-                  <td>{item.tanggal_pengajuan}</td>
-                  <td>
-                    <span className={
-                      item.status === 'menunggu' ? 'badge-xs badge badge-neutral flex items-center gap-1' :
-                      item.status === 'diproses' ? 'badge-xs badge badge-warning flex items-center gap-1' :
-                      item.status === 'diterima' ? 'badge-xs badge badge-info flex items-center gap-1' :
-                      item.status === 'selesai' ? 'badge-xs badge badge-success flex items-center gap-1' :
-                      item.status === 'ditolak' ? 'badge-xs badge badge-error flex items-center gap-1' :
-                      'badge'
-                    }>
-                      {item.status === 'menunggu' && <Clock size={14} />}
-                      {item.status === 'diproses' && <Loader2 size={14} className="animate-spin" />}
-                       {item.status === 'diterima' && <ListChecks size={14} />}
-                      {item.status === 'selesai' && <CheckCircle size={14} />}
-                      {item.status === 'ditolak' && <XCircle size={14} />}
-                      <span className="capitalize">{item.status}</span>
-                    </span>
-                  </td>
-                 <td>
-                    {item.rating?(
-                        <>
-                          {'★'.repeat(Math.round(item.rating)) + '☆'.repeat(5 - Math.round(item.rating))}
-                        </>
-                    ):null}
-                        
-                  </td>
+        <div className="overflow-x-auto w-full">
+  <table className="table table-xs w-full">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Tiket</th>
+        <th className="hidden sm:table-cell">Nama</th>
+        <th className="hidden md:table-cell">Kategori</th>
+        <th className="hidden lg:table-cell">Layanan</th>
+        <th className="hidden lg:table-cell">Tanggal Pengajuan</th>
+        <th>Status</th>
+        <th className="hidden md:table-cell">Rating</th>
+        <th>Pilihan</th>
+      </tr>
+    </thead>
+    <tbody>
+      {paginatedData.map((item, index) => (
+        <tr key={item.id}>
+          <td>{(page - 1) * itemsPerPage + index + 1}</td>
+          <td>{item.no_tiket}</td>
+          <td className="hidden sm:table-cell">{item.nama_pemohon}</td>
+          <td className="hidden md:table-cell">{item.kategori_pengguna}</td>
+          <td className="hidden lg:table-cell">{item.nama_layanan}</td>
+          <td className="hidden lg:table-cell">{item.tanggal_pengajuan}</td>
+          <td>
+            <span
+              className={
+                item.status === "menunggu"
+                  ? "badge-xs badge badge-neutral flex items-center gap-1"
+                  : item.status === "diproses"
+                  ? "badge-xs badge badge-warning flex items-center gap-1"
+                  : item.status === "diterima"
+                  ? "badge-xs badge badge-info flex items-center gap-1"
+                  : item.status === "selesai"
+                  ? "badge-xs badge badge-success flex items-center gap-1"
+                  : item.status === "ditolak"
+                  ? "badge-xs badge badge-error flex items-center gap-1"
+                  : "badge"
+              }
+            >
+              {item.status === "menunggu" && <Clock size={14} />}
+              {item.status === "diproses" && (
+                <Loader2 size={14} className="animate-spin" />
+              )}
+              {item.status === "diterima" && <ListChecks size={14} />}
+              {item.status === "selesai" && <CheckCircle size={14} />}
+              {item.status === "ditolak" && <XCircle size={14} />}
+              <span className="capitalize">{item.status}</span>
+            </span>
+          </td>
+          <td className="hidden md:table-cell">
+            {item.rating
+              ? "★".repeat(Math.round(item.rating)) +
+                "☆".repeat(5 - Math.round(item.rating))
+              : null}
+          </td>
+          <td>
+            <button
+              className="btn btn-xs btn-accent"
+              onClick={() => {
+                openModal(item);
+                handleLihatTindakLanjut(item.id);
+                setIdTolak(item.id);
+                setEmail(item.email);
+                setNoTiket(item.no_tiket);
+              }}
+            >
+              <Eye /> Detail
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-                  <td>
-                    <button
-                      className="btn btn-xs btn-accent "
-                      onClick={() => {openModal(item);handleLihatTindakLanjut(item.id); {setIdTolak(item.id);setEmail(item.email);setNoTiket(item.no_tiket)}}}
-                    > <Eye/>
-                      Detail
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
@@ -250,155 +283,147 @@ const handleLihatTindakLanjut = async (id_kirim) => {
       </div>
 
       {/* MODAL DETAIL */}
-      {showModal && selectedItem && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex gap-4">
-            {/* Kiri: File */}
-            <div className="w-1/2 h-[500px] border rounded overflow-hidden">
-              {selectedItem.file_lampiran ? (
-                <iframe
-                  src={`/${selectedItem.file_lampiran}`}
-                  className="w-full h-full"
-                  title="Preview PDF"
-                ></iframe>
-              ) : (
-                <div className="text-center p-4">Tidak ada file yang diunggah.</div>
-              )}
-            </div>
+     {showModal && selectedItem && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex flex-col md:flex-row gap-4">
+      
+      {/* Kiri: File */}
+      <div className="w-full md:w-1/2 h-[300px] md:h-[500px] border rounded overflow-hidden">
+        {selectedItem.file_lampiran ? (
+          <iframe
+            src={`/${selectedItem.file_lampiran}`}
+            className="w-full h-full"
+            title="Preview PDF"
+          ></iframe>
+        ) : (
+          <div className="text-center p-4">Tidak ada file yang diunggah.</div>
+        )}
+      </div>
 
-            {/* Kanan: Detail */}
-            <div className="w-1/2 overflow-y-auto max-h-[500px]">
-              <h3 className="text-lg font-bold mb-4">Detail Pengajuan</h3>
-              <ul className="text-sm space-y-1">
-                <li><strong>No Tiket:</strong> {selectedItem.no_tiket ?? 'Belum ada tiket'}</li>
-                <li><strong>Nama:</strong> {selectedItem.nama_pemohon}</li>
-                <li><strong>NIK/NIM:</strong> {selectedItem.identitas_pengguna}</li>
-                <li><strong>Email:</strong> {selectedItem.email}</li>
-                <li><strong>No HP:</strong> {selectedItem.no_hp}</li>
-                <li><strong>Alamat:</strong> {selectedItem.alamat}</li>
-                 <li><strong>Kategori:</strong> {selectedItem.kategori_pengguna}</li>
-                 <li><strong>Layanan:</strong> {selectedItem.nama_layanan}</li>
-                <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
-                <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
-                <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
-                <li>
-                    <strong>Status:</strong>{' '}
-                    <span
-                      className={
-                        selectedItem.status === 'diproses'
-                          ? 'text-yellow-500'
-                          : selectedItem.status === 'menunggu'
-                          ? 'text-gray-800'
-                          : selectedItem.status === 'diterima'
-                          ? 'text-blue-500'
-                          : selectedItem.status === 'selesai'
-                          ? 'text-green-500'
-                          : selectedItem.status === 'ditolak'
-                          ? 'text-red-500'
-                          : ''
-                      }
-                    >
-                      {selectedItem.status}
-                    </span>
-                  </li>
-
-               
-                {selectedItem.status==="ditolak"? (
-                  <>
-                    <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
-                    <li><strong>Admin:</strong> {selectedItem.name}</li>
-                  </>
-                ):
-                selectedItem.status==="diproses" ? (
-                  <>
-                   <li><strong>Admin:</strong> {selectedItem.name}</li>
-                   <li><strong>Staff</strong> {namaTindakLanjut}</li>
-                  <li><strong>Tindak Lanjut</strong> {tglTindakLanjut}</li>
-                  </>
-                ):selectedItem.status==="selesai" ? (
-                  <>
-                    <li><strong>Admin:</strong> {selectedItem.name}</li>
-                     <li><strong>Tindak Lanjut</strong> {tglTindakLanjut}</li>
-                   <li><strong>Tgl Selesai:</strong> {tglSelesai}</li>
-                    <li><strong>Staff</strong> {namaTindakLanjut}</li>
-                  </>
-                ):null
-                }
-              </ul>
-             
-              <div className="mt-6 flex justify-end gap-2">
-              {selectedItem.status === "ditolak" ? (
-                  <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                    Tutup
-                  </button>
-                ) : selectedItem.status === "diterima" ? (
-                  <>
-                <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
-                  Teruskan Ke Staff
-                </button>
-
-                    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                      Tutup
-                    </button>
-                  </>
-                ) : 
-                selectedItem.status === "diproses" ? (
-                  <>
-                <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
-                  Ubah Tujuan
-                </button>
-
-                    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                      Tutup
-                    </button>
-                  </>
-                ): selectedItem.status === "selesai" ?
-                (
-                  <>
-                   
-                    <button className="btn btn-success" onClick={handleLihatTindakLanjut}>
-                      Lihat Tindak Lanjut
-                    </button>
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        closeModal();
-                        setIdTolak('');
-                        setEmail('');
-                        setNoTiket('');
-                      }}
-                    >
-                      Tutup
-                    </button>
-                  </>
-                ): selectedItem.status === "menunggu" ?
-                (
-                  <>
-                    <button
-                        className="btn btn-error"
-                        onClick={() => {
-                          setShowModal(false); // tutup modal detail
-                          setShowTolakModal(true); // buka modal tolak
-                        }}
-                      >
-                        Tolak Pengajuan
-                    </button>
-                    <button className="btn btn-accent" onClick={() => { closeModal(); handleTerima() }}>
-                      Terima Pengajuan
-                    </button>
-                    <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
-                      Tutup
-                    </button>
-                  </>
-                ):null
+      {/* Kanan: Detail */}
+      <div className="w-full md:w-1/2 overflow-y-auto max-h-[300px] md:max-h-[500px]">
+        <h3 className="text-lg font-bold mb-4">Detail Pengajuan</h3>
+        <ul className="text-sm space-y-1">
+          <li><strong>No Tiket:</strong> {selectedItem.no_tiket ?? 'Belum ada tiket'}</li>
+          <li><strong>Nama:</strong> {selectedItem.nama_pemohon}</li>
+          <li><strong>NIK/NIM:</strong> {selectedItem.identitas_pengguna}</li>
+          <li><strong>Email:</strong> {selectedItem.email}</li>
+          <li><strong>No HP:</strong> {selectedItem.no_hp}</li>
+          <li><strong>Alamat:</strong> {selectedItem.alamat}</li>
+          <li><strong>Kategori:</strong> {selectedItem.kategori_pengguna}</li>
+          <li><strong>Layanan:</strong> {selectedItem.nama_layanan}</li>
+          <li><strong>Judul Layanan:</strong> {selectedItem.judul_layanan}</li>
+          <li><strong>Tanggal Pengajuan:</strong> {selectedItem.tanggal_pengajuan}</li>
+          <li><strong>Keterangan:</strong> {selectedItem.keterangan_tambahan}</li>
+          <li>
+            <strong>Status:</strong>{' '}
+            <span
+              className={
+                selectedItem.status === 'diproses'
+                  ? 'text-yellow-500'
+                  : selectedItem.status === 'menunggu'
+                  ? 'text-gray-800'
+                  : selectedItem.status === 'diterima'
+                  ? 'text-blue-500'
+                  : selectedItem.status === 'selesai'
+                  ? 'text-green-500'
+                  : selectedItem.status === 'ditolak'
+                  ? 'text-red-500'
+                  : ''
               }
+            >
+              {selectedItem.status}
+            </span>
+          </li>
 
-                
-              </div>
-            </div>
-          </div>
+          {/* Kondisional sesuai status */}
+          {selectedItem.status === "ditolak" ? (
+            <>
+              <li><strong>Alasan Penolakan:</strong> {selectedItem.keterangan_tiket}</li>
+              <li><strong>Admin:</strong> {selectedItem.name}</li>
+            </>
+          ) : selectedItem.status === "diproses" ? (
+            <>
+              <li><strong>Admin:</strong> {selectedItem.name}</li>
+              <li><strong>Staff:</strong> {namaTindakLanjut}</li>
+              <li><strong>Tindak Lanjut:</strong> {tglTindakLanjut}</li>
+            </>
+          ) : selectedItem.status === "selesai" ? (
+            <>
+              <li><strong>Admin:</strong> {selectedItem.name}</li>
+              <li><strong>Tindak Lanjut:</strong> {tglTindakLanjut}</li>
+              <li><strong>Tgl Selesai:</strong> {tglSelesai}</li>
+              <li><strong>Staff:</strong> {namaTindakLanjut}</li>
+            </>
+          ) : null}
+        </ul>
+
+        {/* Tombol Aksi */}
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
+          {selectedItem.status === "ditolak" ? (
+            <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
+              Tutup
+            </button>
+          ) : selectedItem.status === "diterima" ? (
+            <>
+              <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
+                Teruskan Ke Staff
+              </button>
+              <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
+                Tutup
+              </button>
+            </>
+          ) : selectedItem.status === "diproses" ? (
+            <>
+              <button className="btn btn-primary" onClick={() => setShowKirimModal(true)}>
+                Ubah Tujuan
+              </button>
+              <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
+                Tutup
+              </button>
+            </>
+          ) : selectedItem.status === "selesai" ? (
+            <>
+              <button className="btn btn-success" onClick={handleLihatTindakLanjut}>
+                Lihat Tindak Lanjut
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  closeModal();
+                  setIdTolak('');
+                  setEmail('');
+                  setNoTiket('');
+                }}
+              >
+                Tutup
+              </button>
+            </>
+          ) : selectedItem.status === "menunggu" ? (
+            <>
+              <button
+                className="btn btn-error"
+                onClick={() => {
+                  setShowModal(false);
+                  setShowTolakModal(true);
+                }}
+              >
+                Tolak Pengajuan
+              </button>
+              <button className="btn btn-accent" onClick={() => { closeModal(); handleTerima() }}>
+                Terima Pengajuan
+              </button>
+              <button className="btn" onClick={() => { closeModal(); setIdTolak(''); }}>
+                Tutup
+              </button>
+            </>
+          ) : null}
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* MODAL ALASAN TOLAK */}
       {showTolakModal && (
@@ -426,7 +451,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
       <h2 className="text-lg font-bold mb-4">Teruskan ke Staff</h2>
 
           <select
-              className="select text-white select-bordered w-full mb-4"
+              className="select  select-bordered w-full mb-4"
               value={selectedStaff}
               onChange={(e) => setSelectedStaff(e.target.value)}
             >
@@ -441,7 +466,7 @@ const handleLihatTindakLanjut = async (id_kirim) => {
 
 
       <textarea
-        className="textarea text-white textarea-bordered w-full mb-4"
+        className="textarea  textarea-bordered w-full mb-4"
         rows="4"
         placeholder="Catatan tambahan..."
         value={catatanKirim}
