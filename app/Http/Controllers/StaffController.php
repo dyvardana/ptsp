@@ -55,42 +55,40 @@ class StaffController extends Controller
     }
   public function TindakLanjutStaff(Request $request)
 {
- // dd($request);
- $validated = $request->validate([
+    $validated = $request->validate([
         'file_lampiran' => 'required|file|mimes:pdf|max:2048',
         'id_permohonan' => 'required|exists:permohonan_layanans,id',
-        'id_users' => 'required|exists:users,id', // optional, jika kamu ingin simpan siapa yang upload
-        'no_tiket' => 'required|string', // optional, tergantung mau disimpan atau tidak
+        'id_users' => 'required|exists:users,id', 
+        'no_tiket' => 'required|string',
     ]);
 
     if ($request->hasFile('file_lampiran')) {
         $file = $request->file('file_lampiran');
 
-        // Bersihkan nama file
-        $originalName = preg_replace('/[^A-Za-z0-9\.\-_]/', '_', $file->getClientOriginalName());
-        $filename = time() . '_' . $originalName;
-
-        // Simpan file ke folder publik
-        $file->move(public_path('tindak_lanjut'), $filename);
-        $path = 'tindak_lanjut/' . $filename;
+        // Simpan ke storage/app/public/tindak_lanjut
+        $path = $file->store('tindak_lanjut', 'public');
+        // hasil contoh: "tindak_lanjut/1692456789_namafile.pdf"
 
         // Update status permohonan
         PermohoanLayanan::where('id', $request->id_permohonan)->update([
             'status' => 'selesai'
         ]);
-        TindakLanjut::where('id_permohonan_layanan',$request->id_permohonan)->update([
-            'file_lampiran' => $path
+
+        TindakLanjut::where('id_permohonan_layanan', $request->id_permohonan)->update([
+            'file_lampiran' => $path // simpan path relative (tindak_lanjut/...)
         ]);
-      
+
         $permohonan = PermohoanLayanan::find($request->id_permohonan);
         $tiketing = Tiket::where('no_tiket', $request->no_tiket)->first();
-        //echo $permohonan->email;
+
         Mail::to($permohonan->email)->send(new PermohonanSelesai($permohonan, $tiketing));
+
         return back()->with('success', 'Tindak lanjut berhasil disimpan.');
     }
 
     return back()->with('error', 'File lampiran tidak ditemukan.');
 }
+
 public function listuser(){
     
    $users = User::select('id', 'name', 'email', 'role')

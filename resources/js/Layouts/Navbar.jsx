@@ -3,13 +3,13 @@ import React from "react";
 
 export default function Navbar() {
   return (
-    <div data-theme="dark" className="w-full">
+    <div  className="w-full">
       <div className="navbar bg-base-100 min-h-[48px] px-2 justify-between">
         {/* Logo + Judul - benar-benar kiri */}
         <div className="flex items-center">
           <a className="btn btn-ghost normal-case text-base flex items-center gap-2 px-1 py-0 h-auto">
-            <img src="/images/logoIMK.png" alt="Logo IMK" className="w-5 h-5" />
-            PTSP IMK
+            <img src="/images/LogoIMK.png" alt="Logo IMK" className="w-5 h-5" />
+            PADURAKSA IMK
           </a>
         </div>
 
@@ -51,7 +51,7 @@ export default function Navbar() {
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 z-[999] p-2 shadow bg-base-100 rounded-box w-52 text-sm"
           >
-            <li><a>Beranda</a></li>
+            <li><a href={route('beranda')} method="get">Beranda</a></li>
             <li>
               <details>
                 <summary>Standar Layanan</summary>

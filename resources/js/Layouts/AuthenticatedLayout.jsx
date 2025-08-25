@@ -1,13 +1,14 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import ApplicationLogo from "@/Components/ApplicationLogo";
+import Dropdown from "@/Components/Dropdown";
+import NavLink from "@/Components/NavLink";
+import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
+import { Link, usePage } from "@inertiajs/react";
+import { useState } from "react";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
-    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] =
+        useState(false);
 
     return (
         <div className="drawer lg:drawer-open bg-gray-100 min-h-screen">
@@ -21,7 +22,10 @@ export default function AuthenticatedLayout({ header, children }) {
                         {/* Left: Logo + Hamburger */}
                         <div className="flex items-center">
                             {/* Hamburger only on mobile */}
-                            <label htmlFor="main-drawer" className="btn btn-ghost lg:hidden me-2">
+                            <label
+                                htmlFor="main-drawer"
+                                className="btn btn-ghost lg:hidden me-2"
+                            >
                                 <svg
                                     className="h-6 w-6"
                                     fill="none"
@@ -44,87 +48,121 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* Center: Nav Links (desktop only) */}
                         <div className="hidden lg:flex space-x-6">
-                            <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                            <NavLink
+                                href={route("dashboard")}
+                                active={route().current("dashboard")}
+                            >
                                 Dashboard
                             </NavLink>
-                            
                         </div>
 
                         {/* Right: Dropdown */}
                         {/* Versi Desktop */}
-<div className="hidden sm:flex items-center space-x-4">
-  <Dropdown>
-    <Dropdown.Trigger>
-      <button className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800">
-        {user.name}
-        <svg
-          className="ms-2 h-4 w-4"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </button>
-    </Dropdown.Trigger>
-    <Dropdown.Content>
-      <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-      <Dropdown.Link href={route('logout')} method="post" as="button">
-        Log Out
-      </Dropdown.Link>
-    </Dropdown.Content>
-  </Dropdown>
-</div>
+                        <div className="hidden sm:flex items-center space-x-4">
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800">
+                                        {user.name}
+                                        <svg
+                                            className="ms-2 h-4 w-4"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </button>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content>
+                                    <Dropdown.Link href={route("profile.edit")}>
+                                        Profile
+                                    </Dropdown.Link>
+                                    <Dropdown.Link
+                                        href={route("logout")}
+                                        method="post"
+                                        as="button"
+                                    >
+                                        Log Out
+                                    </Dropdown.Link>
+                                </Dropdown.Content>
+                            </Dropdown>
+                        </div>
 
-{/* Versi Mobile */}
-<div className="flex sm:hidden">
-  <Dropdown>
-    <Dropdown.Trigger>
-      <button className="p-2 rounded-md bg-white text-gray-600 hover:text-gray-800">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 15c3.866 0 7.373 1.567 9.879 4.096M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
-    </Dropdown.Trigger>
-    <Dropdown.Content>
-      <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-      <Dropdown.Link href={route('logout')} method="post" as="button">
-        Log Out
-      </Dropdown.Link>
-    </Dropdown.Content>
-  </Dropdown>
-</div>
-
+                        {/* Versi Mobile */}
+                        <div className="flex sm:hidden">
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button className="p-2 rounded-md bg-white text-gray-600 hover:text-gray-800">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M5.121 17.804A13.937 13.937 0 0112 15c3.866 0 7.373 1.567 9.879 4.096M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                            />
+                                        </svg>
+                                    </button>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content>
+                                    <Dropdown.Link href={route("profile.edit")}>
+                                        Profile
+                                    </Dropdown.Link>
+                                    <Dropdown.Link
+                                        href={route("logout")}
+                                        method="post"
+                                        as="button"
+                                    >
+                                        Log Out
+                                    </Dropdown.Link>
+                                </Dropdown.Content>
+                            </Dropdown>
+                        </div>
                     </div>
                 </nav>
 
                 {/* Mobile Dropdown Navigation */}
-                <div className={`sm:hidden ${showingNavigationDropdown ? 'block' : 'hidden'}`}>
+                <div
+                    className={`sm:hidden ${
+                        showingNavigationDropdown ? "block" : "hidden"
+                    }`}
+                >
                     <div className="space-y-1 pt-2 pb-3">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
+                        <ResponsiveNavLink
+                            href={route("dashboard")}
+                            active={route().current("dashboard")}
+                        >
                             Dashboard
                         </ResponsiveNavLink>
-                        
                     </div>
 
                     <div className="border-t border-gray-200 pt-4 pb-1">
                         <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">{user.name}</div>
-                            <div className="text-sm font-medium text-gray-500">{user.email}</div>
+                            <div className="text-base font-medium text-gray-800">
+                                {user.name}
+                            </div>
+                            <div className="text-sm font-medium text-gray-500">
+                                {user.email}
+                            </div>
                         </div>
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
+                            <ResponsiveNavLink href={route("profile.edit")}>
+                                Profile
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                method="post"
+                                href={route("logout")}
+                                as="button"
+                            >
                                 Log Out
                             </ResponsiveNavLink>
                         </div>
@@ -134,7 +172,9 @@ export default function AuthenticatedLayout({ header, children }) {
                 {/* Header */}
                 {header && (
                     <header className="bg-white shadow">
-                        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">{header}</div>
+                        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                            {header}
+                        </div>
                     </header>
                 )}
 
@@ -144,33 +184,36 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Sidebar */}
             <div className="drawer-side">
-  <label htmlFor="main-drawer" className="drawer-overlay"></label>
-  <ul className="menu p-4 w-64 bg-base-200 text-base-content min-h-full">
-    {user.role === "ptsp" && (
-      <>
-        <li>
-          <Link href={route("dashboard")}>Dashboard</Link>
-        </li>
-        <li>
-          <Link href={route("permohonanList")}>Permohonan</Link>
-        </li>
-        <li>
-          <Link href={route("listLayanan")}>Layanan</Link>
-        </li>
-        <li>
-          <Link href={route("kelolaStaff")}>Kelola Staff</Link>
-        </li>
-      </>
-    )}
+                <label htmlFor="main-drawer" className="drawer-overlay"></label>
+                <ul className="menu p-4 w-64 bg-base-200 text-base-content min-h-full">
+                    {user.role === "ptsp" && (
+                        <>
+                            <li>
+                                <Link href={route("dashboard")}>Dashboard</Link>
+                            </li>
+                            <li>
+                                <Link href={route("permohonanList")}>
+                                    Permohonan
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={route("listLayanan")}>Layanan</Link>
+                            </li>
+                            <li>
+                                <Link href={route("kelolaStaff")}>
+                                    Kelola Staff
+                                </Link>
+                            </li>
+                        </>
+                    )}
 
-    {user.role === "staff" && (
-      <li>
-        <Link href={route("listLayanan")}>Layanan</Link>
-      </li>
-    )}
-  </ul>
-</div>
-
+                    {user.role === "staff" && (
+                        <li>
+                            <Link href={route("listLayanan")}>Layanan</Link>
+                        </li>
+                    )}
+                </ul>
+            </div>
         </div>
     );
 }

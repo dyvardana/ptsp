@@ -8,8 +8,8 @@ import { createRoot } from 'react-dom/client';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 // Ganti tema ke "coffee"
-localStorage.setItem('theme', 'coffee');
-document.documentElement.setAttribute('data-theme', 'coffee');
+// localStorage.setItem('theme', 'coffee');
+// document.documentElement.setAttribute('data-theme', 'coffee');
 
 createInertiaApp({
     title: (title) => `${title}`,

@@ -9,11 +9,11 @@ export default function Homepage({children}) {
  
   return (
     <div
-      data-theme=""
+     
       className="min-h-screen relative overflow-hidden"
       style={{
         backgroundImage: `
-          radial-gradient(circle, rgba(0, 0, 0, 0.15) 1px, transparent 1px)`,
+          radial-gradient(circle, rgba(217, 217, 216, 1) 1px, transparent 1px)`,
         backgroundSize: '30px 30px',
         backgroundPosition: 'center',
       }}
@@ -33,7 +33,7 @@ export default function Homepage({children}) {
                 property="og:description"
                 content="Akses layanan administrasi dengan mudah melalui PTSP Institut Mpu Kuturan Singaraja."
               />
-              <meta property="og:image" content="/images/logoIMK.png" />
+              <meta property="og:image" content="/images/LogoIMK.png" />
               <meta property="og:type" content="website" />
       {/* Navbar tetap */}
       <div className="fixed top-0 left-0 w-full z-50">

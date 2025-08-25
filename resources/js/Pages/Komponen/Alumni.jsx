@@ -91,9 +91,15 @@ export default function Alumni() {
       Object.entries(form).forEach(([key, value]) => {
         formData.append(key, value);
       });
-      const response = await axios.post("/permohonan-layanan", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+         const response = await axios.post(
+  route("permohonanlayanan"), // URL yang dihasilkan oleh Laravel route()
+  formData,                   // data body
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }
+);
       alert(
         "Data berhasil dikirim dengan nomor tiket: " +
           response.data.tiket.no_tiket
@@ -167,7 +173,7 @@ export default function Alumni() {
                   </div>
                   <input type="text" required name="nama_pemohon" value={form.nama_pemohon} onChange={handleChange} className="input input-bordered w-full" placeholder="Nama Lengkap" readOnly  />
                   <input type="text" required name="no_hp" value={form.no_hp} onChange={handleChange} className="input input-bordered w-full" placeholder="No. HP"   />
-                  <input type="email" required name="email" value={form.email} onChange={handleChange} className="input input-bordered w-full" placeholder="Email"  />
+                  <input type="email" required name="email" value={form.email} onChange={handleChange} className="input input-bordered w-full" placeholder="Email (untuk mendapatkan notifikasi)"  />
                   <textarea name="alamat" value={form.alamat} onChange={handleChange} className="textarea textarea-bordered w-full" placeholder="Alamat Lengkap" rows="2"  required></textarea>
                 </div>
               </div>

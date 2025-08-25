@@ -10,7 +10,7 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold text-gold-300 mb-2">Tentang</h3>
           <p className="text-gray-400 text-sm">
-            PTSP IAHN Mpu Kuturan merupakan layanan satu pintu untuk kebutuhan administrasi akademik dan umum.
+           PADURAKSA (Pelayanan Terpadu, Ramah, Berkualitas, dan Andal) Institut Mpu Kuturan merupakan pusat layanan terpadu yang memfasilitasi kebutuhan administrasi akademik maupun umum secara cepat, transparan, ramah, dan mudah diakses.
           </p>
         </div>
 
@@ -36,7 +36,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="mt-10 text-center text-sm text-gray-500">
-        &copy; {new Date().getFullYear()} Mpu Kuturan. All rights reserved.
+        &copy; {new Date().getFullYear()} TIPD Mpu Kuturan.
       </div>
     </footer>
     </div>

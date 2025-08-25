@@ -102,66 +102,57 @@ class PermohoanLayananController extends Controller
     /**
      * Store a newly created resource in storage.
      */
- public function store(Request $request)
+
+
+public function store(Request $request)
 {
-    // Validasi data termasuk id_layanan
+    // 1. Validasi input
     $validated = $request->validate([
-        'id_layanan' => 'required|exists:layanans,id',
+        'id_layanan'         => 'required|exists:layanans,id',
         'identitas_pengguna' => 'required|string',
-        'nama_pemohon' => 'required|string|max:255',
-        'email' => 'required|email',
-        'no_hp' => 'required|string',
-        'alamat' => 'required|string',
-        'judul_layanan' => 'required|string',
-        'keterangan_tambahan' => 'nullable|string',
-        'file_lampiran' => 'required|file|mimes:pdf,zip,rar|max:5120',
+        'nama_pemohon'       => 'required|string|max:255',
+        'email'              => 'required|email',
+        'no_hp'              => 'required|string',
+        'alamat'             => 'required|string',
+        'judul_layanan'      => 'required|string',
+        'keterangan_tambahan'=> 'nullable|string',
+        'file_lampiran'      => 'required|file|mimes:pdf,zip,rar|max:5120',
     ]);
 
-    // Simpan file jika ada
+    // 2. Upload file menggunakan Storage Laravel
     if ($request->hasFile('file_lampiran')) {
-        // $path = $request->file('file_lampiran')->store('lampiran', 'public');
-        // $validated['file_lampiran'] = $path;
-         $file = $request->file('file_lampiran');
-    
-    // Nama file unik (optional, bisa juga pakai originalName)
-    $filename = time() . '_' . $file->getClientOriginalName();
-
-    // Simpan ke folder public/lampiran
-    $file->move(public_path('lampiran'), $filename);
-
-    // Simpan path relatif ke database, jika diperlukan
-    $validated['file_lampiran'] = 'lampiran/' . $filename;
+        $path = $request->file('file_lampiran')->store('lampiran', 'public');
+        $validated['file_lampiran'] = $path; // contoh: "lampiran/namafile.pdf"
     }
 
-    // Tambahan data default
-    $validated['status'] = 'menunggu';
+    // 3. Tambahkan data default
+    $validated['status']            = 'menunggu';
     $validated['tanggal_pengajuan'] = now();
-    if( !$request->kategori_pengguna ){
-        $validated['kategori_pengguna'] = 'mahasiswa';
-    }else{
-        $validated['kategori_pengguna'] = $request->kategori_pengguna;
-    }
-    
+    $validated['kategori_pengguna'] = $request->kategori_pengguna ?? 'mahasiswa';
 
-    // Simpan ke database
+    // 4. Simpan ke database
     $permohonan = PermohoanLayanan::create($validated);
 
-    // Tiketing
+    // 5. Generate tiket
     $tiketing = [
-        'id_layanan' => $validated['id_layanan'],
-        'id_permohonan_layanan' => $permohonan->id, // Dapatkan id terakhir
-        'no_tiket' => $this->generateNoTiket(),
-        'keterangan_tiket' => ''
+        'id_layanan'            => $validated['id_layanan'],
+        'id_permohonan_layanan' => $permohonan->id,
+        'no_tiket'              => $this->generateNoTiket(),
+        'keterangan_tiket'      => ''
     ];
     Tiket::create($tiketing);
+
+    // 6. Kirim email notifikasi
     Mail::to($validated['email'])->send(new PermohonanTerkirim($permohonan, $tiketing));
 
+    // 7. Return response
     return response()->json([
         'message' => 'Permohonan berhasil disimpan',
-        'data' => $permohonan,
-        'tiket' => $tiketing
+        'data'    => $permohonan,
+        'tiket'   => $tiketing,
     ], 201);
 }
+
 
 
 
@@ -256,7 +247,7 @@ class PermohoanLayananController extends Controller
             'status'=>'diproses'
         ];
        PermohoanLayanan::where('id',$request->id)->update($status);
-
+        return response()->json(['message' => 'Tindak lanjut berhasil']);
      }
      public function cekTindakLanjut(Request $request){
          $id = $request->input('id');

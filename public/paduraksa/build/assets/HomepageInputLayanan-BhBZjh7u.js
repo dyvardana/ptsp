@@ -1,0 +1,1 @@
+import{a as s,j as a}from"./app-e4jMZ1A-.js";import t from"./Mahasiswa-D5QTs2Ii.js";import m from"./Alumni-DX9w64fe.js";import{H as i}from"./Homepage-BS_7g-vO.js";/* empty css            */import"./createLucideIcon-B64HR7v-.js";function g(){const{props:r}=s(),o=r.kategori;return a.jsxs(i,{children:[o==="mahasiswa"&&a.jsx(t,{}),o==="alumni"&&a.jsx(m,{})]})}export{g as default};
