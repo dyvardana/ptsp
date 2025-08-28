@@ -46,6 +46,7 @@ class StaffController extends Controller
             'users.name',
             'tindak_lanjuts.catatan'
         )
+        ->orderBy('permohonan_layanans.id', 'desc') // 🔥 urutkan dari terbesar ke terkecil
         ->get();
          //  dd($data);
         return Inertia::render('Profile/Staff/DashboardStaff', [

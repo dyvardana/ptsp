@@ -22,27 +22,28 @@ class PermohoanLayananController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(){
-         $jumlahLayananMahasiswa = PermohoanLayanan::where('kategori_pengguna', 'mahasiswa')->count();
-         $jumlahLayananAlumni = PermohoanLayanan::where('kategori_pengguna', 'alumni')->count();
-            $jumlahLayananUmum = PermohoanLayanan::where('kategori_pengguna', 'umum')->count();
-            $jumlahLayananStaff = PermohoanLayanan::where('kategori_pengguna', 'dosen')->count();
-            $data = [
-                'jumlahLayananMahasiswa' => $jumlahLayananMahasiswa,
-                'jumlahLayananAlumni' => $jumlahLayananAlumni,
-                'jumlahLayananUmum' => $jumlahLayananUmum,
-                'jumlahLayananStaff' => $jumlahLayananStaff,
-            ];
-        return Inertia::render('Profile/Ptsp/Dashboard',[
-            'title'=>'Dashboard',
+    public function index()
+    {
+        $jumlahLayananMahasiswa = PermohoanLayanan::where('kategori_pengguna', 'mahasiswa')->count();
+        $jumlahLayananAlumni = PermohoanLayanan::where('kategori_pengguna', 'alumni')->count();
+        $jumlahLayananUmum = PermohoanLayanan::where('kategori_pengguna', 'umum')->count();
+        $jumlahLayananStaff = PermohoanLayanan::where('kategori_pengguna', 'dosen')->count();
+        $data = [
+            'jumlahLayananMahasiswa' => $jumlahLayananMahasiswa,
+            'jumlahLayananAlumni' => $jumlahLayananAlumni,
+            'jumlahLayananUmum' => $jumlahLayananUmum,
+            'jumlahLayananStaff' => $jumlahLayananStaff,
+        ];
+        return Inertia::render('Profile/Ptsp/Dashboard', [
+            'title' => 'Dashboard',
             'data' => $data,
         ]);
     }
     public function list()
     {
-            $staff = User::where('role', 'staff')->get();
+        $staff = User::where('role', 'staff')->get();
         //
-     $data = DB::table('permohonan_layanans')
+      $data = DB::table('permohonan_layanans')
     ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
     ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
     ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id')
@@ -67,7 +68,9 @@ class PermohoanLayananController extends Controller
         'users.name',
         DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
     )
+    ->orderBy('permohonan_layanans.id', 'desc') // 🔥 urutkan dari terbesar ke terkecil
     ->get();
+
         $menunggu = $data->where('status', 'menunggu')->count();
         $diterima = $data->where('status', 'diterima')->count();
         $ditolak = $data->where('status', 'ditolak')->count();
@@ -86,9 +89,8 @@ class PermohoanLayananController extends Controller
             'data' => $data,
             'staff' => $staff,
             'statusData' => $statusData,
-             
-        ]);
 
+        ]);
     }
 
     /**
@@ -104,54 +106,54 @@ class PermohoanLayananController extends Controller
      */
 
 
-public function store(Request $request)
-{
-    // 1. Validasi input
-    $validated = $request->validate([
-        'id_layanan'         => 'required|exists:layanans,id',
-        'identitas_pengguna' => 'required|string',
-        'nama_pemohon'       => 'required|string|max:255',
-        'email'              => 'required|email',
-        'no_hp'              => 'required|string',
-        'alamat'             => 'required|string',
-        'judul_layanan'      => 'required|string',
-        'keterangan_tambahan'=> 'nullable|string',
-        'file_lampiran'      => 'required|file|mimes:pdf,zip,rar|max:5120',
-    ]);
+    public function store(Request $request)
+    {
+        // 1. Validasi input
+        $validated = $request->validate([
+            'id_layanan'         => 'required|exists:layanans,id',
+            'identitas_pengguna' => 'required|string',
+            'nama_pemohon'       => 'required|string|max:255',
+            'email'              => 'required|email',
+            'no_hp'              => 'required|string',
+            'alamat'             => 'required|string',
+            'judul_layanan'      => 'required|string',
+            'keterangan_tambahan' => 'nullable|string',
+            'file_lampiran'      => 'required|file|mimes:pdf,zip,rar|max:5120',
+        ]);
 
-    // 2. Upload file menggunakan Storage Laravel
-    if ($request->hasFile('file_lampiran')) {
-        $path = $request->file('file_lampiran')->store('lampiran', 'public');
-        $validated['file_lampiran'] = $path; // contoh: "lampiran/namafile.pdf"
+        // 2. Upload file menggunakan Storage Laravel
+        if ($request->hasFile('file_lampiran')) {
+            $path = $request->file('file_lampiran')->store('lampiran', 'public');
+            $validated['file_lampiran'] = $path; // contoh: "lampiran/namafile.pdf"
+        }
+
+        // 3. Tambahkan data default
+        $validated['status']            = 'menunggu';
+        $validated['tanggal_pengajuan'] = now();
+        $validated['kategori_pengguna'] = $request->kategori_pengguna ?? 'mahasiswa';
+
+        // 4. Simpan ke database
+        $permohonan = PermohoanLayanan::create($validated);
+
+        // 5. Generate tiket
+        $tiketing = [
+            'id_layanan'            => $validated['id_layanan'],
+            'id_permohonan_layanan' => $permohonan->id,
+            'no_tiket'              => $this->generateNoTiket(),
+            'keterangan_tiket'      => ''
+        ];
+        Tiket::create($tiketing);
+
+        // 6. Kirim email notifikasi
+        Mail::to($validated['email'])->send(new PermohonanTerkirim($permohonan, $tiketing));
+
+        // 7. Return response
+        return response()->json([
+            'message' => 'Permohonan berhasil disimpan',
+            'data'    => $permohonan,
+            'tiket'   => $tiketing,
+        ], 201);
     }
-
-    // 3. Tambahkan data default
-    $validated['status']            = 'menunggu';
-    $validated['tanggal_pengajuan'] = now();
-    $validated['kategori_pengguna'] = $request->kategori_pengguna ?? 'mahasiswa';
-
-    // 4. Simpan ke database
-    $permohonan = PermohoanLayanan::create($validated);
-
-    // 5. Generate tiket
-    $tiketing = [
-        'id_layanan'            => $validated['id_layanan'],
-        'id_permohonan_layanan' => $permohonan->id,
-        'no_tiket'              => $this->generateNoTiket(),
-        'keterangan_tiket'      => ''
-    ];
-    Tiket::create($tiketing);
-
-    // 6. Kirim email notifikasi
-    Mail::to($validated['email'])->send(new PermohonanTerkirim($permohonan, $tiketing));
-
-    // 7. Return response
-    return response()->json([
-        'message' => 'Permohonan berhasil disimpan',
-        'data'    => $permohonan,
-        'tiket'   => $tiketing,
-    ], 201);
-}
 
 
 
@@ -162,7 +164,7 @@ public function store(Request $request)
     public function show(PermohoanLayanan $permohoanLayanan)
     {
         //
-       
+
     }
 
     /**
@@ -188,79 +190,81 @@ public function store(Request $request)
     {
         //
     }
-    public function terima(Request $request){
-        $data=[
-            'status'=> 'diterima',
-            'id_users'=>$request->idUser,
+    public function terima(Request $request)
+    {
+        $data = [
+            'status' => 'diterima',
+            'id_users' => $request->idUser,
             'updated_at' => now(),
         ];
-        PermohoanLayanan::where('id',$request->id)->update($data);
+        PermohoanLayanan::where('id', $request->id)->update($data);
         return redirect()->back()->with('message', 'Data berhasil diupdate');
-
     }
 
     public function tolak(Request $request)
     {
         //
-       $data =[
-        'status'=> 'ditolak',
-        'id_users'=>$request->idUser,
-        'updated_at' => now(),
-       ];
-       $tiket =[
-        'keterangan_tiket'=>$request->keterangan_tiket,
-        'updated_at' => now(),
-       ];
+        $data = [
+            'status' => 'ditolak',
+            'id_users' => $request->idUser,
+            'updated_at' => now(),
+        ];
+        $tiket = [
+            'keterangan_tiket' => $request->keterangan_tiket,
+            'updated_at' => now(),
+        ];
 
-       PermohoanLayanan::where('id',$request->id)->update($data);
-       Tiket::where('id_permohonan_layanan',$request->id)->update($tiket);
-     //  dd($request);
+        PermohoanLayanan::where('id', $request->id)->update($data);
+        Tiket::where('id_permohonan_layanan', $request->id)->update($tiket);
+        //  dd($request);
         $permohonan = PermohoanLayanan::find($request->id);
         $tiketing = Tiket::where('no_tiket', $request->no_tiket)->first();
-        
-       // dd($tiketing);
-       Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
-       return redirect()->back()->with('message', 'Data berhasil ditolak');
+
+        // dd($tiketing);
+        Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
+        return redirect()->back()->with('message', 'Data berhasil ditolak');
     }
-    function generateNoTiket(){
+    function generateNoTiket()
+    {
         $tanggal = now()->format('dmy'); // ddmmyy
         $unik = mt_rand(100, 999); // 3 digit acak
 
-        return "IMK".$tanggal . $unik;
+        return "IMK" . $tanggal . $unik;
     }
-     public function tindakLanjut(Request $request){
-       // dd($request);
-       $cekTindakLanjut = TindakLanjut::where('id_permohonan_layanan', $request->id)->first();
+    public function tindakLanjut(Request $request)
+    {
+        // dd($request);
+        $cekTindakLanjut = TindakLanjut::where('id_permohonan_layanan', $request->id)->first();
         $data = [
-            'id_permohonan_layanan'=> $request->id,
-            'id_users'=> $request->id_staff,
-            'catatan'=> $request->catatan,
+            'id_permohonan_layanan' => $request->id,
+            'id_users' => $request->id_staff,
+            'catatan' => $request->catatan,
             'updated_at' => now(),
         ];
-     if($cekTindakLanjut){
-        TindakLanjut::where('id_permohonan_layanan', $request->id)->update($data);
-    } else {
-        // Jika tidak ada tindak lanjut sebelumnya, buat yang baru
-       TindakLanjut::create($data);
-    }
+        if ($cekTindakLanjut) {
+            TindakLanjut::where('id_permohonan_layanan', $request->id)->update($data);
+        } else {
+            // Jika tidak ada tindak lanjut sebelumnya, buat yang baru
+            TindakLanjut::create($data);
+        }
         $status = [
-            'status'=>'diproses'
+            'status' => 'diproses'
         ];
-       PermohoanLayanan::where('id',$request->id)->update($status);
-      //  return response()->json(['message' => 'Tindak lanjut berhasil']);
-      return redirect()->back()->with('success', 'Tindak lanjut berhasil');
-     }
-     public function cekTindakLanjut(Request $request){
-         $id = $request->input('id');
-       
+        PermohoanLayanan::where('id', $request->id)->update($status);
+        //  return response()->json(['message' => 'Tindak lanjut berhasil']);
+        return redirect()->back()->with('success', 'Tindak lanjut berhasil');
+    }
+    public function cekTindakLanjut(Request $request)
+    {
+        $id = $request->input('id');
+
 
         $data = DB::table('tindak_lanjuts')
             ->join('users', 'tindak_lanjuts.id_users', '=', 'users.id')
             ->where('tindak_lanjuts.id_permohonan_layanan', $request->id_permohonan)
-            ->select('tindak_lanjuts.catatan', 'tindak_lanjuts.file_lampiran', 'tindak_lanjuts.updated_at','tindak_lanjuts.created_at', 'users.name')
+            ->select('tindak_lanjuts.catatan', 'tindak_lanjuts.file_lampiran', 'tindak_lanjuts.updated_at', 'tindak_lanjuts.created_at', 'users.name')
             ->first();
 
         return response()->json($data);
-     }
-    
+    }
 }

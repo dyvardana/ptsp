@@ -46,7 +46,10 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         //Auth::login($user);
-
-        return redirect(route('kelolaStaff', absolute: false));
+        return response()->json([
+            'message' => 'Staff berhasil ditambahkan!',
+            'data' => $user
+        ]);
+        //return redirect(route('kelolaStaff', absolute: false));
     }
 }
