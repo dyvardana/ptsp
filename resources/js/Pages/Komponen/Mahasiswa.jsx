@@ -206,7 +206,7 @@ export default function Mahasiswa() {
                                         value={form.email}
                                         onChange={handleChange}
                                         className="input input-bordered w-full"
-                                        placeholder="Email"
+                                        placeholder="Email aktif"
                                         readOnly
                                     />
                                     <textarea

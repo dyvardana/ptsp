@@ -7,7 +7,7 @@ export default function Navbar() {
       <div className="navbar bg-base-100 min-h-[48px] px-2 justify-between">
         {/* Logo + Judul - benar-benar kiri */}
         <div className="flex items-center">
-          <a className="btn btn-ghost normal-case text-base flex items-center gap-2 px-1 py-0 h-auto">
+          <a className="btn btn-ghost normal-case text-base flex items-center gap-2 px-1 py-0 h-auto hover:bg-transparent hover:text-inherit">
             <img src="/images/LogoIMK.png" alt="Logo IMK" className="w-5 h-5" />
             PADURAKSA IMK
           </a>

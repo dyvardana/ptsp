@@ -247,7 +247,8 @@ public function store(Request $request)
             'status'=>'diproses'
         ];
        PermohoanLayanan::where('id',$request->id)->update($status);
-        return response()->json(['message' => 'Tindak lanjut berhasil']);
+      //  return response()->json(['message' => 'Tindak lanjut berhasil']);
+      return redirect()->back()->with('success', 'Tindak lanjut berhasil');
      }
      public function cekTindakLanjut(Request $request){
          $id = $request->input('id');

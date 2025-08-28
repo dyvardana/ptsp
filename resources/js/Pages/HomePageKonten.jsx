@@ -169,17 +169,18 @@ export default function HomePageKonten() {
                 {/* Dua Kolom */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-10 items-center">
   {/* Kolom Kiri */}
-  <div className="hidden md:flex justify-center">
+  <div className=" md:flex justify-center">
     <img 
-      src="images/siluanglaptop.png" 
-      alt="Siluang"
-      className="w-full h-auto max-h-[400px] object-contain "
-    />
+  src="images/siluanglaptop.png" 
+  alt="Siluang"
+  className="max-w-[120px] sm:max-w-[200px] md:max-w-[400px] h-auto object-contain mx-auto"
+/>
+
   </div>
 
   {/* Kolom Kanan */}
   <div className="p-4 sm:p-6 rounded-xl">
-    <h2 className="text-xl font-semibold mb-4 text-yellow-600">
+    <h2 className="text-xl font-semibold mb-4 text-yellow-500">
       Transformasi Layanan Publik
     </h2>
     <p className="text-gray-600 mb-4 text-sm sm:text-base">
@@ -248,8 +249,7 @@ export default function HomePageKonten() {
                                 Penerimaan Layanan
                             </h3>
                             <p className="text-sm">
-                                Silahkan tunggu balasan dari Petugas melalui
-                                notifikasi email dan WA pemohon.
+                                Silahkan tunggu balasan dari Email
                             </p>
                         </div>
                     </div>
@@ -338,12 +338,12 @@ export default function HomePageKonten() {
                     F A Q
                 </h2>
                 {faqs.map((faq, index) => (
-                    <div key={index} className="border-b border-gray-600">
+                    <div key={index} className="border-b border-gray-500">
                         <button
                             onClick={() => toggleFaq(index)}
                             className="w-full flex justify-between items-center py-4 text-left focus:outline-none"
                         >
-                            <span className="font-medium text-gray-700">
+                            <span className="font-medium text-gray-500">
                                 {faq.question}
                             </span>
                             <svg
