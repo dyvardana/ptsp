@@ -8,7 +8,18 @@ export default function TableListStaff({ staff }) {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+   // 🔔 state untuk notifikasi
+    const [notif, setNotif] = useState({
+        show: false,
+        message: "",
+        type: "success",
+    });
 
+    // fungsi show notif
+    const showNotif = (message, type = "success") => {
+        setNotif({ show: true, message, type });
+        setTimeout(() => setNotif({ show: false, message: "", type }), 3000);
+    };
   const { data, setData, reset } = useForm({
     name: "",
     email: "",
@@ -56,10 +67,11 @@ const submit = async (e) => {
   const handleDelete = async (id) => {
     if (!confirm("Yakin ingin menghapus staff ini?")) return;
     try {
-      await axios.delete(`/staff/${id}`);
+      await axios.delete(`/hapusStaff/${id}`);
       setListStaff((prev) => prev.filter((s) => s.id !== id)); // update tabel
+       showNotif("Berhasil Menghapus", "success");
     } catch (error) {
-      console.error("Gagal menghapus staff:", error);
+       showNotif("Gagal Menghapus!", error);
     }
   };
 
@@ -235,6 +247,19 @@ const submit = async (e) => {
           </form>
         </div>
       </dialog>
+      {/* 🔔 Notifikasi */}
+            {notif.show && (
+                <div
+                    className={`fixed top-4 right-4 px-4 py-2 rounded shadow-lg text-white z-50 transition-opacity duration-300
+                        ${
+                            notif.type === "success"
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                        }`}
+                >
+                    {notif.message}
+                </div>
+            )}
     </div>
   );
 }

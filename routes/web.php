@@ -63,6 +63,7 @@ Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
     Route::delete('/layanans/{id}', [LayananController::class, 'destroy'])->name('layanansDestroy');
 
     Route::get('/kelolastaff', [StaffController::class, 'listuser'])->name('kelolaStaff');
+    Route::delete('/hapusStaff/{id}', [StaffController::class, 'destroy'])->name('hapusStaff');
 });
 
 Route::middleware(['auth', 'role:staff'])->group(function () {

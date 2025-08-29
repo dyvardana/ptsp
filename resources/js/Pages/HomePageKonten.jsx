@@ -72,7 +72,7 @@ export default function HomePageKonten() {
                 {/* Hero Section */}
                 <div className="flex flex-col items-center justify-start pt-40 px-4">
                     <img
-                        src="/images/logoIMK.png"
+                        src="/images/LogoIMK.png"
                         alt="Logo Institut Mpu Kuturan"
                         className="w-[7.5rem]"
                     />
@@ -203,7 +203,7 @@ export default function HomePageKonten() {
 
                 {/* Tahapan Permohonan */}
                 <div className=" py-12 px-4 sm:px-6 md:px-12 rounded-xl">
-                    <h2 className="text-2xl font-bold text-center  mb-6">
+                    <h2 className="text-2xl font-bold text-center text-yellow-500 mb-6">
                         Tahapan Permohonan
                     </h2>
                     <p className="text-center text-gray-600 max-w-2xl mx-auto mb-10 text-sm sm:text-base">
@@ -334,7 +334,7 @@ export default function HomePageKonten() {
                 </div>
             )}
             <div className="py-12 px-4 sm:px-6 md:px-12 rounded-xl">
-                <h2 className="text-2xl font-bold text-center mb-6">
+                <h2 className="text-2xl font-bold text-center text-yellow-500 mb-6">
                     F A Q
                 </h2>
                 {faqs.map((faq, index) => (

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { router } from '@inertiajs/react';
+import { router } from "@inertiajs/react";
+import Swal from "sweetalert2"; // ✅ Import SweetAlert2
+
 export default function Alumni() {
   const [datamahasiswaValid, setDatamahasiswaValid] = useState(false);
   const [statusMahasiswa, setStatusMahasiswa] = useState("");
   const [prodiList, setProdiList] = useState([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     fetch("https://stahnmpukuturan.ac.id/api/cekprodi.php")
       .then((res) => res.json())
@@ -13,13 +16,25 @@ export default function Alumni() {
         if (data.success) {
           setProdiList(data.data);
         } else {
-          console.error("Data prodi tidak ditemukan");
+          Swal.fire({
+            icon: "error",
+            title: "Gagal",
+            text: "Data prodi tidak ditemukan.",
+          });
         }
       })
-      .catch((err) => console.error("Error:", err));
+      .catch((err) => {
+        console.error("Error:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Gagal memuat data prodi.",
+        });
+      });
   }, []);
+
   const [form, setForm] = useState({
-    id_layanan:"",
+    id_layanan: "",
     nama_pemohon: "",
     nim: "",
     nik: "",
@@ -40,28 +55,32 @@ export default function Alumni() {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((prev) => ({
-    ...prev,
-    [name]: files ? files[0] : value,
-    ...(name === "nik" && { identitas_pengguna: value }), // ✅ otomatis isi identitas_pengguna
-     kategori_pengguna: "alumni", // 🔒 selalu set alumni
-  }));
-   
+      ...prev,
+      [name]: files ? files[0] : value,
+      ...(name === "nik" && { identitas_pengguna: value }),
+      kategori_pengguna: "alumni",
+    }));
   };
 
   const handleCekDataMahasiswa = async () => {
-     if (!form.nik || !form.prodi) {
-    alert("Mohon isi NIK dan Prodi terlebih dahulu.");
-    return; // hentikan eksekusi
-  }
-    
-    console.log(form.identitas_pengguna);
-    try {
-      const res = await fetch("https://stahnmpukuturan.ac.id/api/cekalumni.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nik: form.nik, id_prodi: form.prodi }),
-        
+    if (!form.nik || !form.prodi) {
+      Swal.fire({
+        icon: "warning",
+        title: "Data Tidak Lengkap",
+        text: "Mohon isi NIK dan Prodi terlebih dahulu.",
       });
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        "https://stahnmpukuturan.ac.id/api/cekalumni.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nik: form.nik, id_prodi: form.prodi }),
+        }
+      );
       const data = await res.json();
       if (data && data.user && data.user.nama) {
         setForm((prev) => ({
@@ -71,15 +90,30 @@ export default function Alumni() {
           no_hp: data.user.phone || "",
           email: data.user.email || "",
         }));
-        setStatusMahasiswa(data.user.status === "LULUS" ? "LULUS" : "NONAKTIF");
+        setStatusMahasiswa(
+          data.user.status === "LULUS" ? "LULUS" : "NONAKTIF"
+        );
         setDatamahasiswaValid(true);
+        Swal.fire({
+          icon: "success",
+          title: "Data Alumni Ditemukan",
+          text: `Alumni: ${data.user.nama}`,
+        });
       } else {
         setDatamahasiswaValid(false);
-        alert("Data Alumni tidak ditemukan.");
+        Swal.fire({
+          icon: "error",
+          title: "Tidak Ditemukan",
+          text: "Data Alumni tidak ditemukan.",
+        });
       }
     } catch (err) {
       console.error("Gagal mengambil data:", err);
-      alert("Terjadi kesalahan saat mengambil data.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Terjadi kesalahan saat mengambil data.",
+      });
     }
   };
 
@@ -91,28 +125,40 @@ export default function Alumni() {
       Object.entries(form).forEach(([key, value]) => {
         formData.append(key, value);
       });
-         const response = await axios.post(
-  route("permohonanlayanan"), // URL yang dihasilkan oleh Laravel route()
-  formData,                   // data body
-  {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  }
-);
-      alert(
-        "Data berhasil dikirim dengan nomor tiket: " +
-          response.data.tiket.no_tiket
-      );
-      router.visit(route('detailTiket', { no_tiket: response.data.tiket.no_tiket }));
 
+      const response = await axios.post(route("permohonanlayanan"), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text:
+          "Data berhasil dikirim dengan nomor tiket: " +
+          response.data.tiket.no_tiket,
+      }).then(() => {
+        router.visit(
+          route("detailTiket", { no_tiket: response.data.tiket.no_tiket })
+        );
+      });
     } catch (error) {
       if (error.response?.status === 422) {
-        alert(
-          "Validasi gagal:\n" + JSON.stringify(error.response.data.errors)
-        );
+        Swal.fire({
+          icon: "warning",
+          title: "Validasi Gagal",
+          html:
+            "<pre style='text-align:left'>" +
+            JSON.stringify(error.response.data.errors, null, 2) +
+            "</pre>",
+        });
       } else {
-        alert("Terjadi kesalahan saat mengirim data.");
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: "Terjadi kesalahan saat mengirim data.",
+        });
       }
     } finally {
       setLoading(false);
@@ -120,20 +166,24 @@ export default function Alumni() {
   };
 
   useEffect(() => {
-  axios
-    .get("/layanan/alumni")
-    .then((res) => {
-      if (Array.isArray(res.data)) {
-        setLayananMahasiswa(res.data);
-      } else {
-        console.error("Format data tidak valid:", res.data);
-      }
-    })
-    .catch((err) => {
-      console.error("Gagal memuat data layanan:", err);
-    });
-}, []);
-
+    axios
+      .get("/layanan/alumni")
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setLayananMahasiswa(res.data);
+        } else {
+          console.error("Format data tidak valid:", res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Gagal memuat data layanan:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Gagal memuat data layanan alumni.",
+        });
+      });
+  }, []);
 
   return (
     <div className="pt-40 px-4 pb-20">

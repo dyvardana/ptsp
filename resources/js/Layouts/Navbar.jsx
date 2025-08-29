@@ -21,7 +21,7 @@ export default function Navbar() {
                 Beranda
               </Link>
             </li>
-            <li>
+            {/* <li>
               <details>
                 <summary>Standar Layanan</summary>
                 <ul className="bg-base-100 rounded-t-none p-2">
@@ -29,7 +29,7 @@ export default function Navbar() {
                   <li><a>Layanan Umum</a></li>
                 </ul>
               </details>
-            </li>
+            </li> */}
             <li><a href={route('login')}> Login</a></li>
           </ul>
         </div>

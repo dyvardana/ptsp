@@ -11,6 +11,7 @@ use App\Mail\PermohonanTertolak;
 use App\Models\TindakLanjut;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 
 use Illuminate\Support\Facades\Mail;
@@ -122,9 +123,31 @@ class PermohoanLayananController extends Controller
         ]);
 
         // 2. Upload file menggunakan Storage Laravel
+         // 2. Upload file dengan nama unik
         if ($request->hasFile('file_lampiran')) {
-            $path = $request->file('file_lampiran')->store('lampiran', 'public');
-            $validated['file_lampiran'] = $path; // contoh: "lampiran/namafile.pdf"
+            $file = $request->file('file_lampiran');
+
+            // Validasi ekstra: cek MIME asli (server-side)
+            $mime = $file->getMimeType();
+            $allowedMimes = [
+                'application/pdf',
+                'application/zip',
+                'application/x-zip-compressed',
+                'application/x-rar',
+                'application/x-rar-compressed',
+            ];
+            if (!in_array($mime, $allowedMimes)) {
+                return response()->json([
+                    'message' => 'Tipe file tidak valid!'
+                ], 422);
+            }
+
+            // Simpan dengan nama unik
+            $path = $file->store('lampiran', 'public');
+
+            // Tambahkan ke data yang akan disimpan
+            $validated['file_lampiran'] = $path;
+            $validated['file_asli'] = $file->getClientOriginalName();
         }
 
         // 3. Tambahkan data default
@@ -145,7 +168,13 @@ class PermohoanLayananController extends Controller
         Tiket::create($tiketing);
 
         // 6. Kirim email notifikasi
-        Mail::to($validated['email'])->send(new PermohonanTerkirim($permohonan, $tiketing));
+        try {
+            Mail::to($validated['email'])->send(new PermohonanTerkirim($permohonan, $tiketing));
+        } catch (\Throwable $e) {
+            // Tidak hentikan proses, hanya log
+            Log::error("Email gagal dikirim: ".$e->getMessage());
+        }
+        
 
         // 7. Return response
         return response()->json([

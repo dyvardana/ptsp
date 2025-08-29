@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { router } from "@inertiajs/react";
-import { TriangleAlert, Send } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
+import Swal from "sweetalert2"; // ✅ Import SweetAlert2
+
 export default function Mahasiswa() {
     const [datamahasiswaValid, setDatamahasiswaValid] = useState(false);
     const [statusMahasiswa, setStatusMahasiswa] = useState("");
@@ -32,10 +34,13 @@ export default function Mahasiswa() {
     };
 
     const handleCekDataMahasiswa = async () => {
-        // ✅ Validasi inputan wajib diisi
         if (!form.nik || !form.identitas_pengguna) {
-            alert("Harap lengkapi NIK dan NIM terlebih dahulu.");
-            return; // hentikan eksekusi
+            Swal.fire({
+                icon: "warning",
+                title: "Data Tidak Lengkap",
+                text: "Harap lengkapi NIK dan NIM terlebih dahulu.",
+            });
+            return;
         }
 
         try {
@@ -65,13 +70,26 @@ export default function Mahasiswa() {
                     data.user.status === "AKTIF" ? "AKTIF" : "NONAKTIF"
                 );
                 setDatamahasiswaValid(true);
+                Swal.fire({
+                    icon: "success",
+                    title: "Data Ditemukan",
+                    text: `Mahasiswa: ${data.user.nama}, jika terdapat perbedaan identitas silahkan lakukan perubahan pada akun SISKA`,
+                });
             } else {
                 setDatamahasiswaValid(false);
-                alert("Data mahasiswa tidak ditemukan.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Data Tidak Ditemukan",
+                    text: "Pastikan NIK dan NIM sesuai.",
+                });
             }
         } catch (err) {
             console.error("Gagal mengambil data:", err);
-            alert("Terjadi kesalahan saat mengambil data.");
+            Swal.fire({
+                icon: "error",
+                title: "Terjadi Kesalahan",
+                text: "Gagal mengambil data mahasiswa.",
+            });
         }
     };
 
@@ -84,30 +102,42 @@ export default function Mahasiswa() {
                 formData.append(key, value);
             });
             const response = await axios.post(
-                route("permohonanlayanan"), // URL yang dihasilkan oleh Laravel route()
-                formData, // data body
+                route("permohonanlayanan"),
+                formData,
                 {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
+                    headers: { "Content-Type": "multipart/form-data" },
                 }
             );
 
-            alert(
-                "Data berhasil dikirim dengan nomor tiket: " +
-                    response.data.tiket.no_tiket
-            );
-            router.visit(
-                route("detailTiket", { no_tiket: response.data.tiket.no_tiket })
-            );
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil!",
+                text:
+                    "Data berhasil dikirim dengan nomor tiket: " +
+                    response.data.tiket.no_tiket,
+            }).then(() => {
+                router.visit(
+                    route("detailTiket", {
+                        no_tiket: response.data.tiket.no_tiket,
+                    })
+                );
+            });
         } catch (error) {
             if (error.response?.status === 422) {
-                alert(
-                    "Validasi gagal:\n" +
-                        JSON.stringify(error.response.data.errors)
-                );
+                Swal.fire({
+                    icon: "warning",
+                    title: "Validasi Gagal",
+                    html:
+                        "<pre style='text-align:left'>" +
+                        JSON.stringify(error.response.data.errors, null, 2) +
+                        "</pre>",
+                });
             } else {
-                alert("Terjadi kesalahan saat mengirim data.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Gagal",
+                    text: "Terjadi kesalahan saat mengirim data.",
+                });
             }
         } finally {
             setLoading(false);
@@ -128,6 +158,7 @@ export default function Mahasiswa() {
                 console.error("Gagal memuat data layanan:", err);
             });
     }, []);
+
 
     return (
         <div className="pt-40 px-4 pb-20">
