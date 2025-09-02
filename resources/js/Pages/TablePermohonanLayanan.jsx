@@ -487,6 +487,15 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                     </button>
                                 ) : selectedItem.status === "diterima" ? (
                                     <>
+                                     <button
+                                            className="btn btn-error"
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setShowTolakModal(true);
+                                            }}
+                                        >
+                                            Tolak Pengajuan
+                                        </button>
                                         <button
                                             className="btn btn-primary"
                                             onClick={() =>
@@ -507,6 +516,15 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                     </>
                                 ) : selectedItem.status === "diproses" ? (
                                     <>
+                                     <button
+                                            className="btn btn-error"
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setShowTolakModal(true);
+                                            }}
+                                        >
+                                            Tolak Pengajuan
+                                        </button>
                                         <button
                                             className="btn btn-primary"
                                             onClick={() =>
