@@ -69,6 +69,7 @@ export default function Mahasiswa() {
                 setStatusMahasiswa(
                     data.user.status === "AKTIF" ? "AKTIF" : "NONAKTIF"
                 );
+               
                 setDatamahasiswaValid(true);
                 Swal.fire({
                     icon: "success",
@@ -381,7 +382,7 @@ export default function Mahasiswa() {
                                                     onChange={handleChange}
                                                     accept=".pdf,.rar,.zip"
                                                     className="file-input file-input-bordered w-full"
-                                                    required
+                                                    
                                                 />
                                             </div>
 

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Http;
 
 class PermohoanLayananController extends Controller
 {
@@ -44,33 +44,33 @@ class PermohoanLayananController extends Controller
     {
         $staff = User::where('role', 'staff')->get();
         //
-      $data = DB::table('permohonan_layanans')
-    ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
-    ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
-    ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id')
-    ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
-    ->select(
-        'permohonan_layanans.id',
-        'permohonan_layanans.id_layanan',
-        'permohonan_layanans.identitas_pengguna',
-        'permohonan_layanans.nama_pemohon',
-        'permohonan_layanans.email',
-        'permohonan_layanans.no_hp',
-        'permohonan_layanans.alamat',
-        'permohonan_layanans.kategori_pengguna',
-        'permohonan_layanans.judul_layanan',
-        'permohonan_layanans.keterangan_tambahan',
-        'permohonan_layanans.tanggal_pengajuan',
-        'permohonan_layanans.status',
-        'permohonan_layanans.file_lampiran',
-        'layanans.nama_layanan',
-        'tikets.no_tiket',
-        'tikets.keterangan_tiket',
-        'users.name',
-        DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
-    )
-    ->orderBy('permohonan_layanans.id', 'desc') // 🔥 urutkan dari terbesar ke terkecil
-    ->get();
+        $data = DB::table('permohonan_layanans')
+            ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
+            ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+            ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id')
+            ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
+            ->select(
+                'permohonan_layanans.id',
+                'permohonan_layanans.id_layanan',
+                'permohonan_layanans.identitas_pengguna',
+                'permohonan_layanans.nama_pemohon',
+                'permohonan_layanans.email',
+                'permohonan_layanans.no_hp',
+                'permohonan_layanans.alamat',
+                'permohonan_layanans.kategori_pengguna',
+                'permohonan_layanans.judul_layanan',
+                'permohonan_layanans.keterangan_tambahan',
+                'permohonan_layanans.tanggal_pengajuan',
+                'permohonan_layanans.status',
+                'permohonan_layanans.file_lampiran',
+                'layanans.nama_layanan',
+                'tikets.no_tiket',
+                'tikets.keterangan_tiket',
+                'users.name',
+                DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
+            )
+            ->orderBy('permohonan_layanans.id', 'desc') // 🔥 urutkan dari terbesar ke terkecil
+            ->get();
 
         $menunggu = $data->where('status', 'menunggu')->count();
         $diterima = $data->where('status', 'diterima')->count();
@@ -106,59 +106,72 @@ class PermohoanLayananController extends Controller
      * Store a newly created resource in storage.
      */
 
-
     public function store(Request $request)
     {
-        // 1. Validasi input
+           // Ambil semua data request
+    $data = $request->all();
+
+    // Jika tidak ada file diunggah → hapus field supaya tidak dianggap string kosong
+    if (!$request->hasFile('file_lampiran')) {
+        unset($data['file_lampiran']);
+    }
+        // 1. Validasi input awal
         $validated = $request->validate([
-            'id_layanan'         => 'required|exists:layanans,id',
-            'identitas_pengguna' => 'required|string',
-            'nama_pemohon'       => 'required|string|max:255',
-            'email'              => 'required|email',
-            'no_hp'              => 'required|string',
-            'alamat'             => 'required|string',
-            'judul_layanan'      => 'required|string',
+            'id_layanan'          => 'required|exists:layanans,id',
+            'identitas_pengguna'  => 'required|string',
+            'nama_pemohon'        => 'required|string|max:255',
+            'email'               => 'required|email',
+            'no_hp'               => 'required|string',
+            'alamat'              => 'required|string',
+            'judul_layanan'       => 'required|string',
             'keterangan_tambahan' => 'nullable|string',
-            'file_lampiran'      => 'required|file|mimes:pdf,zip,rar|max:5120',
+            'file_lampiran'       => 'nullable|file|mimes:pdf,zip,rar|max:5120',
         ]);
 
-        // 2. Upload file menggunakan Storage Laravel
-         // 2. Upload file dengan nama unik
+        // 2. Cek apakah layanan perlu validasi SPP
+        $validasiLayanan = DB::table('layanans')->where('id', $validated['id_layanan'])->first();
+        
+        if ($validasiLayanan->validasi_spp == 'ya' && $request->kategori_pengguna == 'mahasiswa') {
+            // 🔎 Panggil API sppmahasiswa
+            $response = Http::withoutVerifying()->post(
+                'https://stahnmpukuturan.ac.id/api/sppmahasiswa.php',
+                ['nipd' => $request->identitas_pengguna]
+            );
+
+            if (!$response->ok()) {
+                return response()->json([
+                    'message' => 'Gagal menghubungi server validasi SPP.',
+                ], 500);
+            }
+
+            $result = $response->json();
+
+            // 🚨 Stop proses kalau spp bukan "lunas"
+            if (empty($result['success']) || ($result['user']['spp'] ?? null) !== 'lunas') {
+                return response()->json([
+                    'message' => 'Validasi gagal, SPP belum lunas. Permohonan tidak dapat diproses.',
+                ], 422);
+            }
+        }
+
+        // 3. Upload file jika ada
         if ($request->hasFile('file_lampiran')) {
             $file = $request->file('file_lampiran');
 
-            // Validasi ekstra: cek MIME asli (server-side)
-            $mime = $file->getMimeType();
-            $allowedMimes = [
-                'application/pdf',
-                'application/zip',
-                'application/x-zip-compressed',
-                'application/x-rar',
-                'application/x-rar-compressed',
-            ];
-            if (!in_array($mime, $allowedMimes)) {
-                return response()->json([
-                    'message' => 'Tipe file tidak valid!'
-                ], 422);
-            }
-
-            // Simpan dengan nama unik
             $path = $file->store('lampiran', 'public');
-
-            // Tambahkan ke data yang akan disimpan
             $validated['file_lampiran'] = $path;
             $validated['file_asli'] = $file->getClientOriginalName();
         }
 
-        // 3. Tambahkan data default
+        // 4. Tambahkan data default
         $validated['status']            = 'menunggu';
         $validated['tanggal_pengajuan'] = now();
         $validated['kategori_pengguna'] = $request->kategori_pengguna ?? 'mahasiswa';
 
-        // 4. Simpan ke database
+        // 5. Simpan ke database
         $permohonan = PermohoanLayanan::create($validated);
 
-        // 5. Generate tiket
+        // 6. Generate tiket
         $tiketing = [
             'id_layanan'            => $validated['id_layanan'],
             'id_permohonan_layanan' => $permohonan->id,
@@ -167,22 +180,21 @@ class PermohoanLayananController extends Controller
         ];
         Tiket::create($tiketing);
 
-        // 6. Kirim email notifikasi
+        // 7. Kirim email notifikasi
         try {
             Mail::to($validated['email'])->send(new PermohonanTerkirim($permohonan, $tiketing));
         } catch (\Throwable $e) {
-            // Tidak hentikan proses, hanya log
-            Log::error("Email gagal dikirim: ".$e->getMessage());
+            Log::error("Email gagal dikirim: " . $e->getMessage());
         }
-        
 
-        // 7. Return response
+        // 8. Return response sukses
         return response()->json([
             'message' => 'Permohonan berhasil disimpan',
             'data'    => $permohonan,
             'tiket'   => $tiketing,
         ], 201);
     }
+
 
 
 
@@ -227,7 +239,8 @@ class PermohoanLayananController extends Controller
             'updated_at' => now(),
         ];
         PermohoanLayanan::where('id', $request->id)->update($data);
-        return redirect()->back()->with('message', 'Data berhasil diupdate');
+        //return redirect()->back()->with('message', 'Data berhasil diupdate');
+        return redirect()->route('permohonanList')->with('message', 'Data berhasil diupdate');
     }
 
     public function tolak(Request $request)
@@ -251,7 +264,8 @@ class PermohoanLayananController extends Controller
 
         // dd($tiketing);
         Mail::to($request->email)->send(new PermohonanTertolak($permohonan, $tiketing));
-        return redirect()->back()->with('message', 'Data berhasil ditolak');
+       // return redirect()->back()->with('message', 'Data berhasil ditolak');
+        return redirect()->route('permohonanList')->with('message', 'Data berhasil ditolak');
     }
     function generateNoTiket()
     {
@@ -282,6 +296,7 @@ class PermohoanLayananController extends Controller
         PermohoanLayanan::where('id', $request->id)->update($status);
         //  return response()->json(['message' => 'Tindak lanjut berhasil']);
         return redirect()->back()->with('success', 'Tindak lanjut berhasil');
+        return redirect()->route('permohonanList')->with('success', 'Tindak lanjut berhasil');
     }
     public function cekTindakLanjut(Request $request)
     {

@@ -41,7 +41,8 @@ export default function TableListLayanan({ datalist }) {
         kategori_pengguna: "",
         nama_layanan: "",
         deskripsi: "",
-        status: "aktif",
+        status: "",
+        validasi_spp: "",
         syarat: [""],
     });
 
@@ -51,6 +52,7 @@ export default function TableListLayanan({ datalist }) {
         nama_layanan: "",
         deskripsi: "",
         status: "",
+        validasi_spp: "",
         syarat: [""],
     });
 
@@ -75,7 +77,8 @@ export default function TableListLayanan({ datalist }) {
                 kategori_pengguna: "",
                 nama_layanan: "",
                 deskripsi: "",
-                status: "aktif",
+                status: "",
+                validasi_spp: "",
                 syarat: [""],
             });
             // close modal
@@ -96,6 +99,7 @@ export default function TableListLayanan({ datalist }) {
                 nama_layanan: data.nama_layanan,
                 deskripsi: data.deskripsi,
                 status: data.status,
+                validasi_spp: data.validasi_spp,
                 syarat: data.syarat?.length ? data.syarat : [""],
             });
             document.getElementById("modalUpdate").showModal();
@@ -291,8 +295,23 @@ export default function TableListLayanan({ datalist }) {
                             onChange={handleChange}
                             className="select select-bordered w-full"
                         >
+                            <option value="" disabled>
+    -- Pilih Status Layanan --
+  </option>
                             <option value="aktif">Aktif</option>
                             <option value="tidak">Tidak Aktif</option>
+                        </select>
+                        <select
+                            name="validasi_spp"
+                            value={form.validasi_spp}
+                            onChange={handleChange}
+                            className="select select-bordered w-full"
+                        >
+                            <option value="" disabled>
+    -- Pilih validasi SPP --
+  </option>
+                            <option value="ya">Ya</option>
+                            <option value="tidak"> Tidak</option>
                         </select>
                         <div className="modal-action">
                             <button
@@ -387,9 +406,30 @@ export default function TableListLayanan({ datalist }) {
                                 })
                             }
                         >
+                            <option value="" disabled>
+    -- Pilih Aktivasi Layanan --
+  </option>
                             <option value="aktif">Aktif</option>
                             <option value="tidak">Tidak Aktif</option>
                         </select>
+                        <select
+                            name="validasi_spp"
+                            className="select select-bordered w-full"
+                            value={editForm.validasi_spp}
+                            onChange={(e) =>
+                                setEditForm({
+                                    ...editForm,
+                                    validasi_spp: e.target.value,
+                                })
+                            }
+                        >
+                           <option value="" disabled>
+    -- Pilih validasi SPP --
+  </option>
+                            <option value="ya">Ya</option>
+                            <option value="tidak"> Tidak</option>
+                        </select>
+                        
 
                         {/* Input syarat */}
                         <div>

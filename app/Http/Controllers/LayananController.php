@@ -44,6 +44,7 @@ class LayananController extends Controller
             'kategori_pengguna' => 'required|string|max:255',
             'nama_layanan'      => 'required|string|max:255',
             'deskripsi'         => 'required|string|max:255',
+            'validasi_spp'      => 'required|in:ya,tidak',
             'status'            => 'required|in:aktif,tidak',
         ]);
 
@@ -83,6 +84,7 @@ class LayananController extends Controller
         $validated = $request->validate([
             'deskripsi' => 'required|string',
             'status' => 'required|in:aktif,tidak',
+            'validasi_spp'      => 'required|in:ya,tidak',
             'syarat' => 'array',
             'syarat.*' => 'required|string'
         ]);
