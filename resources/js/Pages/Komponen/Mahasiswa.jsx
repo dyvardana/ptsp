@@ -14,6 +14,7 @@ export default function Mahasiswa() {
         nim: "",
         identitas_pengguna: "",
         alamat: "",
+        nik: "",
         kategori_pengguna: "mahasiswa",
         no_hp: "",
         email: "",
@@ -67,9 +68,14 @@ export default function Mahasiswa() {
                     email: data.user.email || "",
                 }));
                 setStatusMahasiswa(
-                    data.user.status === "AKTIF" ? "AKTIF" : "NONAKTIF"
-                );
-               
+  data.user.status === "AKTIF"
+    ? "AKTIF"
+    : data.user.status === "YUDISIUM"
+    ? "YUDISIUM"
+    : "NONAKTIF"
+);
+
+              
                 setDatamahasiswaValid(true);
                 Swal.fire({
                     icon: "success",
@@ -256,7 +262,7 @@ export default function Mahasiswa() {
 
                             {/* RINCIAN PERMOHONAN */}
                             {datamahasiswaValid &&
-                                statusMahasiswa === "AKTIF" && (
+                                 (statusMahasiswa === "AKTIF" || statusMahasiswa === "YUDISIUM") && (
                                     <div>
                                         <h3 className="text-lg font-semibold mb-2">
                                             Rincian Permohonan

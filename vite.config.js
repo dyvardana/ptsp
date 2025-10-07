@@ -22,7 +22,7 @@ import react from '@vitejs/plugin-react';
 
 
 export default defineConfig({
-    base: '/paduraksa/', // pastikan prefix subfolder sesuai
+    base: '/', // pastikan prefix subfolder sesuai
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.jsx'],

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
+  
     console.log(feedback);
     const [ratings, setRatings] = useState({
         kecepatan: 2,
@@ -41,6 +42,20 @@ export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
             saran: saran,
         });
     };
+   const [showModal, setShowModal] = useState(false);
+
+const handleDownload = () => {
+  if (!feedback || Object.keys(feedback).length === 0) {
+    setShowModal(true);
+    return;
+  }
+
+  window.location.href = `/storage/${tindak_lanjut.file_lampiran}`;
+};
+
+
+
+
     return (
         <Homepage>
             <div className="mockup-window border border-base-300 max-w-4xl mx-auto pt-40">
@@ -102,19 +117,18 @@ export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
                                         : "-"}
                                 </span>
                             </p>
-                            {data.status === "selesai" ? (
-                                <p className="flex items-center gap-2">
-                                    <strong>File:</strong>
-                                    <a
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        href={`/storage/${tindak_lanjut.file_lampiran}`}
-                                        className="text-green-600 hover:underline flex items-center gap-1"
-                                    >
-                                        <Download /> Download
-                                    </a>
-                                </p>
-                            ) : null}
+                           {data.status === "selesai" ? (
+    <p className="flex items-center gap-2">
+        <strong>File:</strong>
+        <button
+            onClick={handleDownload}
+            className="text-green-600 hover:underline flex items-center gap-1"
+        >
+            <Download /> Download
+        </button>
+    </p>
+) : null}
+
                         </div>
                     </div>
                     <div className="w-full">
@@ -271,7 +285,7 @@ export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
                             {/* ✅ Rating Section - Minimalis */}
                             <form onSubmit={handleSubmit} className="space-y-3">
                                 <h2 className="text-base font-semibold">
-                                    Penilaian
+                                    Feedback
                                 </h2>
 
                                 {[
@@ -332,7 +346,7 @@ export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
                     ) : data.status === "selesai" && feedback ? (
                         <>
                             <h2 className="text-base font-semibold">
-                                Penilaian
+                                Feedback
                             </h2>
 
                             {[
@@ -388,6 +402,26 @@ export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
                     ) : null}
                 </div>
             </div>
+          {showModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-2xl shadow-lg w-80 text-center">
+      <h3 className="text-lg font-bold mb-2">Feedback Diperlukan</h3>
+      <p className="text-sm text-gray-600">
+        Silakan isi feedback terlebih dahulu sebelum mengunduh lampiran.
+      </p>
+      <div className="mt-4 flex justify-center gap-2">
+        <button
+          className="btn btn-sm btn-primary"
+          onClick={() => setShowModal(false)}
+        >
+          OK, Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
         </Homepage>
     );
 }

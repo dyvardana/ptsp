@@ -78,9 +78,14 @@ export default function Login({ status, canResetPassword }) {
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                            Remember me 
+                        </span>
+                        
+                        <span className="ms-2 text-sm text-gray-600">
+                          <b><a href={route('password.request')}>Lupa Password</a></b>  
                         </span>
                     </label>
+                   
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">

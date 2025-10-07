@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Add role attribute for user roles
+        'phone', // Add phone attribute for user phone number
     ];
 
     /**

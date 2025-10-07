@@ -25,6 +25,7 @@ class StaffController extends Controller
             ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
             ->join('tindak_lanjuts', 'tindak_lanjuts.id_permohonan_layanan', '=', 'permohonan_layanans.id')
             ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
+            ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
             ->where('tindak_lanjuts.id_users', $userId) // 🔥 Filter berdasarkan user login
             ->select(
                 'permohonan_layanans.id',
@@ -45,7 +46,8 @@ class StaffController extends Controller
                 'tikets.no_tiket',
                 'tikets.keterangan_tiket',
                 'users.name',
-                'tindak_lanjuts.catatan'
+                'tindak_lanjuts.catatan',
+                DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
             )
             ->orderBy('permohonan_layanans.id', 'desc') // 🔥 urutkan dari terbesar ke terkecil
             ->get();
@@ -131,4 +133,34 @@ class StaffController extends Controller
             ], 500);
         }
     }
+ public function unduhTindakLanjutStaff(Request $request)
+{
+    // Validasi inputan
+    $request->validate([
+        'id' => 'required|exists:permohonan_layanans,id',
+    ]);
+
+    // Ambil data tindak lanjut
+    $tindakLanjut = TindakLanjut::where('id_permohonan_layanan', $request->id)->first();
+
+    // Cek apakah file lampiran ada
+    if (!$tindakLanjut || !$tindakLanjut->file_lampiran) {
+        return response()->json(['message' => 'File tindak lanjut tidak ditemukan.'], 404);
+    }
+
+    // Buat URL publik (bukan path server)
+    $fileUrl = asset('storage/' . $tindakLanjut->file_lampiran);
+
+    // Pastikan file benar-benar ada di storage
+    if (!file_exists(storage_path('app/public/' . $tindakLanjut->file_lampiran))) {
+        return response()->json(['message' => 'File tidak ada di server.'], 404);
+    }
+
+    // Return JSON berisi URL publik
+    return response()->json([
+        'file_url' => $fileUrl,
+    ]);
+}
+
+
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\PermohoanLayananController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TiketController;
+use App\Http\Controllers\FileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -47,6 +48,12 @@ Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
     Route::post('/terima', [PermohoanLayananController::class, 'terima'])->name('terima');
 });
 
+
+Route::get('/lampiran/download/{filename}', [FileController::class, 'download'])
+    ->where('filename', '.*') // biar bisa tangkap string dengan titik (pdf, rar, zip, dll)
+    ->name('lampiran.download');
+
+
 /*
 |--------------------------------------------------------------------------
 | Dashboard Routes
@@ -68,6 +75,7 @@ Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
 
 Route::middleware(['auth', 'role:staff'])->group(function () {
     Route::get('/dashboard_staff', [StaffController::class, 'index'])->name('dashboard_staff');
+    Route::post('unduh_tindak_lanjut_staff', [StaffController::class, 'unduhTindakLanjutStaff'])->name('unduh_tindak_lanjut_staff');
 });
 
 /*

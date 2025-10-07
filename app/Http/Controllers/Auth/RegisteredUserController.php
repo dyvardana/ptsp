@@ -34,13 +34,24 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'phone' => 'required|string|max:15',
         ]);
-
+        $phone = $request->phone;
+        // Pastikan 0 diawal nomor diubah ke 62
+        if (substr($phone, 0, 1) === '0') {
+            $phone = '+62' . substr($phone, 1);
+        } elseif (substr($phone, 0, 2) === '62') {
+            $phone = '+'.$phone; // Nomor sudah benar
+        } else {
+            // Jika nomor tidak diawali dengan 0 atau 62, tambahkan 62 di depannya
+            $phone = '+62' . $phone;
+        }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'staff', // Default role for new users
+            'role' => $request->role, // Default role for new users
+            'phone' => $phone,
         ]);
 
         event(new Registered($user));

@@ -295,7 +295,7 @@ class PermohoanLayananController extends Controller
         ];
         PermohoanLayanan::where('id', $request->id)->update($status);
         //  return response()->json(['message' => 'Tindak lanjut berhasil']);
-        return redirect()->back()->with('success', 'Tindak lanjut berhasil');
+       // return redirect()->back()->with('success', 'Tindak lanjut berhasil');
         return redirect()->route('permohonanList')->with('success', 'Tindak lanjut berhasil');
     }
     public function cekTindakLanjut(Request $request)
@@ -306,7 +306,7 @@ class PermohoanLayananController extends Controller
         $data = DB::table('tindak_lanjuts')
             ->join('users', 'tindak_lanjuts.id_users', '=', 'users.id')
             ->where('tindak_lanjuts.id_permohonan_layanan', $request->id_permohonan)
-            ->select('tindak_lanjuts.catatan', 'tindak_lanjuts.file_lampiran', 'tindak_lanjuts.updated_at', 'tindak_lanjuts.created_at', 'users.name')
+            ->select('tindak_lanjuts.catatan', 'tindak_lanjuts.file_lampiran', 'tindak_lanjuts.updated_at', 'tindak_lanjuts.created_at', 'users.name','users.phone')
             ->first();
 
         return response()->json($data);

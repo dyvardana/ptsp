@@ -10,6 +10,7 @@ import {
     Loader2,
     CheckCircle,
     XCircle,
+    MessageCircleWarning,
 } from "lucide-react";
 export default function TablePermohonanLayanan({ data, staff }) {
     const [dummyData, setDummyData] = useState(data);
@@ -49,7 +50,12 @@ export default function TablePermohonanLayanan({ data, staff }) {
     // State untuk Lihat Tindak Lanjut
     const [tglSelesai, setTglSelesai] = useState(null);
     const [namaTindakLanjut, setNamaTindakLanjut] = useState(null);
+    const [noHpTindakLanjut, setNoHpTindakLanjut] = useState(null);
     const [tglTindakLanjut, setTglTindakLanjut] = useState(null);
+ // ✅ state untuk detail mahasiswa modal terpisah
+    const [mahasiswaDetail, setMahasiswaDetail] = useState(null);
+    const [loadingMahasiswa, setLoadingMahasiswa] = useState(false);
+    const [showMahasiswaModal, setShowMahasiswaModal] = useState(false);
 
     // Filter dan Pagination
     const filteredData = useMemo(() => {
@@ -147,7 +153,27 @@ export default function TablePermohonanLayanan({ data, staff }) {
             },
         });
     };
-
+ const fetchMahasiswaDetail = async (nipd) => {
+        setLoadingMahasiswa(true);
+        try {
+            const response = await fetch(
+                "https://stahnmpukuturan.ac.id/api/detailmahasiswa.php",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nipd }),
+                }
+            );
+            const data = await response.json();
+            setMahasiswaDetail(data.user);
+            setShowMahasiswaModal(true);
+        } catch (error) {
+            console.error("Error fetching mahasiswa details:", error);
+            setMahasiswaDetail(null);
+        } finally {
+            setLoadingMahasiswa(false);
+        }
+    };
     // Fungsi Lihat Tindak Lanjut
     const handleLihatTindakLanjut = async (id_kirim) => {
         try {
@@ -158,6 +184,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
             console.log("response axios:", response.data);
 
             setNamaTindakLanjut(response.data.name);
+            setNoHpTindakLanjut(response.data.phone);
             setTglSelesai(response.data.updated_at);
             setTglTindakLanjut(response.data.created_at);
         } catch (error) {
@@ -337,19 +364,33 @@ export default function TablePermohonanLayanan({ data, staff }) {
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                     <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-5xl flex flex-col md:flex-row gap-4">
                         {/* Kiri: File */}
-                        <div className="w-full md:w-1/2 h-[300px] md:h-[500px] border rounded overflow-hidden">
-                            {selectedItem.file_lampiran ? (
-                                <iframe
-                                    src={`/storage/${selectedItem.file_lampiran}`} // ✅ akses storage
-                                    className="w-full h-full"
-                                    title="Preview PDF"
-                                ></iframe>
-                            ) : (
-                                <div className="text-center p-4">
-                                    Tidak ada file yang diunggah.
-                                </div>
-                            )}
-                        </div>
+                        <div className="w-full md:w-1/2 h-[300px] md:h-[500px] border rounded flex flex-col">
+  {selectedItem.file_lampiran ? (
+    <>
+      <iframe
+        src={`/storage/${selectedItem.file_lampiran}`}
+        className="w-full flex-1"
+        title="Preview PDF"
+      ></iframe>
+
+      <div className="p-2 border-t text-center">
+       <button
+  className="btn btn-xs btn-secondary"
+  onClick={() =>
+    (window.location.href =
+      `/lampiran/download/${selectedItem.file_lampiran.replace(/^lampiran\//, "")}`)
+  }
+>
+  Download Lampiran
+</button>
+
+      </div>
+    </>
+  ) : (
+    <div className="text-center p-4">Tidak ada file yang diunggah.</div>
+  )}
+</div>
+
 
                         {/* Kanan: Detail */}
                         <div className="w-full md:w-1/2 overflow-y-auto max-h-[300px] md:max-h-[500px]">
@@ -476,8 +517,15 @@ export default function TablePermohonanLayanan({ data, staff }) {
                             {/* Tombol Aksi */}
                             <div className="mt-6 flex flex-wrap justify-end gap-2">
                                 {selectedItem.status === "ditolak" ? (
-                                    <button
-                                        className="btn"
+                                    <>
+                                          <button
+                                    className="btn btn-xs btn-info"
+                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
+                                >
+                                    Detail Mahasiswa
+                                </button>
+                                <button
+                                        className="btn btn-xs"
                                         onClick={() => {
                                             closeModal();
                                             setIdTolak("");
@@ -485,10 +533,18 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                     >
                                         Tutup
                                     </button>
+                                    </>
+                                    
                                 ) : selectedItem.status === "diterima" ? (
                                     <>
-                                     <button
-                                            className="btn btn-error"
+                                      <button
+                                    className="btn btn-xs btn-info"
+                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
+                                >
+                                    Detail Mahasiswa
+                                </button>
+                                        <button
+                                            className="btn btn-xs btn-error"
                                             onClick={() => {
                                                 setShowModal(false);
                                                 setShowTolakModal(true);
@@ -497,7 +553,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                             Tolak Pengajuan
                                         </button>
                                         <button
-                                            className="btn btn-primary"
+                                            className="btn btn-xs btn-primary"
                                             onClick={() =>
                                                 setShowKirimModal(true)
                                             }
@@ -516,8 +572,14 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                     </>
                                 ) : selectedItem.status === "diproses" ? (
                                     <>
-                                     <button
-                                            className="btn btn-error"
+                                      <button
+                                    className="btn btn-xs btn-info"
+                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
+                                >
+                                    Detail Mahasiswa
+                                </button>
+                                        <button
+                                            className="btn btn-xs btn-error"
                                             onClick={() => {
                                                 setShowModal(false);
                                                 setShowTolakModal(true);
@@ -526,7 +588,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                             Tolak Pengajuan
                                         </button>
                                         <button
-                                            className="btn btn-primary"
+                                            className="btn btn-xs btn-warning"
                                             onClick={() =>
                                                 setShowKirimModal(true)
                                             }
@@ -534,7 +596,22 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                             Ubah Tujuan
                                         </button>
                                         <button
-                                            className="btn"
+                                            className="btn btn-xs btn-success"
+                                            onClick={() =>
+                                                window.open(
+                                                    `https://wa.me/${noHpTindakLanjut}?text=` +
+                                                        encodeURIComponent(
+                                                            `Halo, ${namaTindakLanjut} Anda telah ditugaskan untuk menindaklanjuti layanan ${selectedItem.nama_layanan} dengan No Tiket : *${selectedItem.no_tiket}*. Demi memperlancar layanan silakan tindaklanjuti pada aplikasi web Paduraksa melalui link https://paduraksa.mpukuturan.ac.id.`
+                                                        ),
+                                                    "_blank"
+                                                )
+                                            }
+                                        >
+                                            <MessageCircleWarning /> WA
+                                        </button>
+
+                                        <button
+                                            className="btn btn-xs "
                                             onClick={() => {
                                                 closeModal();
                                                 setIdTolak("");
@@ -545,8 +622,14 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                     </>
                                 ) : selectedItem.status === "selesai" ? (
                                     <>
+                                      <button
+                                    className="btn btn-xs btn-info"
+                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
+                                >
+                                    Detail Mahasiswa
+                                </button>
                                         <button
-                                            className="btn btn-success"
+                                            className="btn btn-xs btn-success"
                                             onClick={handleLihatTindakLanjut}
                                         >
                                             Lihat Tindak Lanjut
@@ -565,8 +648,14 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                     </>
                                 ) : selectedItem.status === "menunggu" ? (
                                     <>
+                                    <button
+                                    className="btn btn-xs btn-info"
+                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
+                                >
+                                    Detail Mahasiswa
+                                </button>
                                         <button
-                                            className="btn btn-error"
+                                            className="btn btn-xs btn-error"
                                             onClick={() => {
                                                 setShowModal(false);
                                                 setShowTolakModal(true);
@@ -575,7 +664,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                             Tolak Pengajuan
                                         </button>
                                         <button
-                                            className="btn btn-accent"
+                                            className="btn btn-xs btn-accent"
                                             onClick={() => {
                                                 closeModal();
                                                 handleTerima();
@@ -584,7 +673,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
                                             Terima Pengajuan
                                         </button>
                                         <button
-                                            className="btn"
+                                            className="btn btn-xs"
                                             onClick={() => {
                                                 closeModal();
                                                 setIdTolak("");
@@ -599,7 +688,42 @@ export default function TablePermohonanLayanan({ data, staff }) {
                     </div>
                 </div>
             )}
-
+ {/* MODAL DETAIL MAHASISWA */}
+            {showMahasiswaModal && (
+                <div className="fixed inset-0 flex items-center justify-center z-[60] bg-black bg-opacity-50">
+                    <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-md">
+                        <h3 className="text-lg font-bold mb-4">Detail Mahasiswa</h3>
+                        {loadingMahasiswa ? (
+                            <div className="text-center">Loading detail mahasiswa...</div>
+                        ) : mahasiswaDetail ? (
+                            <div>
+                                <div className="flex flex-col items-center mb-4">
+                                    {mahasiswaDetail.foto && (
+                                        <img
+                                            src={`https://siska.stahnmpukuturan.ac.id/assets/foto/${mahasiswaDetail.foto}`}
+                                            alt="Foto Mahasiswa"
+                                            className="w-24 h-32 object-cover rounded"
+                                        />
+                                    )}
+                                    <p className="mt-2 font-semibold">{mahasiswaDetail.nama}</p>
+                                </div>
+                                <ul className="space-y-1 text-sm">
+                                    <li><strong>NIPD:</strong> {mahasiswaDetail.nipd}</li>
+                                    <li><strong>Program Studi:</strong> {mahasiswaDetail.prodi}</li>
+                                    <li><strong>Angkatan:</strong> {mahasiswaDetail.angkatan}</li>
+                                    <li><strong>Agama:</strong> {mahasiswaDetail.agama}</li>
+                                    <li><strong>Status:</strong> {mahasiswaDetail.status}</li>
+                                </ul>
+                            </div>
+                        ) : (
+                            <div className="text-center text-red-500">Data mahasiswa tidak ditemukan</div>
+                        )}
+                        <div className="mt-6 flex justify-end">
+                            <button className="btn" onClick={() => setShowMahasiswaModal(false)}>Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* MODAL ALASAN TOLAK */}
             {showTolakModal && (
                 <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
