@@ -12,7 +12,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\Http;
 class StaffController extends Controller
 {
     //
@@ -26,7 +26,7 @@ class StaffController extends Controller
             ->join('tindak_lanjuts', 'tindak_lanjuts.id_permohonan_layanan', '=', 'permohonan_layanans.id')
             ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
             ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
-            ->where('tindak_lanjuts.id_users', $userId) // 🔥 Filter berdasarkan user login
+            ->where('tindak_lanjuts.id_users', $userId) // ðŸ”¥ Filter berdasarkan user login
             ->select(
                 'permohonan_layanans.id',
                 'permohonan_layanans.id_layanan',
@@ -49,7 +49,7 @@ class StaffController extends Controller
                 'tindak_lanjuts.catatan',
                 DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
             )
-            ->orderBy('permohonan_layanans.id', 'desc') // 🔥 urutkan dari terbesar ke terkecil
+            ->orderBy('permohonan_layanans.id', 'desc') // ðŸ”¥ urutkan dari terbesar ke terkecil
             ->get();
         //  dd($data);
         return Inertia::render('Profile/Staff/DashboardStaff', [
@@ -86,11 +86,13 @@ class StaffController extends Controller
             $tiketing = Tiket::where('no_tiket', $request->no_tiket)->first();
 
             Mail::to($permohonan->email)->send(new PermohonanSelesai($permohonan, $tiketing));
-
-            return back()->with('success', 'Tindak lanjut berhasil disimpan.');
+            $target = $permohonan->no_hp;
+            $this->kirimPesanFonnte($target, 'Hay '.$permohonan->nama_pemohon.', Permohonan Layanan dengan Nomor Tiket : *'.$request->no_tiket.'* telah selesai. Silakan download pada https://paduraksa.mpukuturan.ac.id Hati-hati penipuan mengatasnamakan Institut Mpu Kuturan. Semua layanan resmi tanpa dipungut biaya apapun.');
+            
+             return redirect()->route('dashboard_staff')->with('success', 'Tindak lanjut berhasil disimpan.');
         }
 
-        return back()->with('error', 'File lampiran tidak ditemukan.');
+        return redirect()->route('dashboard_staff')->with('error', 'File lampiran tidak ditemukan.');
     }
 
     public function listuser()
@@ -162,5 +164,34 @@ class StaffController extends Controller
     ]);
 }
 
+function kirimPesanFonnte($target, $message, $countryCode = '62')
+{
+    try {
+        $response = Http::withHeaders([
+            'Authorization' => env('FONNTE_TOKEN'), // ambil token dari .env
+        ])->asForm()->post('https://api.fonnte.com/send', [
+            'target' => $target,
+            'message' => $message,
+            'countryCode' => $countryCode,
+        ]);
 
+        if ($response->successful()) {
+            return [
+                'status' => true,
+                'data' => $response->json(),
+            ];
+        } else {
+            return [
+                'status' => false,
+                'error' => $response->body(),
+                'code' => $response->status(),
+            ];
+        }
+    } catch (\Exception $e) {
+        return [
+            'status' => false,
+            'error' => $e->getMessage(),
+        ];
+    }
+}
 }

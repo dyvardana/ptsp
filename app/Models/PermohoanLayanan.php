@@ -21,6 +21,7 @@ class PermohoanLayanan extends Model
     'keterangan_tambahan',
     'tanggal_pengajuan',
     'status',
+    'smt_aktif',
     'file_lampiran',
     'id_users'
 ];

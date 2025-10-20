@@ -40,6 +40,8 @@ class AuthenticatedSessionController extends Controller
         return redirect()->route('dashboard_staff');
     } elseif ($user->role === 'ptsp') {
         return redirect()->route('dashboard');
+    } elseif ($user->role === 'supervisi') {
+        return redirect()->route('dashboard_supervisi');
     }
         return redirect()->intended(route('/', absolute: false));
     }

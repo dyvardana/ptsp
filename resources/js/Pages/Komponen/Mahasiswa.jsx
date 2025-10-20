@@ -129,24 +129,31 @@ export default function Mahasiswa() {
                     })
                 );
             });
-        } catch (error) {
-            if (error.response?.status === 422) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Validasi Gagal",
-                    html:
-                        "<pre style='text-align:left'>" +
-                        JSON.stringify(error.response.data.errors, null, 2) +
-                        "</pre>",
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Gagal",
-                    text: "Terjadi kesalahan saat mengirim data.",
-                });
-            }
-        } finally {
+       } catch (error) {
+    if (error.response?.status === 422) {
+        // Ambil pesan dari Laravel
+        const message = error.response?.data?.message;
+        const errors = error.response?.data?.errors;
+
+        Swal.fire({
+            icon: "warning",
+            title: "Validasi Gagal",
+            text: message || "Terjadi kesalahan validasi data.",
+        });
+    } else {
+        const message =
+            error.response?.data?.message ||
+            error.message ||
+            "Terjadi kesalahan saat mengirim data.";
+
+        Swal.fire({
+            icon: "error",
+            title: "Gagal",
+            text: message,
+        });
+    }
+}
+finally {
             setLoading(false);
         }
     };
@@ -235,7 +242,7 @@ export default function Mahasiswa() {
                                         onChange={handleChange}
                                         className="input input-bordered w-full"
                                         placeholder="No. HP"
-                                        readOnly
+                                        
                                         required
                                     />
                                     <input
@@ -245,7 +252,7 @@ export default function Mahasiswa() {
                                         onChange={handleChange}
                                         className="input input-bordered w-full"
                                         placeholder="Email aktif"
-                                        readOnly
+                                        
                                     />
                                     <textarea
                                         name="alamat"
@@ -254,7 +261,7 @@ export default function Mahasiswa() {
                                         className="textarea textarea-bordered w-full"
                                         placeholder="Alamat Lengkap"
                                         rows="2"
-                                        readOnly
+                                        
                                         required
                                     ></textarea>
                                 </div>

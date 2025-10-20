@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TiketController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\SupervisiController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -76,6 +77,12 @@ Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
 Route::middleware(['auth', 'role:staff'])->group(function () {
     Route::get('/dashboard_staff', [StaffController::class, 'index'])->name('dashboard_staff');
     Route::post('unduh_tindak_lanjut_staff', [StaffController::class, 'unduhTindakLanjutStaff'])->name('unduh_tindak_lanjut_staff');
+});
+
+Route::middleware(['auth', 'role:supervisi'])->group(function () {
+    Route::get('/dashboard_supervisi', [SupervisiController::class, 'index'])->name('dashboard_supervisi');
+    Route::get('/supervisi_layanan/{kategori}', [SupervisiController::class, 'layanan'])->name('SupervisiLayanan');
+   
 });
 
 /*

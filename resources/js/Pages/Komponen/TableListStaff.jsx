@@ -236,18 +236,17 @@ export default function TableListStaff({ staff }) {
                             required
                         />
                         <input
-  placeholder="Nomor HP"
-  type="text"
-  inputMode="numeric"
-  value={data.phone}
-  className="input input-bordered w-full"
-  onChange={(e) => {
-    const value = e.target.value.replace(/\D/g, ""); // hapus semua non-angka
-    setData("phone", value);
-  }}
-  required
-/>
-
+                            placeholder="Nomor HP"
+                            type="text"
+                            inputMode="numeric"
+                            value={data.phone}
+                            className="input input-bordered w-full"
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // hapus semua non-angka
+                                setData("phone", value);
+                            }}
+                            required
+                        />
 
                         <select
                             className="select select-bordered w-full"

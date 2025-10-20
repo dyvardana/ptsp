@@ -212,6 +212,11 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Link href={route("listLayanan")}>Layanan</Link>
                         </li>
                     )}
+                    {user.role === "supervisi" && (
+                        <li>
+                            <Link href={route("dashboard_supervisi")}>Dashboard</Link>
+                        </li>
+                    )}
                 </ul>
             </div>
         </div>
