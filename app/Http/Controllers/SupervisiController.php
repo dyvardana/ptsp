@@ -30,22 +30,35 @@ class SupervisiController extends Controller
             'jumlahLayananUmum' => $jumlahLayananUmum,
             'jumlahLayananStaff' => $jumlahLayananStaff,
         ];
-       $users = DB::table('users as u')
+     // Hitung nilai maksimum total tindak lanjut (untuk normalisasi log)
+$maxTindak = DB::table('tindak_lanjuts')->select(DB::raw('COUNT(DISTINCT id_permohonan_layanan) as total'))->groupBy('id_users')->orderByDesc('total')->limit(1)->value('total');
+
+$users = DB::table('users as u')
     ->leftJoin('tindak_lanjuts as tl', 'tl.id_users', '=', 'u.id')
-    ->leftJoin('permohonan_layanans as pl', function ($join) {
-        $join->on('pl.id', '=', 'tl.id_permohonan_layanan')
-             ->where('pl.status', '=', 'selesai');
-    })
+    ->leftJoin('permohonan_layanans as pl', 'pl.id', '=', 'tl.id_permohonan_layanan')
     ->leftJoin('feedback as f', 'f.id_permohonan_layanan', '=', 'pl.id')
     ->select(
         'u.id',
         'u.name',
-        DB::raw('COUNT(DISTINCT tl.id) as total_selesai'),
-        DB::raw('ROUND(AVG((f.kecepatan + f.kesesuaian + f.kemudahan)/3), 2) as skor_feedback')
+        DB::raw('COUNT(DISTINCT tl.id) as total_tindaklanjut'),
+        DB::raw('SUM(CASE WHEN pl.status = "selesai" THEN 1 ELSE 0 END) as total_selesai'),
+        DB::raw('ROUND(SUM(CASE WHEN pl.status = "selesai" THEN 1 ELSE 0 END) / NULLIF(COUNT(DISTINCT tl.id), 0), 2) as rasio_selesai'),
+        DB::raw('ROUND(AVG((f.kecepatan + f.kesesuaian + f.kemudahan)/3), 2) as skor_feedback'),
+        // Skor gabungan (adil)
+        DB::raw("
+            ROUND(
+                (
+                    (SUM(CASE WHEN pl.status = 'selesai' THEN 1 ELSE 0 END) / NULLIF(COUNT(DISTINCT tl.id), 0)) * 0.4 +
+                    (AVG((f.kecepatan + f.kesesuaian + f.kemudahan)/3) / 5) * 0.4 +
+                    (LOG10(COUNT(DISTINCT tl.id) + 1) / LOG10($maxTindak + 1)) * 0.2
+                ),
+                3
+            ) as skor_akhir
+        ")
     )
     ->where('u.role', 'staff')
     ->groupBy('u.id', 'u.name')
-    ->orderByDesc('skor_feedback')
+    ->orderByDesc('skor_akhir')
     ->get();
 
      
