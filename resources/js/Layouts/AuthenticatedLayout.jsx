@@ -5,11 +5,11 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ header, children,diproses,selesai,jumlah }) {
     const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
-
+console.log(jumlah);
     return (
         <div className="drawer lg:drawer-open bg-gray-100 min-h-screen">
             <input id="main-drawer" type="checkbox" className="drawer-toggle" />
@@ -158,13 +158,20 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ResponsiveNavLink href={route("profile.edit")}>
                                 Profile
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                method="post"
-                                href={route("logout")}
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
+                        <ResponsiveNavLink
+    method="post"
+    href={route("logout")}
+    as="button"
+    onSuccess={() => {
+        window.location.reload();// atau reload
+    }}
+>
+    Log Out
+</ResponsiveNavLink>
+
+
+
+
                         </div>
                     </div>
                 </div>
@@ -208,10 +215,36 @@ export default function AuthenticatedLayout({ header, children }) {
                     )}
 
                     {user.role === "staff" && (
-                        <li>
-                            <Link href={route("listLayanan")}>Layanan</Link>
-                        </li>
-                    )}
+    <li className="rounded-lg bg-white shadow-sm p-3">
+        <Link href={route("listLayanan")} className="block">
+            <div className="font-semibold text-gray-800 mb-2">
+                Progres Layanan
+            </div>
+
+            <div className="text-sm text-gray-600 flex justify-between">
+                <span>Diproses</span>
+                <span className="font-bold text-warning">
+                    {diproses ?? 0}
+                </span>
+            </div>
+
+            <div className="text-sm text-gray-600 flex justify-between">
+                <span>Selesai</span>
+                <span className="font-bold text-success">
+                    {selesai ?? 0}
+                </span>
+            </div>
+
+            <div className="mt-2 border-t pt-2 text-sm flex justify-between">
+                <span className="text-gray-700">Total</span>
+                <span className="font-bold">
+                    {jumlah ?? 0}
+                </span>
+            </div>
+        </Link>
+    </li>
+)}
+
                     {user.role === "supervisi" && (
                         <li>
                             <Link href={route("dashboard_supervisi")}>Dashboard</Link>

@@ -21,7 +21,7 @@ class PermohonanSelesai extends Mailable
 
     public function build()
     {
-        return $this->subject('Permohonan Anda Telah Terkirim')
+        return $this->subject('Permohonan Anda Telah Selesai')
                     ->view('emails.permohonan_selesai');
     }
 }

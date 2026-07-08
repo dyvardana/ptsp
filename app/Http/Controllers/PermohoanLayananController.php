@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\Tindaklanjut_staff;
 use App\Models\PermohoanLayanan;
 use App\Models\Tiket;
 use Illuminate\Http\Request;
@@ -88,6 +89,7 @@ $data = DB::table('permohonan_layanans as p')
         'p.tanggal_pengajuan',
         'p.status',
         'p.file_lampiran',
+        'p.id_layanan',
         'l.nama_layanan',
         DB::raw('MAX(t.no_tiket) as no_tiket'),
         DB::raw('MAX(t.keterangan_tiket) as keterangan_tiket'),
@@ -111,6 +113,7 @@ $data = DB::table('permohonan_layanans as p')
         'p.tanggal_pengajuan',
         'p.status',
         'p.file_lampiran',
+        'p.id_layanan',
         'l.nama_layanan',
         'u.name'
     )
@@ -378,8 +381,10 @@ $data = DB::table('permohonan_layanans as p')
        // return redirect()->back()->with('success', 'Tindak lanjut berhasil');
        $staff = User::where('id', $request->id_staff)->first();
        $tiket = Tiket::where('id_permohonan_layanan', $request->id)->first();
-        $this->kirimPesanFonnte($staff->phone, 'Halo '.$staff->name.', Anda ditugaskan untuk menindaklanjuti permohonan layanan dengan No Tiket: '.$tiket->no_tiket.'. Untuk memperlancar pelayanan silakan cek PADURAKSA untuk informasi lebih lanjut.');
-        return redirect()->route('permohonanList')->with('success', 'Tindak lanjut berhasil');
+        Mail::to($staff->email)->send(new Tindaklanjut_staff($staff, $tiket));
+        //$this->kirimPesanFonnte($staff->phone, 'Halo '.$staff->name.', Anda ditugaskan untuk menindaklanjuti permohonan layanan dengan No Tiket: '.$tiket->no_tiket.'. Untuk memperlancar pelayanan silakan cek PADURAKSA untuk informasi lebih lanjut.');
+      
+         return redirect()->route('permohonanList')->with('success', 'Tindak lanjut berhasil');
     }
     public function cekTindakLanjut(Request $request)
     {
@@ -424,4 +429,14 @@ $data = DB::table('permohonan_layanans as p')
         ];
     }
 }
+
+    function syaratLayanan($id)
+    {
+        $data = DB::table('persyaratan_layanans as p')
+            ->where('id_layanan', $id)
+            ->select('p.id_layanan', 'p.persyaratan')
+            ->get();
+
+        return response()->json($data);
+    }
 }

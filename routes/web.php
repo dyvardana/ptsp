@@ -43,7 +43,7 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback')
 Route::post('/tindakLanjut', [PermohoanLayananController::class, 'tindakLanjut'])->name('tindakLanjut');
 Route::post('/tindak.lanjut_staff', [StaffController::class, 'TindakLanjutStaff'])->name('tindak_lanjut_staff');
 Route::post('/cekTindakLanjut', [PermohoanLayananController::class, 'cekTindakLanjut'])->name('cekTindakLanjut');
-
+ Route::get('/syaratLayanan/{id}', [PermohoanLayananController::class, 'syaratLayanan'])->name('syaratLayanan');
 Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
     Route::post('/tolak', [PermohoanLayananController::class, 'tolak'])->name('tolak');
     Route::post('/terima', [PermohoanLayananController::class, 'terima'])->name('terima');
@@ -63,6 +63,7 @@ Route::get('/lampiran/download/{filename}', [FileController::class, 'download'])
 Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
     Route::get('/dashboard', [PermohoanLayananController::class, 'index'])->name('dashboard');
     Route::get('/permohonanList', [PermohoanLayananController::class, 'list'])->name('permohonanList');
+   
 
     Route::get('/listLayanan', [LayananController::class, 'show'])->name('listLayanan');
     Route::post('/listLayanan', [LayananController::class, 'store'])->name('layananStore');

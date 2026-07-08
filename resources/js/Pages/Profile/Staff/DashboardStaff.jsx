@@ -8,7 +8,7 @@ export default function DashboardStaff(props) {
     
     return (
         
-        <AuthenticatedLayout>
+        <AuthenticatedLayout diproses={props.diproses} selesai={props.selesai} jumlah={props.jumlah} >
             <Head title={props.title}/>
             <TableLayananStaff data={props.data}/>
            

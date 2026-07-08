@@ -38,8 +38,10 @@ class FeedbackController extends Controller
             'saran'=>$request->saran
         ];
         Feedback::create($rating);
-        return to_route('detailTiket', ['no_tiket' => $request->no_tiket])
-    ->with('message', 'Data berhasil diupdate');
+        return response()->json([
+        'redirect' => route('detailTiket', ['no_tiket' => $request->no_tiket]),
+        'message' => 'Data berhasil diupdate'
+    ]);
 
     }
 

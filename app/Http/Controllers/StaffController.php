@@ -20,41 +20,107 @@ class StaffController extends Controller
     {
         $userId = Auth::id(); // Ambil id user yang sedang login
 
+        // $data = DB::table('permohonan_layanans')
+        //     ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
+        //     ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+        //     ->join('tindak_lanjuts', 'tindak_lanjuts.id_permohonan_layanan', '=', 'permohonan_layanans.id')
+        //     ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
+        //     ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
+        //     ->where('tindak_lanjuts.id_users', $userId) // ðŸ”¥ Filter berdasarkan user login
+        //     ->select(
+        //         'permohonan_layanans.id',
+        //         'permohonan_layanans.id_layanan',
+        //         'permohonan_layanans.identitas_pengguna',
+        //         'permohonan_layanans.nama_pemohon',
+        //         'permohonan_layanans.email',
+        //         'permohonan_layanans.no_hp',
+        //         'permohonan_layanans.alamat',
+        //         'permohonan_layanans.kategori_pengguna',
+        //         'permohonan_layanans.judul_layanan',
+        //         'permohonan_layanans.keterangan_tambahan',
+        //         'permohonan_layanans.tanggal_pengajuan',
+        //         'permohonan_layanans.updated_at',
+        //         'permohonan_layanans.status',
+        //         'permohonan_layanans.file_lampiran',
+        //         'layanans.nama_layanan',
+        //         'tikets.no_tiket',
+        //         'tikets.keterangan_tiket',
+        //         'users.name',
+        //         'tindak_lanjuts.catatan',
+        //         DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
+        //     )
+        //     ->orderBy('permohonan_layanans.id', 'desc') // ðŸ”¥ urutkan dari terbesar ke terkecil
+        //     ->get();
         $data = DB::table('permohonan_layanans')
-            ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
-            ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
-            ->join('tindak_lanjuts', 'tindak_lanjuts.id_permohonan_layanan', '=', 'permohonan_layanans.id')
-            ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id') // Ubah di sini
-            ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
-            ->where('tindak_lanjuts.id_users', $userId) // ðŸ”¥ Filter berdasarkan user login
-            ->select(
-                'permohonan_layanans.id',
-                'permohonan_layanans.id_layanan',
-                'permohonan_layanans.identitas_pengguna',
-                'permohonan_layanans.nama_pemohon',
-                'permohonan_layanans.email',
-                'permohonan_layanans.no_hp',
-                'permohonan_layanans.alamat',
-                'permohonan_layanans.kategori_pengguna',
-                'permohonan_layanans.judul_layanan',
-                'permohonan_layanans.keterangan_tambahan',
-                'permohonan_layanans.tanggal_pengajuan',
-                'permohonan_layanans.updated_at',
-                'permohonan_layanans.status',
-                'permohonan_layanans.file_lampiran',
-                'layanans.nama_layanan',
-                'tikets.no_tiket',
-                'tikets.keterangan_tiket',
-                'users.name',
-                'tindak_lanjuts.catatan',
-                DB::raw('((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
-            )
-            ->orderBy('permohonan_layanans.id', 'desc') // ðŸ”¥ urutkan dari terbesar ke terkecil
-            ->get();
+    ->join('layanans', 'permohonan_layanans.id_layanan', '=', 'layanans.id')
+    ->join('tikets', 'permohonan_layanans.id', '=', 'tikets.id_permohonan_layanan')
+    ->join('tindak_lanjuts', 'tindak_lanjuts.id_permohonan_layanan', '=', 'permohonan_layanans.id')
+    ->leftJoin('users', 'permohonan_layanans.id_users', '=', 'users.id')
+    ->leftJoin('feedback', 'permohonan_layanans.id', '=', 'feedback.id_permohonan_layanan')
+    ->where('tindak_lanjuts.id_users', $userId)
+    ->select(
+        'permohonan_layanans.id',
+        'permohonan_layanans.id_layanan',
+        'permohonan_layanans.identitas_pengguna',
+        'permohonan_layanans.nama_pemohon',
+        'permohonan_layanans.email',
+        'permohonan_layanans.no_hp',
+        'permohonan_layanans.alamat',
+        'permohonan_layanans.kategori_pengguna',
+        'permohonan_layanans.judul_layanan',
+        'permohonan_layanans.keterangan_tambahan',
+        'permohonan_layanans.tanggal_pengajuan',
+        'permohonan_layanans.updated_at',
+        'permohonan_layanans.status',
+        'permohonan_layanans.file_lampiran',
+        'layanans.nama_layanan',
+        'tikets.no_tiket',
+        'tikets.keterangan_tiket',
+        'users.name',
+        DB::raw('MAX(tindak_lanjuts.catatan) as catatan'),
+        DB::raw('AVG((feedback.kecepatan + feedback.kesesuaian + feedback.kemudahan) / 3) as rating')
+    )
+    ->groupBy(
+        'permohonan_layanans.id',
+        'permohonan_layanans.id_layanan',
+        'permohonan_layanans.identitas_pengguna',
+        'permohonan_layanans.nama_pemohon',
+        'permohonan_layanans.email',
+        'permohonan_layanans.no_hp',
+        'permohonan_layanans.alamat',
+        'permohonan_layanans.kategori_pengguna',
+        'permohonan_layanans.judul_layanan',
+        'permohonan_layanans.keterangan_tambahan',
+        'permohonan_layanans.tanggal_pengajuan',
+        'permohonan_layanans.updated_at',
+        'permohonan_layanans.status',
+        'permohonan_layanans.file_lampiran',
+        'layanans.nama_layanan',
+        'tikets.no_tiket',
+        'tikets.keterangan_tiket',
+        'users.name'
+    )
+    ->orderBy('permohonan_layanans.id', 'desc')
+    ->get();
+        
+    $statistik = DB::table('permohonan_layanans')
+    ->join('tindak_lanjuts', 'tindak_lanjuts.id_permohonan_layanan', '=', 'permohonan_layanans.id')
+    ->where('tindak_lanjuts.id_users', $userId)
+    ->select(
+        DB::raw("SUM(status = 'diproses') as diproses"),
+        DB::raw("SUM(status = 'selesai') as selesai")
+    )
+    ->first();
+
+    $jumnlah = $data->count();
+
         //  dd($data);
         return Inertia::render('Profile/Staff/DashboardStaff', [
             'title' => 'Dashboard - Staff',
-            'data' => $data
+            'data' => $data,
+            'diproses' => $statistik->diproses,
+            'selesai' => $statistik->selesai,
+            'jumlah' => $jumnlah,
         ]);
     }
     public function TindakLanjutStaff(Request $request)

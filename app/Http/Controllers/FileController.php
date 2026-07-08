@@ -11,14 +11,22 @@ class FileController extends Controller
         // hanya ambil nama file (hindari path traversal)
         $filename = basename($filename);
 
-        // path absolut ke storage/app/public/lampiran
+        // path file tetap
         $filePath = storage_path('app/public/lampiran/' . $filename);
 
         if (!file_exists($filePath)) {
             abort(404, 'File tidak ditemukan.');
         }
 
-        // kirim file ke user
-        return response()->download($filePath, $filename);
+        // bersihkan output buffer
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        return response()->streamDownload(function () use ($filePath) {
+            readfile($filePath);
+        }, $filename, [
+            'Content-Type' => 'application/octet-stream',
+        ]);
     }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
-
+import { router,usePage } from '@inertiajs/react';
 import { Head, Link } from "@inertiajs/react";
+import axios from 'axios';
 
 import { useState } from "react";
 import Homepage from "@/Layouts/Homepage";
@@ -10,6 +11,9 @@ export default function HomePageKonten() {
     const [noTiket, setNoTiket] = useState("");
     const [isVisible, setIsVisible] = useState(false);
     const videoRef = useRef(null);
+//whatsapp helpdesk
+     const [open, setOpen] = useState(false);
+ //FAQ    
     const faqs = [
       {
     question: "Apa itu PADURAKSA?",
@@ -65,6 +69,29 @@ export default function HomePageKonten() {
         return () => observer.disconnect();
     }, []);
 
+const { isLibur, liburReason } = usePage().props;
+const [showLiburModal, setShowLiburModal] = useState(false);
+
+// cek langsung saat komponen mount
+useEffect(() => {
+    if (isLibur) {
+        setShowLiburModal(true);
+    }
+}, [isLibur]);
+
+ 
+ const handleMulaiLayanan = (kategori) => {
+ if (isLibur) {
+ setShowLiburModal(true);
+ return;
+ }
+ 
+ router.post(route("layanan"), { kategori });
+ };
+ 
+
+
+
     return (
         <Homepage>
             {/* Carousel */}
@@ -114,24 +141,23 @@ export default function HomePageKonten() {
         tabIndex={0}
         className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-44 sm:w-56"
     >
-        <li>
-            <Link
-                href={route("layanan")}
-                data={{ kategori: "mahasiswa" }}
-                method="post"
-            >
-                Mahasiswa
-            </Link>
-        </li>
-        <li>
-            <Link
-                href={route("layanan")}
-                data={{ kategori: "alumni" }}
-                method="post"
-            >
-                Alumni
-            </Link>
-        </li>
+       <li>
+  <button
+      type="button"
+      onClick={() => handleMulaiLayanan("mahasiswa")}
+  >
+      Mahasiswa
+  </button>
+</li>
+<li>
+  <button
+      type="button"
+      onClick={() => handleMulaiLayanan("alumni")}
+  >
+      Alumni
+  </button>
+</li>
+
     </ul>
 </div>
 
@@ -333,6 +359,64 @@ export default function HomePageKonten() {
                     </div>
                 </div>
             )}
+           <div className="py-12 px-4 sm:px-6 md:px-12 rounded-xl">
+  <h2 className="text-2xl font-bold text-center text-yellow-500 mb-6">
+    Hasil Survey Kepuasan Pengguna
+  </h2>
+
+  <p className="text-center text-gray-600 max-w-2xl mx-auto mb-10 text-sm sm:text-base">
+    Berdasarkan hasil survey kepuasan pengguna layanan PADURAKSA Tahun 2025.
+  </p>
+
+  {/* GRID TESTIMONI */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    
+    {[1,2,3,4].map((item) => (
+      <div key={item} className="bg-white ">
+        <div className="w-full aspect-[4/3] bg-gray-100 flex items-center justify-center">
+          <img
+            src={`/images/feedback${item}.PNG`}
+            alt={`Testimoni ${item}`}
+            className="max-h-full max-w-full "
+          />
+        </div>
+      </div>
+    ))}
+
+  </div>
+
+  {/* DOWNLOAD LAPORAN */}
+  <div className="text-center">
+    <p className="text-gray-700 mb-4 text-sm sm:text-base">
+      Unduh laporan lengkap hasil survey kepuasan pengguna PADURAKSA Tahun 2025
+    </p>
+
+   <a
+  href="/files/surveykepuasan2025.pdf"
+  download
+  className="group inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 hover:from-yellow-500 hover:to-yellow-600 transition-all duration-300"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15V3" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="m7 10 5 5 5-5" />
+  </svg>
+
+  <span className="tracking-wide">
+    Download Laporan Survey
+  </span>
+</a>
+  </div>
+</div>   
+
+
             <div className="py-12 px-4 sm:px-6 md:px-12 rounded-xl">
                 <h2 className="text-2xl font-bold text-center text-yellow-500 mb-6">
                     F A Q
@@ -370,6 +454,154 @@ export default function HomePageKonten() {
                     </div>
                 ))}
             </div>
+           <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-2
+                   bg-green-500 hover:bg-green-600 text-white
+                   px-4 py-3 rounded-full shadow-lg
+                   transition duration-300"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-6 h-6"
+        >
+          <path d="M12.04 2C6.55 2 2.07 6.48 2.07 11.97c0 1.93.5 3.82 1.45 5.5L2 22l4.67-1.47a9.9 9.9 0 005.37 1.55h.01c5.49 0 9.97-4.48 9.97-9.97C22 6.48 17.53 2 12.04 2zm5.8 14.25c-.24.68-1.18 1.26-1.93 1.41-.51.1-1.18.18-3.41-.73-2.85-1.15-4.7-4-4.84-4.19-.14-.19-1.16-1.55-1.16-2.96 0-1.41.73-2.1.99-2.38.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.42-.07.66.5.24.57.82 2 .89 2.15.07.14.11.31.02.5-.09.19-.14.31-.28.48-.14.17-.3.38-.43.51-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.89 1.05.93 1.94 1.22 2.22 1.36.28.14.45.12.62-.07.17-.19.71-.82.9-1.1.19-.28.38-.24.64-.14.26.1 1.64.77 1.92.91.28.14.47.21.54.33.07.12.07.68-.17 1.36z"/>
+        </svg>
+        <span className="hidden sm:block text-sm font-medium">
+          Helpdesk
+        </span>
+      </button>
+    {open && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    
+    <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative animate-fadeIn">
+      
+      {/* Close */}
+      <button
+        onClick={() => setOpen(false)}
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-lg"
+      >
+        ✕
+      </button>
+
+      {/* Header */}
+      <div className="text-center mb-5">
+        <h2 className="text-lg font-semibold text-gray-800">
+          Hubungi Helpdesk
+        </h2>
+        <p className="text-sm text-gray-500">
+          Pilih admin yang ingin Anda hubungi
+        </p>
+      </div>
+
+      {/* List CS */}
+      <div className="grid grid-cols-2 gap-4">
+        
+        {/* CS Layanan */}
+        <a
+          href="https://wa.me/6285954551272?text=Om%20Swastyastu%20Helpdesk%20Layanan%20PADURAKSA,%20saya%20butuh%20bantuan."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center bg-gray-50 hover:bg-green-50 p-4 rounded-xl transition shadow-sm hover:shadow-md"
+        >
+          <div className="relative">
+            <img
+              src="https://randomuser.me/api/portraits/women/44.jpg"
+              alt="CS Layanan"
+              className="w-14 h-14 rounded-full object-cover mb-2"
+            />
+            <span className="absolute bottom-2 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+          </div>
+
+          <span className="text-sm font-medium text-gray-700">
+            Layanan
+          </span>
+          <span className="text-xs text-gray-400">
+            Dian Suciari
+          </span>
+        </a>
+
+        {/* CS Sistem */}
+        <a
+          href="https://wa.me/6287861000090?text=Om%20Swastyastu%20Helpdesk%20PADURAKSA,%20saya%20butuh%20bantuan."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center bg-gray-50 hover:bg-green-50 p-4 rounded-xl transition shadow-sm hover:shadow-md"
+        >
+          <div className="relative">
+            <img
+              src="https://randomuser.me/api/portraits/men/32.jpg"
+              alt="CS Sistem"
+              className="w-14 h-14 rounded-full object-cover mb-2"
+            />
+            <span className="absolute bottom-2 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+          </div>
+
+          <span className="text-sm font-medium text-gray-700">
+            Sistem
+          </span>
+          <span className="text-xs text-gray-400">
+            Edy Wardana
+          </span>
+        </a>
+
+      </div>
+
+      {/* Footer */}
+      <div className="mt-6 text-center">
+        <p className="text-xs text-gray-400">
+          Jam operasional: 08.00 - 16.00
+        </p>
+      </div>
+
+    </div>
+  </div>
+)}
+{showLiburModal && (
+  <dialog className="modal modal-open backdrop-blur-sm">
+    <div className="modal-box text-center rounded-3xl shadow-xl bg-base-100">
+      
+      {/* Icon */}
+     <div className="text-5xl mb-2">🦥</div>
+
+
+      <h3 className="font-bold text-xl text-error">
+        Layanan Lagi Rehat Dulu
+      </h3>
+
+      <p className="py-4 text-gray-600 leading-relaxed">
+        Pergi ke pasar beli pepaya 🍉  
+        <br />
+        PADURAKSA lagi istirahat sejenak ya~
+        {liburReason && (
+          <>
+            <br />
+            <span className="italic text-sm">
+              (bukan ngambek kok, cuma {liburReason} aja 😌)
+            </span>
+          </>
+        )}
+      </p>
+
+      <p className="text-sm text-gray-500">
+        Tenang… habis rehat kami balik lagi dengan semangat baru ✨
+      </p>
+
+      <div className="modal-action justify-center mt-6">
+        <button
+          className="btn btn-primary rounded-full px-8 shadow-md hover:scale-105 transition"
+          onClick={() => setShowLiburModal(false)}
+        >
+          Okeee 💕
+        </button>
+      </div>
+    </div>
+  </dialog>
+)}
+
+
         </Homepage>
     );
 }

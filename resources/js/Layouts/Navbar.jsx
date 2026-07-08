@@ -16,11 +16,13 @@ export default function Navbar() {
         {/* Menu besar (hanya desktop) */}
         <div className="hidden lg:flex">
           <ul className="menu menu-horizontal px-1 text-sm">
+            
             <li>
               <Link href={route('beranda')} method="get">
                 Beranda
               </Link>
             </li>
+           
             {/* <li>
               <details>
                 <summary>Standar Layanan</summary>
@@ -30,7 +32,18 @@ export default function Navbar() {
                 </ul>
               </details>
             </li> */}
+            <li>
+  <a
+    href="/files/panduanpengguna.pdf"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="font-bold text-yellow-700 hover:text-yellow-600 transition duration-200"
+  >
+    Panduan Pengguna
+  </a>
+</li>
             <li><a href={route('login')}> Login</a></li>
+            
           </ul>
         </div>
 
@@ -52,6 +65,9 @@ export default function Navbar() {
             className="menu menu-sm dropdown-content mt-3 z-[999] p-2 shadow bg-base-100 rounded-box w-52 text-sm"
           >
             <li><a href={route('beranda')} method="get">Beranda</a></li>
+            <a href="/files/panduanpengguna.pdf" target="_blank">
+  Panduan Pengguna
+</a>
             <li>
               <details>
                 <summary>Standar Layanan</summary>

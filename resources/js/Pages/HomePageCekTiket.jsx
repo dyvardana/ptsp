@@ -1,8 +1,9 @@
 import Homepage from "@/Layouts/Homepage";
 
 import { useState } from "react";
-import { Inertia } from "@inertiajs/inertia";
+import { Inertia, router } from "@inertiajs/inertia";
 import React from "react";
+import axios from 'axios';
 import {
     Clock,
     CheckCircle,
@@ -30,18 +31,31 @@ export default function HomePageCekTiket({ data, tindak_lanjut, feedback }) {
         }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        Inertia.post("/feedback", {
+    try {
+        const response = await axios.post('/feedback', {
             id_permohonan_layanan: data.id_permohonan_layanan,
             no_tiket: data.no_tiket,
             kecepatan: ratings.kecepatan,
             kesesuaian: ratings.kesesuaian,
             kemudahan: ratings.kemudahan,
-            saran: saran,
+            saran: saran
+        }, {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
         });
-    };
+
+        // Redirect ke URL yang dikirim Laravel
+        window.location.href = response.data.redirect;
+
+    } catch (error) {
+        console.error('Terjadi kesalahan:', error.response?.data || error.message);
+    }
+};
+
    const [showModal, setShowModal] = useState(false);
 
 const handleDownload = () => {
@@ -284,10 +298,21 @@ const handleDownload = () => {
                         <>
                             {/* ✅ Rating Section - Minimalis */}
                             <form onSubmit={handleSubmit} className="space-y-3">
-                                <h2 className="text-base font-semibold">
-                                    Feedback
-                                </h2>
+                              <div className="mb-5">
+    <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        Feedback
+    </h2>
 
+    <div className="w-16 h-1 bg-yellow-400 rounded-full mt-2 mb-3"></div>
+
+    <p className="text-sm text-gray-600 leading-relaxed">
+        Mohon berikan penilaian Anda terhadap kualitas layanan kami.
+    </p>
+
+    <p className="mt-2 text-sm text-yellow-600 font-semibold">
+        ⭐ (Sangat Buruk) — ⭐⭐⭐⭐⭐ (Sangat Baik)
+    </p>
+</div>
                                 {[
                                     { label: "Kecepatan", name: "kecepatan" },
                                     { label: "Kesesuaian", name: "kesesuaian" },
@@ -306,7 +331,7 @@ const handleDownload = () => {
                                                     key={star}
                                                     type="radio"
                                                     name={item.name}
-                                                    className="mask mask-star-2 bg-orange-400"
+                                                    className="mask mask-star-5 bg-orange-400"
                                                     aria-label={`${star} star`}
                                                     checked={
                                                         ratings[item.name] ===
@@ -345,10 +370,21 @@ const handleDownload = () => {
                         </>
                     ) : data.status === "selesai" && feedback ? (
                         <>
-                            <h2 className="text-base font-semibold">
-                                Feedback
-                            </h2>
+                         <div className="mb-5">
+    <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        Feedback
+    </h2>
 
+    <div className="w-16 h-1 bg-yellow-400 rounded-full mt-2 mb-3"></div>
+
+    <p className="text-sm text-gray-600 leading-relaxed">
+       Terima kasih atas feedback Anda! Berikut adalah penilaian yang Anda berikan:
+    </p>
+
+    <p className="mt-2 text-sm text-yellow-600 font-semibold">
+        ⭐ (Sangat Buruk) — ⭐⭐⭐⭐⭐ (Sangat Baik)
+    </p>
+</div>
                             {[
                                 {
                                     label: "Kecepatan",

@@ -1,6 +1,7 @@
 import { Inertia } from "@inertiajs/inertia";
 import { useState, useMemo } from "react";
 import { router, usePage } from "@inertiajs/react";
+import { FaFileAlt, FaUser, FaCheckCircle, FaDownload, FaTimes } from "react-icons/fa";
 
 import {
     Clock,
@@ -31,6 +32,10 @@ export default function TableLayananStaff({ data }) {
     const [mahasiswaDetail, setMahasiswaDetail] = useState(null);
     const [loadingMahasiswa, setLoadingMahasiswa] = useState(false);
     const [showMahasiswaModal, setShowMahasiswaModal] = useState(false);
+ //modal syrat layanan
+    const [modalSyarat, setModalSyarat] = useState(false);
+    const [syaratLayanan, setSyaratLayanan] = useState([]);
+
 
     const user = usePage().props.auth.user;
 
@@ -74,6 +79,20 @@ export default function TableLayananStaff({ data }) {
         closeModal();
     };
 
+       //fungsi untuk cek syarat layanan
+       const handleSyaratLayanan = (id_layanan) => {
+        axios
+          .get(`/syaratLayanan/${id_layanan}`)
+          .then((response) => {
+            const data = response.data;
+            setSyaratLayanan(data);
+            setModalSyarat(true);
+          })
+          .catch((error) => {
+            console.error("Error fetching syarat layanan:", error);
+            alert("Gagal mengambil syarat layanan.");
+          });
+      };
     const handleTerima = () => {
         closeModal();
     };
@@ -118,6 +137,36 @@ export default function TableLayananStaff({ data }) {
         console.error("Error unduh tindak lanjut:", error);
     }
 };
+const getPaginationPages = () => {
+    const pages = [];
+    const delta = 1;
+
+    if (totalPages <= 5) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    pages.push(1);
+
+    if (page > 3) {
+        pages.push("...");
+    }
+
+    for (
+        let i = Math.max(2, page - delta);
+        i <= Math.min(totalPages - 1, page + delta);
+        i++
+    ) {
+        pages.push(i);
+    }
+
+    if (page < totalPages - 2) {
+        pages.push("...");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+};
 
 
 
@@ -158,7 +207,8 @@ export default function TableLayananStaff({ data }) {
                         <tbody>
                             {paginatedData.map((item, index) => (
                                 
-                                <tr key={item.id}>
+                               <tr key={`row-${page}-${item.id}`}>
+
                                     <td>{(page - 1) * itemsPerPage + index + 1}</td>
                                     <td>{item.no_tiket}</td>
                                     <td className="hidden md:table-cell">{item.nama_pemohon}</td>
@@ -220,28 +270,56 @@ export default function TableLayananStaff({ data }) {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex justify-between items-center mt-4">
-                    <div className="text-sm">
-                        Menampilkan {(page - 1) * itemsPerPage + 1} - {Math.min(page * itemsPerPage, filteredData.length)} dari {filteredData.length}
-                    </div>
-                    <div className="join">
-                        <button className="join-item btn btn-sm" disabled={page === 1} onClick={() => setPage((p) => Math.max(p - 1, 1))}>
-                            «
-                        </button>
-                        {Array.from({ length: totalPages }, (_, i) => (
-                            <button
-                                key={i}
-                                className={`join-item btn btn-sm ${page === i + 1 ? "btn-active" : ""}`}
-                                onClick={() => setPage(i + 1)}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-                        <button className="join-item btn btn-sm" disabled={page === totalPages} onClick={() => setPage((p) => Math.min(p + 1, totalPages))}>
-                            »
-                        </button>
-                    </div>
-                </div>
+               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mt-4">
+
+    {/* INFO DATA */}
+    <div className="text-sm text-gray-600">
+        Menampilkan {paginatedData.length} dari {filteredData.length} data
+    </div>
+
+    {/* PAGINATION */}
+    <div className="join">
+        <button
+            className="join-item btn btn-sm"
+            disabled={page === 1}
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+        >
+            «
+        </button>
+
+        {getPaginationPages().map((p, i) =>
+            p === "..." ? (
+                <button
+                    key={`ellipsis-${i}`}
+                    className="join-item btn btn-sm btn-disabled"
+                >
+                    ...
+                </button>
+            ) : (
+                <button
+                    key={p}
+                    className={`join-item btn btn-sm ${
+                        page === p ? "btn-active" : ""
+                    }`}
+                    onClick={() => setPage(p)}
+                >
+                    {p}
+                </button>
+            )
+        )}
+
+        <button
+            className="join-item btn btn-sm"
+            disabled={page === totalPages}
+            onClick={() =>
+                setPage((p) => Math.min(p + 1, totalPages))
+            }
+        >
+            »
+        </button>
+    </div>
+</div>
+
             </div>
 
             {/* MODAL DETAIL PENGAJUAN */}
@@ -302,40 +380,58 @@ export default function TableLayananStaff({ data }) {
                                 
                            
 
-                            <div className="mt-6 flex flex-col md:flex-row justify-end gap-2">
-                                {selectedItem.status === "diproses" ? (
-                                    <>
-                                    <button
-                                    className="btn btn-xs btn-info"
-                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
-                                >
-                                    Detail Mahasiswa
-                                </button>
-                                        <button
-                                            className="btn btn-xs btn-success"
-                                            onClick={() => {
-                                                setShowModal(false);
-                                                setShowUploadModal(true);
-                                            }}
-                                        >
-                                            Tindak Lanjut
-                                        </button>
-                                        <button className="btn btn-xs" onClick={closeModal}>Tutup</button>
-                                    </>
-                                ) : (
-                                    <>
-                                    <button
-                                    className="btn btn-xs btn-info"
-                                    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
-                                >
-                                    Detail Mahasiswa
-                                </button>
-                              
-                                        <button className="btn btn-xs btn-success" onClick={()=> ambilTindakLanjut(selectedItem.id)}>Unduh Tindak Lanjut</button>
-                                        <button className="btn btn-xs" onClick={closeModal}>Tutup</button>
-                                    </>
-                                )}
-                            </div>
+                            <div className="mt-6 flex flex-wrap justify-end gap-3">
+  
+  {/* Syarat Layanan */}
+  <button
+    onClick={() => handleSyaratLayanan(selectedItem.id_layanan)}
+    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition"
+  >
+    <FaFileAlt /> Syarat
+  </button>
+
+  {/* Detail Mahasiswa */}
+  <button
+    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
+    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition"
+  >
+    <FaUser /> Mahasiswa
+  </button>
+
+  {selectedItem.status === "diproses" ? (
+    <>
+      {/* Tindak Lanjut */}
+      <button
+        onClick={() => {
+          setShowModal(false);
+          setShowUploadModal(true);
+        }}
+        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition"
+      >
+        <FaCheckCircle /> Tindak Lanjut
+      </button>
+    </>
+  ) : (
+    <>
+      {/* Unduh */}
+      <button
+        onClick={() => ambilTindakLanjut(selectedItem.id)}
+        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-lg transition"
+      >
+        <FaDownload /> Unduh
+      </button>
+    </>
+  )}
+
+  {/* Tutup */}
+  <button
+    onClick={closeModal}
+    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition"
+  >
+    <FaTimes /> Tutup
+  </button>
+
+</div>
                         </div>
                     </div>
                 </div>
@@ -425,6 +521,53 @@ export default function TableLayananStaff({ data }) {
                     </div>
                 </div>
             )}
+             {/* MODAL SYARAT LAYANAN */}
+{modalSyarat && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    
+    <div className="bg-white w-full max-w-sm rounded-xl shadow-md p-4 relative">
+      
+      {/* Tombol close (X) */}
+      <button
+        onClick={() => setModalSyarat(false)}
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-lg"
+      >
+        ✕
+      </button>
+
+      {/* Header */}
+      <h2 className="text-base font-semibold text-gray-800 mb-3">
+        Syarat Layanan
+      </h2>
+
+      {/* Content */}
+      <div className="max-h-48 overflow-y-auto text-sm text-gray-600">
+        {syaratLayanan.length > 0 ? (
+          <ul className="list-disc pl-4 space-y-1">
+            {syaratLayanan.map((item, index) => (
+              <li key={index}>{item.persyaratan}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-400">
+            Tidak ada syarat khusus.
+          </p>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-4">
+        <button
+          onClick={() => setModalSyarat(false)}
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm py-2 rounded-lg transition"
+        >
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
         </div>
     );
 }
