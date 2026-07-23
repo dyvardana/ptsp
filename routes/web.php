@@ -45,7 +45,7 @@ Route::post('/tindak.lanjut_staff', [StaffController::class, 'TindakLanjutStaff'
 Route::post('/cekTindakLanjut', [PermohoanLayananController::class, 'cekTindakLanjut'])->name('cekTindakLanjut');
  Route::get('/syaratLayanan/{id}', [PermohoanLayananController::class, 'syaratLayanan'])->name('syaratLayanan');
 Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
-    Route::post('/tolak', [PermohoanLayananController::class, 'tolak'])->name('tolak');
+  
     Route::post('/terima', [PermohoanLayananController::class, 'terima'])->name('terima');
 });
 
@@ -60,6 +60,7 @@ Route::get('/lampiran/download/{filename}', [FileController::class, 'download'])
 | Dashboard Routes
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
     Route::get('/dashboard', [PermohoanLayananController::class, 'index'])->name('dashboard');
     Route::get('/permohonanList', [PermohoanLayananController::class, 'list'])->name('permohonanList');
@@ -77,6 +78,7 @@ Route::middleware(['auth', 'verified', 'role:ptsp'])->group(function () {
 
 Route::middleware(['auth', 'role:staff'])->group(function () {
     Route::get('/dashboard_staff', [StaffController::class, 'index'])->name('dashboard_staff');
+    
     Route::post('unduh_tindak_lanjut_staff', [StaffController::class, 'unduhTindakLanjutStaff'])->name('unduh_tindak_lanjut_staff');
 });
 
@@ -85,7 +87,10 @@ Route::middleware(['auth', 'role:supervisi'])->group(function () {
     Route::get('/supervisi_layanan/{kategori}', [SupervisiController::class, 'layanan'])->name('SupervisiLayanan');
    
 });
-
+// /tolak sekarang bisa diakses oleh role ptsp maupun staff
+Route::middleware(['auth', 'role:ptsp,staff'])
+    ->post('/tolak', [PermohoanLayananController::class, 'tolak'])
+    ->name('tolak');
 /*
 |--------------------------------------------------------------------------
 | Profile Routes

@@ -4,15 +4,15 @@ import { usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import {
-  FaFileAlt,
-  FaUser,
-  FaTimes,
-  FaTimesCircle,
-  FaPaperPlane,
-  FaExchangeAlt,
-  FaWhatsapp,
-  FaCheckCircle,
-  FaEye
+    FaFileAlt,
+    FaUser,
+    FaTimes,
+    FaTimesCircle,
+    FaPaperPlane,
+    FaExchangeAlt,
+    FaWhatsapp,
+    FaCheckCircle,
+    FaEye,
 } from "react-icons/fa";
 
 import {
@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 export default function TablePermohonanLayanan({ data, staff }) {
     const [dummyData, setDummyData] = useState(data);
-   
+
     // update state kalau props.data berubah
     useEffect(() => {
         setDummyData(data);
@@ -68,7 +68,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
     const [mahasiswaDetail, setMahasiswaDetail] = useState(null);
     const [loadingMahasiswa, setLoadingMahasiswa] = useState(false);
     const [showMahasiswaModal, setShowMahasiswaModal] = useState(false);
-    const[berkasTL,setBerkasTL]=useState(null);
+    const [berkasTL, setBerkasTL] = useState(null);
 
     //modal syrat layanan
     const [modalSyarat, setModalSyarat] = useState(false);
@@ -94,7 +94,6 @@ export default function TablePermohonanLayanan({ data, staff }) {
     const openModal = (item) => {
         setSelectedItem(item);
         setShowModal(true);
-        
     };
 
     const closeModal = () => {
@@ -172,19 +171,19 @@ export default function TablePermohonanLayanan({ data, staff }) {
         });
     };
     //fungsi untuk cek syarat layanan
-   const handleSyaratLayanan = (id_layanan) => {
-    axios
-      .get(`/syaratLayanan/${id_layanan}`)
-      .then((response) => {
-        const data = response.data;
-        setSyaratLayanan(data);
-        setModalSyarat(true);
-      })
-      .catch((error) => {
-        console.error("Error fetching syarat layanan:", error);
-        alert("Gagal mengambil syarat layanan.");
-      });
-  };
+    const handleSyaratLayanan = (id_layanan) => {
+        axios
+            .get(`/syaratLayanan/${id_layanan}`)
+            .then((response) => {
+                const data = response.data;
+                setSyaratLayanan(data);
+                setModalSyarat(true);
+            })
+            .catch((error) => {
+                console.error("Error fetching syarat layanan:", error);
+                alert("Gagal mengambil syarat layanan.");
+            });
+    };
 
     const fetchMahasiswaDetail = async (nipd) => {
         setLoadingMahasiswa(true);
@@ -208,7 +207,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
         }
     };
     // Fungsi Lihat Tindak Lanjut
-    
+
     const handleLihatTindakLanjut = async (id_kirim) => {
         try {
             const response = await axios.post("/cekTindakLanjut", {
@@ -226,7 +225,7 @@ export default function TablePermohonanLayanan({ data, staff }) {
             console.error("Gagal mengambil data:", error);
         }
     };
-    
+
     const getPaginationPages = () => {
         const pages = [];
         const delta = 1;
@@ -598,132 +597,142 @@ export default function TablePermohonanLayanan({ data, staff }) {
                             </ul>
 
                             {/* Tombol Aksi */}
-                          <div className="mt-6 flex flex-wrap justify-end gap-3">
+                            <div className="mt-6 flex flex-wrap justify-end gap-3">
+                                {/* Syarat */}
+                                <button
+                                    onClick={() =>
+                                        handleSyaratLayanan(
+                                            selectedItem.id_layanan,
+                                        )
+                                    }
+                                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition transform hover:scale-105"
+                                >
+                                    <FaFileAlt /> Syarat
+                                </button>
 
-  {/* Syarat */}
-  <button
-    onClick={() => handleSyaratLayanan(selectedItem.id_layanan)}
-    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition transform hover:scale-105"
-  >
-    <FaFileAlt /> Syarat
-  </button>
+                                {/* Mahasiswa */}
+                                <button
+                                    onClick={() =>
+                                        fetchMahasiswaDetail(
+                                            selectedItem.identitas_pengguna,
+                                        )
+                                    }
+                                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition transform hover:scale-105"
+                                >
+                                    <FaUser /> Mahasiswa
+                                </button>
 
-  {/* Mahasiswa */}
-  <button
-    onClick={() => fetchMahasiswaDetail(selectedItem.identitas_pengguna)}
-    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition transform hover:scale-105"
-  >
-    <FaUser /> Mahasiswa
-  </button>
+                                {/* ===== KONDISI ===== */}
 
-  {/* ===== KONDISI ===== */}
+                                {selectedItem.status === "diterima" && (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setShowTolakModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaTimesCircle /> Tolak
+                                        </button>
 
-  {selectedItem.status === "diterima" && (
-    <>
-      <button
-        onClick={() => {
-          setShowModal(false);
-          setShowTolakModal(true);
-        }}
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition transform hover:scale-105"
-      >
-        <FaTimesCircle /> Tolak
-      </button>
+                                        <button
+                                            onClick={() =>
+                                                setShowKirimModal(true)
+                                            }
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaPaperPlane /> Teruskan
+                                        </button>
+                                    </>
+                                )}
 
-      <button
-        onClick={() => setShowKirimModal(true)}
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
-      >
-        <FaPaperPlane /> Teruskan
-      </button>
-    </>
-  )}
+                                {selectedItem.status === "diproses" && (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setShowTolakModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaTimesCircle /> Tolak
+                                        </button>
 
-  {selectedItem.status === "diproses" && (
-    <>
-      <button
-        onClick={() => {
-          setShowModal(false);
-          setShowTolakModal(true);
-        }}
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition transform hover:scale-105"
-      >
-        <FaTimesCircle /> Tolak
-      </button>
+                                        <button
+                                            onClick={() =>
+                                                setShowKirimModal(true)
+                                            }
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaExchangeAlt /> Ubah
+                                        </button>
 
-      <button
-        onClick={() => setShowKirimModal(true)}
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-lg transition transform hover:scale-105"
-      >
-        <FaExchangeAlt /> Ubah
-      </button>
+                                        <button
+                                            onClick={() =>
+                                                window.open(
+                                                    `https://wa.me/${noHpTindakLanjut}?text=` +
+                                                        encodeURIComponent(
+                                                            `Halo, ${namaTindakLanjut} Anda telah ditugaskan untuk menindaklanjuti layanan ${selectedItem.nama_layanan} dengan No Tiket : *${selectedItem.no_tiket}*. Demi memperlancar layanan silakan tindaklanjuti pada aplikasi web Paduraksa melalui link https://paduraksa.mpukuturan.ac.id.`,
+                                                        ),
+                                                    "_blank",
+                                                )
+                                            }
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaWhatsapp /> WA
+                                        </button>
+                                    </>
+                                )}
 
-      <button
-        onClick={() =>
-          window.open(
-            `https://wa.me/${noHpTindakLanjut}?text=` +
-              encodeURIComponent(
-                `Halo, ${namaTindakLanjut} Anda telah ditugaskan untuk menindaklanjuti layanan ${selectedItem.nama_layanan} dengan No Tiket : *${selectedItem.no_tiket}*. Demi memperlancar layanan silakan tindaklanjuti pada aplikasi web Paduraksa melalui link https://paduraksa.mpukuturan.ac.id.`
-              ),
-            "_blank"
-          )
-        }
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
-      >
-        <FaWhatsapp /> WA
-      </button>
-    </>
-  )}
+                                {selectedItem.status === "selesai" && (
+                                    <a
+                                        href={`/storage/${berkasTL}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
+                                    >
+                                        <FaEye /> Lihat TL
+                                    </a>
+                                )}
 
-  {selectedItem.status === "selesai" && (
-    <a
-      href={`/storage/${berkasTL}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
-    >
-      <FaEye /> Lihat TL
-    </a>
-  )}
+                                {selectedItem.status === "menunggu" && (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                setShowTolakModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaTimesCircle /> Tolak
+                                        </button>
 
-  {selectedItem.status === "menunggu" && (
-    <>
-      <button
-        onClick={() => {
-          setShowModal(false);
-          setShowTolakModal(true);
-        }}
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition transform hover:scale-105"
-      >
-        <FaTimesCircle /> Tolak
-      </button>
+                                        <button
+                                            onClick={() => {
+                                                closeModal();
+                                                handleTerima();
+                                            }}
+                                            className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
+                                        >
+                                            <FaCheckCircle /> Terima
+                                        </button>
+                                    </>
+                                )}
 
-      <button
-        onClick={() => {
-          closeModal();
-          handleTerima();
-        }}
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition transform hover:scale-105"
-      >
-        <FaCheckCircle /> Terima
-      </button>
-    </>
-  )}
-
-  {/* Tutup */}
-  <button
-    onClick={() => {
-      closeModal();
-      setIdTolak("");
-      setEmail("");
-      setNoTiket("");
-    }}
-    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition transform hover:scale-105"
-  >
-    <FaTimes /> Tutup
-  </button>
-
-</div>
+                                {/* Tutup */}
+                                <button
+                                    onClick={() => {
+                                        closeModal();
+                                        setIdTolak("");
+                                        setEmail("");
+                                        setNoTiket("");
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition transform hover:scale-105"
+                                >
+                                    <FaTimes /> Tutup
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -871,53 +880,50 @@ export default function TablePermohonanLayanan({ data, staff }) {
                     </div>
                 </div>
             )}
-          {/* MODAL SYARAT LAYANAN */}
-{modalSyarat && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-    
-    <div className="bg-white w-full max-w-sm rounded-xl shadow-md p-4 relative">
-      
-      {/* Tombol close (X) */}
-      <button
-        onClick={() => setModalSyarat(false)}
-        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-lg"
-      >
-        ✕
-      </button>
+            {/* MODAL SYARAT LAYANAN */}
+            {modalSyarat && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-sm rounded-xl shadow-md p-4 relative">
+                        {/* Tombol close (X) */}
+                        <button
+                            onClick={() => setModalSyarat(false)}
+                            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-lg"
+                        >
+                            ✕
+                        </button>
 
-      {/* Header */}
-      <h2 className="text-base font-semibold text-gray-800 mb-3">
-        Syarat Layanan
-      </h2>
+                        {/* Header */}
+                        <h2 className="text-base font-semibold text-gray-800 mb-3">
+                            Syarat Layanan
+                        </h2>
 
-      {/* Content */}
-      <div className="max-h-48 overflow-y-auto text-sm text-gray-600">
-        {syaratLayanan.length > 0 ? (
-          <ul className="list-disc pl-4 space-y-1">
-            {syaratLayanan.map((item, index) => (
-              <li key={index}>{item.persyaratan}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-400">
-            Tidak ada syarat khusus.
-          </p>
-        )}
-      </div>
+                        {/* Content */}
+                        <div className="max-h-48 overflow-y-auto text-sm text-gray-600">
+                            {syaratLayanan.length > 0 ? (
+                                <ul className="list-disc pl-4 space-y-1">
+                                    {syaratLayanan.map((item, index) => (
+                                        <li key={index}>{item.persyaratan}</li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-gray-400">
+                                    Tidak ada syarat khusus.
+                                </p>
+                            )}
+                        </div>
 
-      {/* Footer */}
-      <div className="mt-4">
-        <button
-          onClick={() => setModalSyarat(false)}
-          className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm py-2 rounded-lg transition"
-        >
-          Tutup
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
+                        {/* Footer */}
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setModalSyarat(false)}
+                                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-sm py-2 rounded-lg transition"
+                            >
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
